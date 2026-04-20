@@ -1,13 +1,13 @@
-# 🚀 Contributing to py-pglite
+# 🚀 Contributing to pglite-pydb
 
-**Welcome!** We built py-pglite with a **Vite-style development experience** - instant setup, fast feedback, and easy maintenance.
+**Welcome!** We built pglite-pydb with a **Vite-style development experience** - instant setup, fast feedback, and easy maintenance.
 
 ## ⚡ **Quick Start** (30 seconds)
 
 ```bash
 # Clone and setup
-git clone https://github.com/wey-gu/py-pglite.git
-cd py-pglite
+git clone https://github.com/olamni-research/pglite-pydb.git
+cd pglite-pydb
 
 # Install dependencies with uv
 uv sync
@@ -51,7 +51,7 @@ make status      # Show project status
 
 ### **📦 Package Manager: uv**
 
-py-pglite has unified around [uv](https://github.com/astral-sh/uv) as the package manager:
+pglite-pydb has unified around [uv](https://github.com/astral-sh/uv) as the package manager:
 
 ```bash
 # All commands use uv by default
@@ -81,7 +81,7 @@ This ensures all code quality checks run automatically before each commit.
 
 ```bash
 # Make your changes
-vim py_pglite/manager.py
+vim pglite_pydb/manager.py
 
 # Quick validation
 make quick              # ~10s: linting + imports
@@ -112,8 +112,8 @@ make fmt                # Auto-fix formatting
 ## 📁 **Project Structure**
 
 ```bash
-py-pglite/
-├── py_pglite/                    # 📦 Core package
+pglite-pydb/
+├── pglite_pydb/                    # 📦 Core package
 │   ├── __init__.py              #    Public API
 │   ├── manager.py               #    Framework-agnostic PGlite management
 │   ├── config.py                #    Robust configuration system
@@ -235,8 +235,8 @@ make lint               # Uses uv run pre-commit run --all-files
 make fmt                # Uses uv run ruff format
 
 # Manual commands (if needed)
-uv run ruff check py_pglite/   # Manual check
-uv run ruff format py_pglite/  # Manual format
+uv run ruff check pglite_pydb/   # Manual check
+uv run ruff format pglite_pydb/  # Manual format
 ```
 
 **Pre-commit Hooks:**
@@ -262,7 +262,7 @@ Our pre-commit configuration (`.pre-commit-config.yaml`) includes:
 
 ```bash
 # Edit core
-vim py_pglite/manager.py
+vim pglite_pydb/manager.py
 
 # Test core
 uv run pytest tests/test_core_manager.py -v
@@ -275,7 +275,7 @@ make dev
 
 ```bash
 # Edit integration
-vim py_pglite/sqlalchemy/fixtures.py
+vim pglite_pydb/sqlalchemy/fixtures.py
 
 # Test integration
 uv run pytest examples/testing-patterns/sqlalchemy/ -v
@@ -299,13 +299,13 @@ uv run python examples/quickstart/demo_instant.py
 
 ### 4. PostgreSQL Extensions
 
-`py-pglite` supports a growing number of PostgreSQL extensions.
+`pglite-pydb` supports a growing number of PostgreSQL extensions.
 
 **1. Register the Extension:**
-Add the extension's details to `py_pglite/extensions.py`.
+Add the extension's details to `pglite_pydb/extensions.py`.
 
 ```python
-# py_pglite/extensions.py
+# pglite_pydb/extensions.py
 SUPPORTED_EXTENSIONS = {
     "pgvector": {"module": "@electric-sql/pglite/vector", "name": "vector"},
     "new_extension": {"module": "npm-package-name", "name": "js_export_name"},
@@ -393,10 +393,10 @@ def new_feature(param: str) -> bool:
 
 ```python
 # ✅ Good - no framework dependencies
-from py_pglite import PGliteManager
+from pglite_pydb import PGliteManager
 
 # ❌ Bad - framework-specific in core
-from py_pglite.sqlalchemy import SomeHelper
+from pglite_pydb.sqlalchemy import SomeHelper
 ```
 
 ### **2. Optional Dependencies**
@@ -451,7 +451,7 @@ def test_django_backend_ready(db):
 
 **Cause:** PGlite's socket server handles one connection at a time. Multiple SQLAlchemy engines caused connection conflicts.
 
-**Solution:** py-pglite now uses a shared engine architecture automatically. All `get_engine()` calls return the same instance, preventing timeouts.
+**Solution:** pglite-pydb now uses a shared engine architecture automatically. All `get_engine()` calls return the same instance, preventing timeouts.
 
 ```python
 # This now works perfectly - no timeouts!
@@ -468,7 +468,7 @@ SQLModel.metadata.create_all(engine)  # ✅ Works
 
 ### **Framework Isolation (Enhanced in v0.3.0+)**
 
-**Validation:** py-pglite now has comprehensive framework isolation testing:
+**Validation:** pglite-pydb now has comprehensive framework isolation testing:
 
 ```bash
 # These work perfectly without interference
@@ -516,7 +516,7 @@ CI automatically:
 
 ## 🔄 **GitHub Actions**
 
-py-pglite provides a reusable GitHub Action to standardize the setup of Python, Node.js, and uv in workflows.
+pglite-pydb provides a reusable GitHub Action to standardize the setup of Python, Node.js, and uv in workflows.
 
 ### **Setup Environment Action**
 
@@ -569,7 +569,7 @@ A test workflow is available at `.github/workflows/test-setup-action.yml` that d
 
 - 🐛 **GitHub Issues** - Bug reports, feature requests
 - 💬 **Discussions** - Questions, ideas, feedback
-- 📧 **Direct contact** - <maintainer@py-pglite.com>
+- 📧 **Direct contact** - <maintainer@pglite-pydb.com>
 
 ### **Contributing**
 
@@ -580,6 +580,6 @@ A test workflow is available at `.github/workflows/test-setup-action.yml` that d
 
 ---
 
-**Thank you for contributing to py-pglite!**
+**Thank you for contributing to pglite-pydb!**
 
 Together we're building the **Vite of database testing** - instant, powerful, and delightful to use. 🚀

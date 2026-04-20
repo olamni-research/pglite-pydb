@@ -1,6 +1,6 @@
-# 🧪 py-pglite Test Suite
+# 🧪 pglite-pydb Test Suite
 
-Comprehensive test coverage for py-pglite ensuring reliability, performance, and framework isolation.
+Comprehensive test coverage for pglite-pydb ensuring reliability, performance, and framework isolation.
 
 ## 📊 Test Organization
 
@@ -139,7 +139,7 @@ Our test suite aims for comprehensive coverage across these dimensions:
 pytest tests/ -v
 
 # With coverage report
-pytest tests/ --cov=py_pglite --cov-report=html
+pytest tests/ --cov=pglite_pydb --cov-report=html
 ```
 
 ### **Run by Category**
@@ -310,4 +310,4 @@ pytest tests/test_core_manager.py::TestPGliteConfig::test_default_config -v -s
 - [ ] Performance impact is minimal
 - [ ] Documentation is updated
 
-**Our comprehensive test suite ensures py-pglite is reliable, performant, and truly framework-agnostic! 🚀**
+**Our comprehensive test suite ensures pglite-pydb is reliable, performant, and truly framework-agnostic! 🚀**

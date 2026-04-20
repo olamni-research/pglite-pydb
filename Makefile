@@ -1,4 +1,4 @@
-# 🚀 py-pglite Development Commands
+# 🚀 pglite-pydb Development Commands
 # ================================
 #
 # Vite-style convenience commands for development
@@ -10,7 +10,7 @@ PYTHON_CMD := uv run python
 
 # Default target
 help:
-	@echo "🚀 py-pglite Development Commands"
+	@echo "🚀 pglite-pydb Development Commands"
 	@echo "================================"
 	@echo ""
 	@echo "Core Commands:"
@@ -51,8 +51,8 @@ lint:
 # Quick checks for development
 quick: | install lint
 	@echo "⚡ Running quick development checks..."
-	$(PYTHON_CMD) -c "import py_pglite"
-	$(PYTHON_CMD) -c "from py_pglite import PGliteManager, PGliteConfig"
+	$(PYTHON_CMD) -c "import pglite_pydb"
+	$(PYTHON_CMD) -c "from pglite_pydb import PGliteManager, PGliteConfig"
 	$(PYTHON_CMD) -c "print('✅ All imports working')"
 
 # Install in development mode
@@ -85,4 +85,4 @@ status:
 	@echo "================"
 	@echo "Python version: $(shell $(PYTHON_CMD) --version)"
 	@echo "Quick test:"
-	@$(PYTHON_CMD) -c "import py_pglite; print(f'py-pglite {py_pglite.__version__} ready!')" 2>/dev/null || echo "py-pglite not installed in dev mode"
+	@$(PYTHON_CMD) -c "import pglite_pydb; print(f'pglite-pydb {pglite_pydb.__version__} ready!')" 2>/dev/null || echo "pglite-pydb not installed in dev mode"

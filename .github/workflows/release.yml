@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/project/py-pglite/
+      url: https://pypi.org/project/pglite-pydb/
     permissions:
       id-token: write
     if: startsWith(github.ref, 'refs/tags/')
