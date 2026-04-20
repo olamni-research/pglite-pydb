@@ -1,0 +1,7 @@
+* text=auto
+
+# The vendored pg_dump + its SHA-256 sidecar must stay byte-identical
+# across platforms so the checksum check survives a Windows checkout
+# with core.autocrlf=true.
+examples/windows_sample_db/data/sample_db.sql         binary
+examples/windows_sample_db/data/sample_db.sql.sha256  text eol=lf
