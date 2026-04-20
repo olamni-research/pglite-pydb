@@ -163,6 +163,102 @@ def task_clean(argv: list[str]) -> int:
     return 0
 
 
+def task_verify_linux(argv: list[str]) -> int:
+    """Run the Linux verification suite in a Docker container.
+
+    Builds (or reuses) the ``pglite-pydb:verify`` image defined in
+    ``docker/Dockerfile.verify`` and runs the full pytest suite inside
+    a Linux container with Python 3.12 + Node 22 LTS. Lets Windows
+    contributors exercise the SC-002 Linux-regression contract and
+    example smoke tests (T023, T024) without a separate Linux host.
+
+    Pass ``--node 20`` to rebuild against the Node 20 LTS smoke cell.
+    Pass ``--build`` to force a rebuild.
+    Anything else in argv is forwarded to pytest inside the container.
+    """
+    # Separate our own flags from pytest passthrough args.
+    node_major = "22"
+    force_build = False
+    pytest_argv: list[str] = []
+    it = iter(argv)
+    for tok in it:
+        if tok == "--node":
+            node_major = next(it, "22")
+        elif tok == "--build":
+            force_build = True
+        else:
+            pytest_argv.append(tok)
+
+    image_tag = f"pglite-pydb:verify-node{node_major}"
+    dockerfile = REPO_ROOT / "docker" / "Dockerfile.verify"
+    if not dockerfile.exists():
+        print(f"ERROR: {dockerfile} not found", file=sys.stderr)
+        return 1
+
+    # Check docker availability up-front so the error message is clear.
+    if shutil.which("docker") is None:
+        print(
+            "ERROR: docker is not on PATH; install Docker Desktop / "
+            "Docker Engine to use verify-linux.",
+            file=sys.stderr,
+        )
+        return 1
+
+    # Check whether the image already exists; build if missing or forced.
+    inspect_rc = subprocess.run(
+        ["docker", "image", "inspect", image_tag],
+        capture_output=True,
+        check=False,
+    ).returncode
+    if inspect_rc != 0 or force_build:
+        print(f"Building {image_tag} (Node {node_major})...", flush=True)
+        rc = _run(
+            [
+                "docker", "build",
+                "-f", str(dockerfile),
+                "--build-arg", f"NODE_MAJOR={node_major}",
+                "-t", image_tag,
+                str(REPO_ROOT),
+            ]
+        )
+        if rc != 0:
+            return rc
+
+    # Run. Mount the repo read-write so `uv sync` can populate .venv-docker
+    # (or similar) without polluting the host venv.
+    print(f"Running Linux verification in {image_tag}...", flush=True)
+    if pytest_argv:
+        cmd_in_container = (
+            "uv sync --all-extras && "
+            "uv run pytest " + " ".join(_shquote(a) for a in pytest_argv)
+        )
+    else:
+        cmd_in_container = (
+            "uv sync --all-extras && "
+            "uv run pytest tests/ -q --tb=short"
+        )
+
+    return _run(
+        [
+            "docker", "run", "--rm",
+            # Use a different venv path inside the container so it doesn't
+            # clash with the host Windows .venv.
+            "-e", "UV_PROJECT_ENVIRONMENT=/tmp/.venv-docker",
+            "-v", f"{REPO_ROOT}:/src",
+            "-w", "/src",
+            image_tag,
+            "bash", "-lc", cmd_in_container,
+        ]
+    )
+
+
+def _shquote(s: str) -> str:
+    """Minimal shell-safe quoting for container-side command assembly."""
+    if not s or any(c in s for c in ' "\'\\$`'):
+        return "'" + s.replace("'", "'\"'\"'") + "'"
+    return s
+
+
 def task_status(argv: list[str]) -> int:
     """Print a short environment status line (Python + install state)."""
     print("pglite-pydb project status")
@@ -196,6 +292,7 @@ TASKS = {
     "fmt": task_fmt,
     "clean": task_clean,
     "status": task_status,
+    "verify-linux": task_verify_linux,
 }
 
 
