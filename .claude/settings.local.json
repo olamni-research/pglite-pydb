@@ -12,7 +12,8 @@
       "Bash(specify --version)",
       "Bash(specify check *)",
       "Bash(git *)",
-      "Bash(powershell.exe *)"
+      "Bash(powershell.exe *)",
+      "Bash(grep -E \"\\\\.\\(py|js\\)$|^d\")"
     ]
   }
 }
