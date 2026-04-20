@@ -60,7 +60,7 @@ sqlmodel = [
     "sqlmodel>=0.0.24",
 ]
 django = [
-    "django>=4.0.0",
+    "django>=5.2.8",
     "pytest-django>=4.5.0",
 ]
 fastapi = [
