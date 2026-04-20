@@ -24,6 +24,37 @@ source .venv/bin/activate
 
 **That's it!** You're ready to contribute.
 
+### Windows PowerShell quickstart
+
+`make` is not installed on Windows by default, and the Unix shell utilities
+(`rm -rf`, `find -exec`) that the old Makefile used do not work under
+PowerShell. Use the cross-platform Python task runner instead — it accepts
+the same task names and produces identical behaviour:
+
+```powershell
+# Clone and setup
+git clone https://github.com/olamni-research/pglite-pydb.git
+Set-Location pglite-pydb
+uv sync
+pre-commit install
+
+# Run the full dev workflow
+uv run python tasks.py dev
+
+# List every available task
+uv run python tasks.py --list
+
+# Individual tasks (same names as `make`):
+uv run python tasks.py test
+uv run python tasks.py lint
+uv run python tasks.py clean      # uses shutil.rmtree; no rm/find
+uv run python tasks.py status
+```
+
+Both `make <name>` (Linux/macOS) and `uv run python tasks.py <name>`
+(anywhere, including Windows) dispatch to the exact same Python logic
+in `tasks.py`. There is one source of truth per task.
+
 ---
 
 ## 🎯 **Development Commands**
