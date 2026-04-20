@@ -45,7 +45,7 @@ def _run(cmd: list[str], **kwargs: object) -> int:
     """
     kwargs.setdefault("cwd", str(REPO_ROOT))
     print(f"$ {' '.join(cmd)}", flush=True)
-    return subprocess.run(cmd, **kwargs).returncode  # type: ignore[arg-type]  # noqa: S603
+    return subprocess.run(cmd, **kwargs).returncode  # type: ignore[arg-type]
 
 
 def task_dev(argv: list[str]) -> int:
@@ -214,10 +214,14 @@ def task_verify_linux(argv: list[str]) -> int:
         print(f"Building {image_tag} (Node {node_major})...", flush=True)
         rc = _run(
             [
-                "docker", "build",
-                "-f", str(dockerfile),
-                "--build-arg", f"NODE_MAJOR={node_major}",
-                "-t", image_tag,
+                "docker",
+                "build",
+                "-f",
+                str(dockerfile),
+                "--build-arg",
+                f"NODE_MAJOR={node_major}",
+                "-t",
+                image_tag,
                 str(REPO_ROOT),
             ]
         )
@@ -228,33 +232,37 @@ def task_verify_linux(argv: list[str]) -> int:
     # (or similar) without polluting the host venv.
     print(f"Running Linux verification in {image_tag}...", flush=True)
     if pytest_argv:
-        cmd_in_container = (
-            "uv sync --all-extras && "
-            "uv run pytest " + " ".join(_shquote(a) for a in pytest_argv)
+        cmd_in_container = "uv sync --all-extras && uv run pytest " + " ".join(
+            _shquote(a) for a in pytest_argv
         )
     else:
-        cmd_in_container = (
-            "uv sync --all-extras && "
-            "uv run pytest tests/ -q --tb=short"
-        )
+        cmd_in_container = "uv sync --all-extras && uv run pytest tests/ -q --tb=short"
 
     return _run(
         [
-            "docker", "run", "--rm",
+            "docker",
+            "run",
+            "--rm",
             # Use a different venv path inside the container so it doesn't
             # clash with the host Windows .venv.
-            "-e", "UV_PROJECT_ENVIRONMENT=/tmp/.venv-docker",
-            "-v", f"{REPO_ROOT}:/src",
-            "-w", "/src",
+            "-e",
+            "UV_PROJECT_ENVIRONMENT=/tmp/.venv-docker",
+            "-v",
+            f"{REPO_ROOT}:/src",
+            "-w",
+            "/src",
             image_tag,
-            "bash", "-lc", cmd_in_container,
+            # Non-login bash so PATH set in the Dockerfile's ENV is preserved.
+            "bash",
+            "-c",
+            cmd_in_container,
         ]
     )
 
 
 def _shquote(s: str) -> str:
     """Minimal shell-safe quoting for container-side command assembly."""
-    if not s or any(c in s for c in ' "\'\\$`'):
+    if not s or any(c in s for c in " \"'\\$`"):
         return "'" + s.replace("'", "'\"'\"'") + "'"
     return s
 

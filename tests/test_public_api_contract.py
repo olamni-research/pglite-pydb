@@ -18,6 +18,7 @@ import importlib.metadata
 import subprocess
 import sys
 import time
+
 from dataclasses import fields
 
 import pytest
@@ -27,14 +28,12 @@ from pglite_pydb._platform import IS_WINDOWS
 
 def test_top_level_imports() -> None:
     """Contract 1: every symbol in the package's __all__ resolves."""
-    from pglite_pydb import (
-        AsyncpgClient,
-        PGliteConfig,
-        PGliteManager,
-        PsycopgClient,
-        get_client,
-        get_default_client,
-    )
+    from pglite_pydb import AsyncpgClient
+    from pglite_pydb import PGliteConfig
+    from pglite_pydb import PGliteManager
+    from pglite_pydb import PsycopgClient
+    from pglite_pydb import get_client
+    from pglite_pydb import get_default_client
 
     # Names must resolve to callables / classes / dataclasses.
     assert isinstance(PGliteManager, type)
@@ -123,7 +122,9 @@ def test_legacy_import_fails() -> None:
         text=True,
         check=False,
     )
-    assert result.returncode != 0, "py_pglite import unexpectedly succeeded after hard rename"
+    assert result.returncode != 0, (
+        "py_pglite import unexpectedly succeeded after hard rename"
+    )
     assert "ModuleNotFoundError" in result.stderr or "No module named" in result.stderr
 
 
@@ -156,9 +157,5 @@ def test_node_absent_error_names_candidates(monkeypatch: pytest.MonkeyPatch) -> 
 
     if IS_WINDOWS:
         # Windows: both the .cmd and .exe variants must be enumerated
-        assert "node.cmd" in msg, (
-            f"Windows error did not enumerate 'node.cmd': {msg!r}"
-        )
-        assert "node.exe" in msg, (
-            f"Windows error did not enumerate 'node.exe': {msg!r}"
-        )
+        assert "node.cmd" in msg, f"Windows error did not enumerate 'node.cmd': {msg!r}"
+        assert "node.exe" in msg, f"Windows error did not enumerate 'node.exe': {msg!r}"

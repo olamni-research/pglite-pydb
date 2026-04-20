@@ -13,6 +13,7 @@ from typing import Literal
 from pglite_pydb._platform import IS_WINDOWS
 from pglite_pydb.extensions import SUPPORTED_EXTENSIONS
 
+
 _logger = logging.getLogger(__name__)
 
 

@@ -41,8 +41,12 @@ RUN set -eux; \
     node --version ; \
     npm --version
 
-# uv — the project's canonical Python package manager.
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh && uv --version
+# uv — the project's canonical Python package manager. Install to
+# /usr/local/bin so the binary is on PATH in every shell mode (login
+# or not).
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh && \
+    uv --version && \
+    uvx --version
 
 # The repo is bind-mounted into /src at run time; nothing is copied in.
 # This keeps the image reusable against edits without rebuilds.
