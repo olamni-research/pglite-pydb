@@ -550,55 +550,106 @@ class PGliteManager:
             if self._original_cwd:
                 os.chdir(self._original_cwd)
 
+    def _terminate_process_tree(
+        self, proc: "subprocess.Popen[str]", timeout: float = 5.0
+    ) -> None:
+        """Gracefully-then-forcefully terminate a subprocess plus every descendant.
+
+        POSIX path (Linux/macOS, preserved): signal the entire process
+        group via ``os.killpg`` (SIGTERM, then SIGKILL on timeout). The
+        subprocess was spawned with ``preexec_fn=os.setsid`` so it owns
+        its own PGID.
+
+        Windows path (new): walk the live process tree via ``psutil``,
+        call ``.terminate()`` on every descendant plus the parent, wait
+        for graceful exit, then ``.kill()`` anything still running. Windows
+        has no POSIX process-group signal semantics.
+
+        See research.md R3 / data-model.md Entity 6.
+        """
+        # POSIX first — existing behaviour preserved
+        if hasattr(os, "killpg") and hasattr(proc, "pid"):
+            try:
+                os.killpg(os.getpgid(proc.pid), 15)  # SIGTERM
+                self.logger.debug("Sent SIGTERM to POSIX process group")
+            except (OSError, ProcessLookupError):
+                # Group may already be gone; fall back to plain terminate
+                proc.terminate()
+
+            try:
+                proc.wait(timeout=timeout)
+                self.logger.info("PGlite server stopped gracefully")
+                return
+            except subprocess.TimeoutExpired:
+                self.logger.warning(
+                    "PGlite process didn't stop gracefully, force killing..."
+                )
+
+            try:
+                os.killpg(os.getpgid(proc.pid), 9)  # SIGKILL
+                self.logger.debug("Sent SIGKILL to POSIX process group")
+            except (OSError, ProcessLookupError):
+                proc.kill()
+
+            try:
+                proc.wait(timeout=2)
+                self.logger.info("PGlite server stopped forcefully")
+            except subprocess.TimeoutExpired:
+                self.logger.error("Failed to kill PGlite process group!")
+                self._kill_all_pglite_processes()
+            return
+
+        # Windows path — walk the tree via psutil
+        try:
+            parent = psutil.Process(proc.pid)
+        except psutil.NoSuchProcess:
+            # Already gone; nothing to do
+            return
+
+        try:
+            children = parent.children(recursive=True)
+        except psutil.NoSuchProcess:
+            children = []
+
+        # Graceful phase
+        for p in (*children, parent):
+            try:
+                p.terminate()
+            except psutil.NoSuchProcess:
+                continue
+
+        try:
+            proc.wait(timeout=timeout)
+            self.logger.info("PGlite server stopped gracefully (Windows tree)")
+        except subprocess.TimeoutExpired:
+            self.logger.warning(
+                "PGlite process tree did not exit within %ss; forcing kill",
+                timeout,
+            )
+            for p in (*children, parent):
+                try:
+                    if p.is_running():
+                        p.kill()
+                except psutil.NoSuchProcess:
+                    continue
+            try:
+                proc.wait(timeout=2)
+                self.logger.info("PGlite server tree killed (Windows)")
+            except subprocess.TimeoutExpired:
+                self.logger.error(
+                    "PGlite process tree survived SIGKILL equivalent; "
+                    "falling back to global pglite cleanup"
+                )
+                self._kill_all_pglite_processes()
+
     def stop(self) -> None:
         """Stop the PGlite server."""
         if self.process is None:
             return
 
         try:
-            # Send SIGTERM first for graceful shutdown
-            self.logger.debug("Sending SIGTERM to PGlite process...")
-
-            # Try to terminate the entire process group if it exists
-            if hasattr(os, "killpg") and hasattr(self.process, "pid"):
-                try:
-                    # Try to kill the process group first (includes child processes)
-                    os.killpg(os.getpgid(self.process.pid), 15)  # SIGTERM
-                    self.logger.debug("Sent SIGTERM to process group")
-                except (OSError, ProcessLookupError):
-                    # Fall back to single process termination
-                    self.process.terminate()
-            else:
-                self.process.terminate()
-
-            # Wait for graceful shutdown with timeout
-            try:
-                self.process.wait(timeout=5)
-                self.logger.info("PGlite server stopped gracefully")
-            except subprocess.TimeoutExpired:
-                # Force kill if graceful shutdown fails
-                self.logger.warning(
-                    "PGlite process didn't stop gracefully, force killing..."
-                )
-
-                # Try to kill the entire process group first
-                if hasattr(os, "killpg") and hasattr(self.process, "pid"):
-                    try:
-                        os.killpg(os.getpgid(self.process.pid), 9)  # SIGKILL
-                        self.logger.debug("Sent SIGKILL to process group")
-                    except (OSError, ProcessLookupError):
-                        # Fall back to single process kill
-                        self.process.kill()
-                else:
-                    self.process.kill()
-
-                try:
-                    self.process.wait(timeout=2)
-                    self.logger.info("PGlite server stopped forcefully")
-                except subprocess.TimeoutExpired:
-                    self.logger.error("Failed to kill PGlite process!")
-                    # Use global cleanup as last resort when normal termination fails
-                    self._kill_all_pglite_processes()
+            self.logger.debug("Terminating PGlite process tree...")
+            self._terminate_process_tree(self.process)
 
         except Exception as e:
             self.logger.warning(f"Error stopping PGlite: {e}")
