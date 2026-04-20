@@ -13,6 +13,17 @@ from sqlalchemy.pool import StaticPool
 
 from pglite_pydb import PGliteConfig
 from pglite_pydb import PGliteManager
+from pglite_pydb._platform import IS_WINDOWS
+
+
+# Pre-seed for tasks.md T030: these tests assert pre-refactor defaults
+# (Unix-socket-by-default) or explicitly use Unix-socket mode; on Windows
+# those assertions are intentionally incorrect (Windows default is TCP
+# auto-promoted; use_tcp=False raises). See research.md R2, FR-005.
+unix_only = pytest.mark.skipif(
+    IS_WINDOWS,
+    reason="Unix socket transport — Windows uses TCP default; see research.md R2",
+)
 
 
 # Optional dependencies - only import if available
@@ -35,8 +46,9 @@ except ImportError:
 class TestTCPSocketConfiguration:
     """Test TCP socket configuration and validation."""
 
+    @unix_only
     def test_default_remains_unix_socket(self):
-        """Ensure backward compatibility - Unix socket by default."""
+        """Linux/macOS default: Unix socket (FR-003)."""
         config = PGliteConfig()
         assert config.use_tcp is False
         assert config.socket_path is not None
@@ -57,7 +69,7 @@ class TestTCPSocketConfiguration:
         assert config.tcp_port == 15432
 
     def test_tcp_port_validation(self):
-        """Test TCP port validation."""
+        """Test TCP port validation (0 is now a valid sentinel for OS-assigned)."""
         # Valid ports
         config = PGliteConfig(use_tcp=True, tcp_port=1)
         assert config.tcp_port == 1
@@ -65,10 +77,11 @@ class TestTCPSocketConfiguration:
         config = PGliteConfig(use_tcp=True, tcp_port=65535)
         assert config.tcp_port == 65535
 
-        # Invalid ports
-        with pytest.raises(ValueError, match="Invalid TCP port"):
-            PGliteConfig(use_tcp=True, tcp_port=0)
+        # Port 0 is now valid — means "let OS pick ephemeral port" (research.md R4)
+        config = PGliteConfig(use_tcp=True, tcp_port=0)
+        assert config.tcp_port == 0
 
+        # Invalid ports
         with pytest.raises(ValueError, match="Invalid TCP port"):
             PGliteConfig(use_tcp=True, tcp_port=70000)
 
@@ -85,6 +98,7 @@ class TestTCPSocketConfiguration:
 class TestTCPSocketConnectionStrings:
     """Test connection string generation for TCP mode."""
 
+    @unix_only
     def test_unix_socket_connection_strings(self):
         """Test connection strings for Unix socket mode."""
         config = PGliteConfig(use_tcp=False)
@@ -199,6 +213,7 @@ class TestTCPSocketManager:
                     result = cur.fetchone()
                     assert result[0] == "TCP Test"
 
+    @unix_only
     def test_unix_mode_database_connectivity(self):
         """Test actual database connectivity in Unix socket mode."""
         config = PGliteConfig(use_tcp=False)
@@ -252,9 +267,10 @@ class TestTCPSocketManager:
                         cur2.execute("SELECT 2")
                         assert cur2.fetchone()[0] == 2
 
+    @unix_only
     def test_mode_does_not_affect_extensions(self):
         """Test that extensions work in both Unix and TCP modes."""
-        # Test with Unix socket
+        # Test with Unix socket (skipped on Windows — see unix_only marker)
         config_unix = PGliteConfig(use_tcp=False, extensions=["pgvector"])
         with PGliteManager(config_unix) as manager:
             assert psycopg is not None
