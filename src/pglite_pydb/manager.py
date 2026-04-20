@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import shutil
 import subprocess  # nosec B404 - subprocess needed for npm/node process management
 import sys
 import tempfile
@@ -15,9 +16,32 @@ from typing import Any
 import psutil
 
 from pglite_pydb import __version__
+from pglite_pydb._platform import IS_WINDOWS
 from pglite_pydb.config import PGliteConfig
 from pglite_pydb.extensions import SUPPORTED_EXTENSIONS
 from pglite_pydb.utils import find_pglite_modules
+
+
+def _resolve_node_bin(name: str) -> str:
+    """Return the absolute path of a Node binary (``node`` or ``npm``).
+
+    On POSIX, ``shutil.which`` with the plain name is sufficient. On
+    Windows, ``npm`` ships as ``npm.cmd`` and ``node`` as ``node.exe``;
+    both are searched explicitly so invocation works even when PATHEXT
+    has been narrowed.
+
+    Raises:
+        FileNotFoundError: lists every candidate attempted (FR-006).
+    """
+    candidates = [name] if not IS_WINDOWS else [name, f"{name}.cmd", f"{name}.exe"]
+    for candidate in candidates:
+        resolved = shutil.which(candidate)
+        if resolved:
+            return resolved
+    raise FileNotFoundError(
+        f"Could not locate '{name}' on PATH. Searched: {candidates}. "
+        "Install Node.js 20 LTS or 22 LTS from https://nodejs.org/"
+    )
 
 
 class PGliteManager:
@@ -343,7 +367,7 @@ class PGliteManager:
             self.logger.info("Installing npm dependencies...")
             # nosec B603,B607 - npm install with fixed args, safe for testing library
             result = subprocess.run(
-                ["npm", "install"],
+                [_resolve_node_bin("npm"), "install"],
                 cwd=work_dir,
                 capture_output=True,
                 text=True,
@@ -390,16 +414,17 @@ class PGliteManager:
             self.logger.info("Starting PGlite server...")
             # nosec B603,B607 - node with fixed script, safe for testing library
             self.process = subprocess.Popen(
-                ["node", "pglite_manager.js"],
+                [_resolve_node_bin("node"), "pglite_manager.js"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,  # Combine stderr with stdout
                 text=True,
                 bufsize=0,  # Unbuffered for real-time monitoring
                 universal_newlines=True,
                 env=env,
-                preexec_fn=os.setsid
-                if hasattr(os, "setsid")
-                else None,  # Create new process group on Unix
+                # POSIX only: create a new process group so we can killpg on shutdown.
+                # Windows has no process-group signal semantics; _terminate_process_tree
+                # handles teardown there via psutil descendant walking.
+                preexec_fn=os.setsid if hasattr(os, "setsid") else None,
             )
 
             # Wait for startup with robust monitoring
