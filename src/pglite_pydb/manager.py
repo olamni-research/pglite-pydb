@@ -62,6 +62,11 @@ class PGliteManager:
         self.work_dir: Path | None = None
         self._original_cwd: str | None = None
         self._shared_engine: Any | None = None
+        # Resolved TCP port for this manager instance. Populated in start()
+        # when use_tcp is True. When config.tcp_port is 0 (OS-assigned), this
+        # is filled in by binding a socket in-process to pick a free port;
+        # otherwise equals config.tcp_port.
+        self.resolved_port: int | None = None
 
         # Set up logging
         self.logger = logging.getLogger(__name__)
@@ -223,6 +228,9 @@ class PGliteManager:
         self, ext_requires_str: str, extensions_obj_str: str
     ) -> str:
         """Generate JavaScript content for TCP socket mode."""
+        # resolved_port is set by start() before this is called; fall back to
+        # config.tcp_port in the (theoretical) case of direct invocation.
+        port = self.resolved_port or self.config.tcp_port
         return dedent(f"""
             const {{ PGlite }} = require('@electric-sql/pglite');
             const {{ PGLiteSocketServer }} = require('@electric-sql/pglite-socket');
@@ -241,10 +249,10 @@ class PGliteManager:
                     const server = new PGLiteSocketServer({{
                         db,
                         host: '{self.config.tcp_host}',
-                        port: {self.config.tcp_port}
+                        port: {port}
                     }});
                     await server.start();
-                    console.log(`Server started on TCP {self.config.tcp_host}:{self.config.tcp_port}`);
+                    console.log(`Server started on TCP {self.config.tcp_host}:{port}`);
 
                     // Handle graceful shutdown
                     process.on('SIGINT', async () => {{
@@ -376,11 +384,33 @@ class PGliteManager:
             )
             self.logger.info(f"npm install completed: {result.stdout}")
 
+    def _resolve_tcp_port(self) -> int:
+        """Resolve the TCP port for this manager's lifetime.
+
+        When ``config.tcp_port == 0`` the OS is asked for a free ephemeral
+        port via an in-process bind; the selected port is returned so the
+        Node subprocess can bind to it and so the readiness probe targets
+        the same port. When ``config.tcp_port`` is a concrete value it is
+        returned unchanged. See research.md R4.
+        """
+        if self.config.tcp_port == 0:
+            import socket as _socket
+
+            with _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM) as s:
+                s.bind((self.config.tcp_host, 0))
+                return int(s.getsockname()[1])
+        return int(self.config.tcp_port)
+
     def start(self) -> None:
         """Start the PGlite server."""
         if self.process is not None:
             self.logger.warning("PGlite process already running")
             return
+
+        # Resolve TCP port (a no-op for Unix-socket mode, a real pick for
+        # config.tcp_port==0 e.g. the Windows auto-promoted default).
+        if self.config.use_tcp:
+            self.resolved_port = self._resolve_tcp_port()
 
         # Setup work directory first so it's available for cleanup logic
         self.work_dir = self._setup_work_dir()
@@ -449,10 +479,13 @@ class PGliteManager:
 
                 # Check readiness based on socket mode
                 if self.config.use_tcp:
-                    # TCP readiness check
+                    # TCP readiness check — always probe the resolved port
+                    # (which equals config.tcp_port when the user set it
+                    # explicitly; otherwise filled in by _resolve_tcp_port).
+                    probe_port = self.resolved_port or self.config.tcp_port
                     if not ready_logged:
                         self.logger.info(
-                            f"Waiting for TCP server on {self.config.tcp_host}:{self.config.tcp_port}..."
+                            f"Waiting for TCP server on {self.config.tcp_host}:{probe_port}..."
                         )
                         ready_logged = True
 
@@ -461,12 +494,10 @@ class PGliteManager:
 
                         test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         test_socket.settimeout(1)
-                        test_socket.connect(
-                            (self.config.tcp_host, self.config.tcp_port)
-                        )
+                        test_socket.connect((self.config.tcp_host, probe_port))
                         test_socket.close()
                         self.logger.info(
-                            f"PGlite TCP server started successfully on {self.config.tcp_host}:{self.config.tcp_port}"
+                            f"PGlite TCP server started successfully on {self.config.tcp_host}:{probe_port}"
                         )
                         break
                     except (ImportError, OSError):
