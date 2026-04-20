@@ -15,11 +15,11 @@ from unittest.mock import patch
 
 import pytest
 
-from py_pglite.clients import AsyncpgClient
-from py_pglite.clients import DatabaseClient
-from py_pglite.clients import PsycopgClient
-from py_pglite.clients import get_client
-from py_pglite.clients import get_default_client
+from pglite_pydb.clients import AsyncpgClient
+from pglite_pydb.clients import DatabaseClient
+from pglite_pydb.clients import PsycopgClient
+from pglite_pydb.clients import get_client
+from pglite_pydb.clients import get_default_client
 
 
 # Filter expected warnings for specific test cases
@@ -36,15 +36,15 @@ class TestRealImports:
     def test_import_clients_module(self):
         """Test importing the clients module covers import statements."""
         # This test ensures the module import statements are covered
-        import py_pglite.clients
+        import pglite_pydb.clients
 
         # Verify the module has the expected attributes
-        assert hasattr(py_pglite.clients, "DatabaseClient")
-        assert hasattr(py_pglite.clients, "PsycopgClient")
-        assert hasattr(py_pglite.clients, "AsyncpgClient")
-        assert hasattr(py_pglite.clients, "get_client")
-        assert hasattr(py_pglite.clients, "get_default_client")
-        assert hasattr(py_pglite.clients, "logger")
+        assert hasattr(pglite_pydb.clients, "DatabaseClient")
+        assert hasattr(pglite_pydb.clients, "PsycopgClient")
+        assert hasattr(pglite_pydb.clients, "AsyncpgClient")
+        assert hasattr(pglite_pydb.clients, "get_client")
+        assert hasattr(pglite_pydb.clients, "get_default_client")
+        assert hasattr(pglite_pydb.clients, "logger")
 
 
 class TestDatabaseClientAbstract:
@@ -100,7 +100,7 @@ class TestPsycopgClientErrorHandling:
             result = client.execute_query(mock_conn, "CREATE TABLE test")
             assert result == []
 
-    @patch("py_pglite.clients.logger")
+    @patch("pglite_pydb.clients.logger")
     def test_psycopg_test_connection_failure(self, mock_logger):
         """Test PsycopgClient handles connection test failure."""
         mock_psycopg = Mock()
@@ -114,7 +114,7 @@ class TestPsycopgClientErrorHandling:
                 "psycopg connection test failed: Connection failed"
             )
 
-    @patch("py_pglite.clients.logger")
+    @patch("pglite_pydb.clients.logger")
     def test_psycopg_get_database_version_failure(self, mock_logger):
         """Test PsycopgClient handles version query failure."""
         mock_psycopg = Mock()
@@ -175,7 +175,7 @@ class TestAsyncpgClientErrorHandling:
             with pytest.raises(ImportError):
                 AsyncpgClient()
 
-    @patch("py_pglite.clients.logger")
+    @patch("pglite_pydb.clients.logger")
     def test_asyncpg_execute_query_exception_handling(self, mock_logger):
         """Test AsyncpgClient handles query execution errors."""
         mock_asyncio = Mock()
@@ -207,7 +207,7 @@ class TestAsyncpgClientErrorHandling:
             assert "execute_query failed" in mock_logger.warning.call_args_list[1][0][0]
 
     @pytest.mark.asyncio
-    @patch("py_pglite.clients.logger")
+    @patch("pglite_pydb.clients.logger")
     async def test_asyncpg_async_execute_query_exception(self, mock_logger):
         """Test AsyncpgClient handles async query execution errors."""
         mock_asyncio = Mock()
@@ -226,7 +226,7 @@ class TestAsyncpgClientErrorHandling:
                 "AsyncpgClient async query execution failed: Async query failed"
             )
 
-    @patch("py_pglite.clients.logger")
+    @patch("pglite_pydb.clients.logger")
     def test_asyncpg_test_connection_failure(self, mock_logger):
         """Test AsyncpgClient handles connection test failure."""
         mock_asyncio = Mock()
@@ -246,7 +246,7 @@ class TestAsyncpgClientErrorHandling:
             assert mock_logger.warning.call_count == 1
             assert "connection test failed" in mock_logger.warning.call_args[0][0]
 
-    @patch("py_pglite.clients.logger")
+    @patch("pglite_pydb.clients.logger")
     def test_asyncpg_get_database_version_failure(self, mock_logger):
         """Test AsyncpgClient handles version query failure."""
         mock_asyncio = Mock()
@@ -294,7 +294,7 @@ class TestAsyncpgClientErrorHandling:
         client = AsyncpgClient()
         client.close_connection(None)  # Should not raise
 
-    @patch("py_pglite.clients.logger")
+    @patch("pglite_pydb.clients.logger")
     def test_asyncpg_event_loop_running_warning(self, mock_logger):
         """Test AsyncpgClient warns when event loop is running."""
         mock_asyncio = Mock()
@@ -325,7 +325,7 @@ class TestAsyncpgClientErrorHandling:
             assert loop is mock_loop
             mock_asyncio.set_event_loop.assert_called_once_with(mock_loop)
 
-    @patch("py_pglite.clients.logger")
+    @patch("pglite_pydb.clients.logger")
     def test_asyncpg_execute_query_in_running_loop_warning(self, mock_logger):
         """Test AsyncpgClient warns and handles running loop."""
         mock_asyncio = Mock()
@@ -416,15 +416,15 @@ class TestClientFactoryFunctions:
 
     def test_get_default_client_psycopg_preferred(self):
         """Test get_default_client prefers psycopg."""
-        with patch("py_pglite.clients.PsycopgClient") as mock_psycopg:
+        with patch("pglite_pydb.clients.PsycopgClient") as mock_psycopg:
             get_default_client()
             mock_psycopg.assert_called_once()
 
     def test_get_default_client_fallback_to_asyncpg(self):
         """Test get_default_client falls back to asyncpg."""
         with (
-            patch("py_pglite.clients.PsycopgClient", side_effect=ImportError),
-            patch("py_pglite.clients.AsyncpgClient") as mock_asyncpg,
+            patch("pglite_pydb.clients.PsycopgClient", side_effect=ImportError),
+            patch("pglite_pydb.clients.AsyncpgClient") as mock_asyncpg,
         ):
             get_default_client()
             mock_asyncpg.assert_called_once()
@@ -432,21 +432,21 @@ class TestClientFactoryFunctions:
     def test_get_default_client_no_clients_available(self):
         """Test get_default_client when no clients available."""
         with (
-            patch("py_pglite.clients.PsycopgClient", side_effect=ImportError),
-            patch("py_pglite.clients.AsyncpgClient", side_effect=ImportError),
+            patch("pglite_pydb.clients.PsycopgClient", side_effect=ImportError),
+            patch("pglite_pydb.clients.AsyncpgClient", side_effect=ImportError),
         ):
             with pytest.raises(ImportError, match="No supported database client found"):
                 get_default_client()
 
     def test_get_client_auto_mode(self):
         """Test get_client in auto mode."""
-        with patch("py_pglite.clients.get_default_client") as mock_get_default:
+        with patch("pglite_pydb.clients.get_default_client") as mock_get_default:
             get_client("auto")
             mock_get_default.assert_called_once()
 
     def test_get_client_psycopg_mode(self):
         """Test get_client with psycopg mode."""
-        with patch("py_pglite.clients.PsycopgClient") as mock_psycopg:
+        with patch("pglite_pydb.clients.PsycopgClient") as mock_psycopg:
             get_client("psycopg")
             mock_psycopg.assert_called_once()
 
@@ -534,7 +534,7 @@ class TestClientLogging:
     """Test client logging."""
 
     @pytest.mark.asyncio
-    @patch("py_pglite.clients.logger")
+    @patch("pglite_pydb.clients.logger")
     async def test_asyncpg_execute_query_logs_warning_on_exception(self, mock_logger):
         """Test AsyncpgClient logs warning on query execution error."""
         mock_asyncio = Mock()
@@ -556,7 +556,7 @@ class TestClientLogging:
                 f"AsyncpgClient async query execution failed: {error_msg}"
             )
 
-    @patch("py_pglite.clients.logger")
+    @patch("pglite_pydb.clients.logger")
     def test_psycopg_test_connection_logs_warning_on_failure(self, mock_logger):
         """Test PsycopgClient logs warning on connection test failure."""
         mock_psycopg = Mock()
@@ -570,7 +570,7 @@ class TestClientLogging:
                 "psycopg connection test failed: Connection failed"
             )
 
-    @patch("py_pglite.clients.logger")
+    @patch("pglite_pydb.clients.logger")
     def test_asyncpg_get_database_version_logs_warning_on_failure(self, mock_logger):
         """Test AsyncpgClient logs warning on version query failure."""
         mock_asyncio = Mock()
@@ -777,7 +777,7 @@ class TestEventLoopHandling:
             mock_asyncio.new_event_loop.assert_called_once()
             mock_asyncio.set_event_loop.assert_called_once_with(mock_loop)
 
-    @patch("py_pglite.clients.logger")
+    @patch("pglite_pydb.clients.logger")
     def test_get_event_loop_running_warning(self, mock_logger):
         """Test warning when event loop is already running."""
         mock_asyncio = Mock()

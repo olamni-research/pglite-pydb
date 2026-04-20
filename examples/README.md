@@ -1,4 +1,4 @@
-# 🚀 py-pglite Examples
+# 🚀 pglite-pydb Examples
 
 **Real PostgreSQL testing made instant** ⚡
 
@@ -13,10 +13,10 @@ python quickstart/demo_instant.py
 **Output:**
 
 ```bash
-⚡ py-pglite: Instant PostgreSQL Magic
+⚡ pglite-pydb: Instant PostgreSQL Magic
 ✅ PostgreSQL started (zero config!)
 🔥 Running: PostgreSQL 17.4
-🚀 JSON test: py-pglite
+🚀 JSON test: pglite-pydb
 🎯 Array test: 3 features
 📊 Inserted 3 users instantly
 🏆 First user: Alice (rank #1)
@@ -38,7 +38,7 @@ Full REST API with PostgreSQL in 30 lines. Interactive Swagger docs included!
 python quickstart/simple_performance.py
 ```
 
-**Honest results:** SQLite wins raw speed, py-pglite wins features + convenience vs Docker PostgreSQL.
+**Honest results:** SQLite wins raw speed, pglite-pydb wins features + convenience vs Docker PostgreSQL.
 
 ---
 
@@ -49,7 +49,7 @@ python quickstart/simple_performance.py
 Test vector similarity search for Retrieval-Augmented Generation (RAG) applications.
 
 ```bash
-# Requires 'py-pglite[extensions]' to be installed
+# Requires 'pglite-pydb[extensions]' to be installed
 pytest examples/features/test_pgvector_rag.py -v
 ```
 
@@ -77,7 +77,7 @@ pytest testing-patterns/django/lightweight/ -v
 **🔸 Full Integration/Backend Pattern** (Enhanced features)
 
 ```bash
-# Custom py-pglite backend with advanced capabilities
+# Custom pglite-pydb backend with advanced capabilities
 pytest testing-patterns/django/full-integration/ -v
 ```
 
@@ -231,7 +231,7 @@ pytest testing-patterns/django/                   # Pure Django patterns
 
 ---
 
-## 🎊 **Why py-pglite?**
+## 🎊 **Why pglite-pydb?**
 
 ### **❌ Traditional Way**
 
@@ -244,7 +244,7 @@ pytest testing-patterns/django/                   # Pure Django patterns
 # 6. Still not portable
 ```
 
-### **✅ py-pglite Way**
+### **✅ pglite-pydb Way**
 
 ```python
 def test_my_feature(pglite_session):

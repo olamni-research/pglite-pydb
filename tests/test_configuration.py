@@ -1,4 +1,4 @@
-"""Comprehensive configuration testing for py-pglite.
+"""Comprehensive configuration testing for pglite-pydb.
 
 Tests configuration validation, edge cases, and boundary conditions
 to ensure robust configuration handling.
@@ -11,8 +11,8 @@ from pathlib import Path
 
 import pytest
 
-from py_pglite import PGliteConfig
-from py_pglite import PGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb import PGliteManager
 
 
 class TestPGliteConfigValidation:

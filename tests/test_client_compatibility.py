@@ -2,7 +2,7 @@
 🔄 PostgreSQL Client Compatibility Demonstration
 ==============================================
 
-Simple demonstration that py-pglite works with different PostgreSQL
+Simple demonstration that pglite-pydb works with different PostgreSQL
 clients by providing a real PostgreSQL server.
 
 Shows:
@@ -16,8 +16,8 @@ import pytest
 
 from sqlalchemy import text
 
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 @pytest.fixture(scope="module")
@@ -146,7 +146,7 @@ class TestClientCompatibilityPrinciples:
             assert status == "Core always works!"
 
     def test_real_postgresql_server_principle(self, client_demo_manager):
-        """Demonstrate that py-pglite provides a real PostgreSQL server."""
+        """Demonstrate that pglite-pydb provides a real PostgreSQL server."""
 
         engine = client_demo_manager.get_engine()
 
@@ -208,7 +208,7 @@ class TestClientCompatibilityDocumentation:
                     f"database='{database}')"
                 ),
             ),
-            ("Django ORM", "✅ Backend", "Uses custom py-pglite Django backend"),
+            ("Django ORM", "✅ Backend", "Uses custom pglite-pydb Django backend"),
             ("SQLModel", "✅ Via SQLAlchemy", "Works through SQLAlchemy integration"),
             (
                 "FastAPI",
@@ -224,13 +224,13 @@ class TestClientCompatibilityDocumentation:
         """Document installation patterns for different clients."""
 
         install_patterns = [
-            ("Core only", "pip install py-pglite"),
-            ("With SQLAlchemy", "pip install py-pglite[sqlalchemy]"),
-            ("With Django", "pip install py-pglite[django]"),
-            ("With FastAPI", "pip install py-pglite[fastapi]"),
-            ("With async support", "pip install py-pglite[async]"),
-            ("With psycopg", "pip install py-pglite[psycopg]"),
-            ("Everything", "pip install py-pglite[all]"),
+            ("Core only", "pip install pglite-pydb"),
+            ("With SQLAlchemy", "pip install pglite-pydb[sqlalchemy]"),
+            ("With Django", "pip install pglite-pydb[django]"),
+            ("With FastAPI", "pip install pglite-pydb[fastapi]"),
+            ("With async support", "pip install pglite-pydb[async]"),
+            ("With psycopg", "pip install pglite-pydb[psycopg]"),
+            ("Everything", "pip install pglite-pydb[all]"),
         ]
 
         for _description, _command in install_patterns:

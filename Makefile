@@ -1,88 +1,55 @@
-# 🚀 py-pglite Development Commands
-# ================================
+# pglite-pydb — Linux/macOS contributor entrypoint.
 #
-# Vite-style convenience commands for development
+# Canonical task logic lives in tasks.py (stdlib-only Python). This
+# Makefile is a thin delegator so Linux/macOS contributors who prefer
+# `make <target>` get identical behaviour to Windows contributors who
+# run `uv run python tasks.py <target>`. Single source of truth; no
+# duplication (FR-014, tasks T038-T041).
 
-# Define Python command using uv
-PYTHON_CMD := uv run python
+PYTHON := uv run python
+TASKS  := $(PYTHON) tasks.py
 
-.PHONY: help dev test examples lint quick clean install
+.PHONY: help dev test examples lint quick install fmt clean status
 
-# Default target
 help:
-	@echo "🚀 py-pglite Development Commands"
-	@echo "================================"
+	@echo "pglite-pydb — available tasks"
+	@echo "(all targets delegate to 'uv run python tasks.py <name>')"
 	@echo ""
-	@echo "Core Commands:"
-	@echo "  make dev         Run full development workflow (like CI)"
-	@echo "  make test        Run tests only"
-	@echo "  make examples    Run examples only"
-	@echo "  make lint        Run linting only"
-	@echo "  make quick       Quick checks for development"
+	@echo "  make dev         Run full development workflow (lint + examples + tests)"
+	@echo "  make test        Run the test suite only"
+	@echo "  make examples    Run example tests only"
+	@echo "  make lint        Run linting only (pre-commit)"
+	@echo "  make quick       Quick dev checks (install + lint + import smoke)"
+	@echo "  make install     Install in development mode (uv sync)"
+	@echo "  make fmt         Auto-fix formatting (ruff format)"
+	@echo "  make clean       Remove build artefacts and caches"
+	@echo "  make status      Print environment + install status"
 	@echo ""
-	@echo "Utility Commands:"
-	@echo "  make install     Install in development mode"
-	@echo "  make clean       Clean build artifacts"
-	@echo "  make fmt         Auto-fix formatting"
-	@echo ""
-	@echo "Example Usage:"
-	@echo "  make dev         # Full workflow (linting + tests + examples)"
-	@echo "  make quick       # Quick checks during development"
-	@echo "  make test        # Just run the test suite"
+	@echo "Windows (PowerShell): use 'uv run python tasks.py <name>' instead."
 
-# Full development workflow (mirrors CI exactly)
-dev: | install lint examples test
+dev:
+	@$(TASKS) dev
 
-# Run tests only
 test:
-	@echo "🧪 Running test suite..."
-	uv run pytest tests/
+	@$(TASKS) test
 
-# Run examples only
 examples:
-	@echo "📚 Running examples..."
-	uv run pytest examples/
+	@$(TASKS) examples
 
-# Run linting only
 lint:
-	@echo "🎨 Running linting checks..."
-	uv run pre-commit run --all-files
+	@$(TASKS) lint
 
-# Quick checks for development
-quick: | install lint
-	@echo "⚡ Running quick development checks..."
-	$(PYTHON_CMD) -c "import py_pglite"
-	$(PYTHON_CMD) -c "from py_pglite import PGliteManager, PGliteConfig"
-	$(PYTHON_CMD) -c "print('✅ All imports working')"
+quick:
+	@$(TASKS) quick
 
-# Install in development mode
 install:
-	@echo "📦 Installing in development mode..."
-	uv sync
+	@$(TASKS) install
 
-# Auto-fix formatting
 fmt:
-	@echo "🎨 Auto-fixing formatting..."
-	uv run ruff format
-	@echo "✅ Formatting complete!"
+	@$(TASKS) fmt
 
-# Clean build artifacts
 clean:
-	@echo "🧹 Cleaning build artifacts..."
-	rm -rf build/
-	rm -rf dist/
-	rm -rf *.egg-info/
-	rm -rf .pytest_cache/
-	rm -rf .mypy_cache/
-	rm -rf .ruff_cache/
-	find src/ tests/ examples/ -type d -name __pycache__ -exec rm -rf {} +
-	find src/ tests/ examples/ -type f -name "*.pyc" -exec rm -rf {} +
-	@echo "✅ Cleanup complete!"
+	@$(TASKS) clean
 
-# Show project status
 status:
-	@echo "📊 Project Status"
-	@echo "================"
-	@echo "Python version: $(shell $(PYTHON_CMD) --version)"
-	@echo "Quick test:"
-	@$(PYTHON_CMD) -c "import py_pglite; print(f'py-pglite {py_pglite.__version__} ready!')" 2>/dev/null || echo "py-pglite not installed in dev mode"
+	@$(TASKS) status

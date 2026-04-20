@@ -1,13 +1,13 @@
-# 🌟 Django + py-pglite Integration Patterns
+# 🌟 Django + pglite-pydb Integration Patterns
 
-This directory showcases **two distinct patterns** for integrating Django with py-pglite, each with different strengths and use cases.
+This directory showcases **two distinct patterns** for integrating Django with pglite-pydb, each with different strengths and use cases.
 
 ## 📋 Pattern Overview
 
 | Pattern | Backend | Connection | Setup | Use Case |
 |---------|---------|------------|-------|----------|
 | **Lightweight/Socket** | `django.db.backends.postgresql` | Direct socket | Minimal | Quick tests, prototypes |
-| **Full Integration/Backend** | `py_pglite.django.backend` | Managed by backend | Full features | Comprehensive testing |
+| **Full Integration/Backend** | `pglite_pydb.django.backend` | Managed by backend | Full features | Comprehensive testing |
 
 ## 🔹 Pattern 1: Lightweight/Socket
 
@@ -63,11 +63,11 @@ DATABASES = {
 
 **Directory**: `full-integration/`
 
-Uses the custom py-pglite Django backend for enhanced features and optimization.
+Uses the custom pglite-pydb Django backend for enhanced features and optimization.
 
 ### Pattern 2 ✅ Advantages
 
-- **Enhanced features**: Full py-pglite integration capabilities
+- **Enhanced features**: Full pglite-pydb integration capabilities
 - **Backend optimization**: Custom optimizations for testing
 - **Advanced JSON support**: Enhanced PostgreSQL JSON features
 - **Production-like**: Comprehensive testing environment
@@ -82,7 +82,7 @@ Uses the custom py-pglite Django backend for enhanced features and optimization.
 
 ```python
 def test_django_with_backend(django_pglite_db):
-    """Uses custom py-pglite backend"""
+    """Uses custom pglite-pydb backend"""
 
     class Product(models.Model):
         name = models.CharField(max_length=100)
@@ -110,7 +110,7 @@ def test_django_with_backend(django_pglite_db):
 # In conftest.py - uses django_pglite_db fixture
 DATABASES = {
     "default": {
-        "ENGINE": "py_pglite.django.backend",  # Custom backend
+        "ENGINE": "pglite_pydb.django.backend",  # Custom backend
         # Backend manages connection automatically
     }
 }
@@ -187,13 +187,13 @@ Both patterns work with the same Django models! You can easily switch:
 **From Lightweight to Full Integration:**
 
 1. Change fixture: `configured_django` → `django_pglite_db`
-2. Update ENGINE: `django.db.backends.postgresql` → `py_pglite.django.backend`
+2. Update ENGINE: `django.db.backends.postgresql` → `pglite_pydb.django.backend`
 3. Add enhanced JSON features if desired
 
 **From Full Integration to Lightweight:**
 
 1. Change fixture: `django_pglite_db` → `configured_django`
-2. Update ENGINE: `py_pglite.django.backend` → `django.db.backends.postgresql`
+2. Update ENGINE: `pglite_pydb.django.backend` → `django.db.backends.postgresql`
 3. Simplify JSON usage if needed
 
 ## 💡 Best Practices
@@ -216,7 +216,7 @@ Both patterns work with the same Django models! You can easily switch:
 
 **Pattern 2 (Full Integration/Backend)**:
 
-- Ensure py-pglite Django backend is installed
+- Ensure pglite-pydb Django backend is installed
 - Check backend configuration
 - Verify fixture usage is correct
 
@@ -238,6 +238,6 @@ When adding new examples:
 
 ---
 
-**Happy testing with Django + py-pglite!** 🚀
+**Happy testing with Django + pglite-pydb!** 🚀
 
 Choose the pattern that fits your needs and start building amazing tests!

@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 import psycopg
 import pytest
 
-from py_pglite import PGliteManager
-from py_pglite.config import PGliteConfig
+from pglite_pydb import PGliteManager
+from pglite_pydb.config import PGliteConfig
 
 
 if TYPE_CHECKING:

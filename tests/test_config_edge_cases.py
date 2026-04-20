@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from py_pglite.config import PGliteConfig
-from py_pglite.config import _get_secure_socket_path
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.config import _get_secure_socket_path
 
 
 def test_default_config_values():

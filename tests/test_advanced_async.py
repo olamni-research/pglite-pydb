@@ -12,12 +12,12 @@ from sqlmodel import SQLModel
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyAsyncPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyAsyncPGliteManager
 
 
 if TYPE_CHECKING:
-    from py_pglite.sqlalchemy import (
+    from pglite_pydb.sqlalchemy import (
         SQLAlchemyAsyncPGliteManager as SQLAlchemyAsyncPGliteManagerType,
     )
 

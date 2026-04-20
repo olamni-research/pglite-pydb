@@ -14,8 +14,8 @@ from unittest.mock import patch
 
 import pytest
 
-from py_pglite.config import PGliteConfig
-from py_pglite.config import _get_secure_socket_path
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.config import _get_secure_socket_path
 
 
 class TestSecureSocketPath:
@@ -30,7 +30,7 @@ class TestSecureSocketPath:
         assert path1 != path2
 
         # Should contain PID and UUID components
-        assert "py-pglite-" in path1
+        assert "pglite-pydb-" in path1
         assert str(os.getpid()) in path1
 
         # Should end with PostgreSQL socket name
@@ -230,10 +230,10 @@ class TestPGliteConfigEdgeCases:
         assert parent_dir.exists()
         assert parent_dir.is_dir()
 
-    @patch("py_pglite.config.Path.mkdir")
-    @patch("py_pglite.config.tempfile.gettempdir")
-    @patch("py_pglite.config.os.getpid")
-    @patch("py_pglite.config.uuid.uuid4")
+    @patch("pglite_pydb.config.Path.mkdir")
+    @patch("pglite_pydb.config.tempfile.gettempdir")
+    @patch("pglite_pydb.config.os.getpid")
+    @patch("pglite_pydb.config.uuid.uuid4")
     def test_socket_path_generation_mocked(
         self, mock_uuid, mock_getpid, mock_tempdir, mock_mkdir
     ):
@@ -245,7 +245,7 @@ class TestPGliteConfigEdgeCases:
 
         path = _get_secure_socket_path()
 
-        expected_dir = "/mock/tmp/py-pglite-12345-abcdef12"
+        expected_dir = "/mock/tmp/pglite-pydb-12345-abcdef12"
         expected_path = f"{expected_dir}/.s.PGSQL.5432"
 
         assert path == expected_path

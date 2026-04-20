@@ -1,5 +1,5 @@
 """
-�� Django + py-pglite: Lightweight/Socket Pattern
+�� Django + pglite-pydb: Lightweight/Socket Pattern
 ================================================
 
 Pattern 1: Direct socket connection with standard PostgreSQL backend.
@@ -18,7 +18,7 @@ This example demonstrates:
 
 Compare with: ../full-integration/ for custom backend pattern
 
-Addresses community request: https://github.com/wey-gu/py-pglite/issues/5
+Addresses community request: https://github.com/wey-gu/pglite-pydb/issues/5
 """
 
 import pytest
@@ -57,7 +57,7 @@ def test_django_blog_with_socket_pattern(configured_django):
 
     # Test Django ORM operations
     post = BlogPost.objects.create(
-        title="Lightweight Pattern + py-pglite = ❤️",
+        title="Lightweight Pattern + pglite-pydb = ❤️",
         content="Socket-based PostgreSQL testing is amazing!",
         published=True,
     )

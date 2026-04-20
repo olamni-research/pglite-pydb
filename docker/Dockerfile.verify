@@ -1,0 +1,58 @@
+# Linux verification image for pglite-pydb.
+#
+# Purpose: reproduce the CI ubuntu-latest environment locally so the
+# Linux regression contract (SC-002) and example-smoke tasks (T023, T024)
+# can be exercised from any host — including Windows. Not for production
+# use; this image is never published.
+#
+# Usage (from repo root):
+#   docker build -f docker/Dockerfile.verify -t pglite-pydb:verify .
+#   docker run --rm -v "${PWD}:/src" -w /src pglite-pydb:verify \
+#       bash -c 'uv sync --all-extras && uv run pytest tests/ -q'
+#
+# The cross-platform wrapper lives in tasks.py (`verify-linux` target —
+# added after this file is written).
+
+# Python 3.12 matches the middle of the supported matrix (spec SC-001
+# uses 3.12 as the smoke target). Debian slim keeps the image small.
+FROM python:3.12-slim-bookworm
+
+ARG NODE_MAJOR=22
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_LINK_MODE=copy \
+    PATH="/root/.local/bin:${PATH}"
+# UV_PYTHON_PREFERENCE intentionally left at default (managed is OK) so
+# that a local .python-version (e.g. pinned to 3.13) doesn't fail the
+# container — uv will download the pinned interpreter if needed.
+
+# System packages: ca-certificates + curl for node/uv install; git so
+# pre-commit and coverage tooling that reads git metadata don't choke.
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates curl git gnupg && \
+    rm -rf /var/lib/apt/lists/*
+
+# Node.js from NodeSource (default Node 22 LTS; override via
+# --build-arg NODE_MAJOR=20 to exercise the Node 20 LTS smoke cell).
+RUN set -eux; \
+    curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | bash - ; \
+    apt-get install -y --no-install-recommends nodejs ; \
+    rm -rf /var/lib/apt/lists/* ; \
+    node --version ; \
+    npm --version
+
+# uv — the project's canonical Python package manager. Install to
+# /usr/local/bin so the binary is on PATH in every shell mode (login
+# or not).
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh && \
+    uv --version && \
+    uvx --version
+
+# The repo is bind-mounted into /src at run time; nothing is copied in.
+# This keeps the image reusable against edits without rebuilds.
+WORKDIR /src
+
+# A friendly default entrypoint shell; callers pass their own commands.
+CMD ["bash", "-lc", "uv sync --all-extras && uv run pytest tests/ -q"]

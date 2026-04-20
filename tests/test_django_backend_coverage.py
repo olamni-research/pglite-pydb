@@ -16,9 +16,9 @@ from unittest.mock import patch
 
 import pytest
 
-from py_pglite.config import PGliteConfig
-from py_pglite.manager import PGliteManager
-from py_pglite.utils import execute_sql
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.manager import PGliteManager
+from pglite_pydb.utils import execute_sql
 
 
 class TestPGliteDatabaseCreation:
@@ -38,8 +38,8 @@ class TestPGliteDatabaseCreation:
             },
         ):
             # Import should still work but HAS_DJANGO should be False
-            with patch("py_pglite.django.backend.base.HAS_DJANGO", False):
-                from py_pglite.django.backend.base import PGliteDatabaseWrapper
+            with patch("pglite_pydb.django.backend.base.HAS_DJANGO", False):
+                from pglite_pydb.django.backend.base import PGliteDatabaseWrapper
 
                 # Should raise ImportError when trying to instantiate
                 with pytest.raises(ImportError, match="Django is required"):
@@ -49,16 +49,16 @@ class TestPGliteDatabaseCreation:
         """Test PGliteDatabaseWrapper initialization."""
         # Mock Django components
         with (
-            patch("py_pglite.django.backend.base.HAS_DJANGO", True),
-            patch("py_pglite.django.backend.base.base.DatabaseWrapper") as mock_base,
+            patch("pglite_pydb.django.backend.base.HAS_DJANGO", True),
+            patch("pglite_pydb.django.backend.base.base.DatabaseWrapper") as mock_base,
         ):
             # Mock parent class
             mock_parent = Mock()
             mock_base.return_value = mock_parent
 
             # Import after mocking
-            from py_pglite.django.backend.base import PGliteDatabaseCreation
-            from py_pglite.django.backend.base import PGliteDatabaseWrapper
+            from pglite_pydb.django.backend.base import PGliteDatabaseCreation
+            from pglite_pydb.django.backend.base import PGliteDatabaseWrapper
 
             # Create wrapper with settings
             settings_dict = {
@@ -79,10 +79,10 @@ class TestPGliteDatabaseCreation:
     def test_get_database_version(self):
         """Test get_database_version returns PostgreSQL 15.0."""
         with (
-            patch("py_pglite.django.backend.base.HAS_DJANGO", True),
-            patch("py_pglite.django.backend.base.base.DatabaseWrapper"),
+            patch("pglite_pydb.django.backend.base.HAS_DJANGO", True),
+            patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"),
         ):
-            from py_pglite.django.backend.base import PGliteDatabaseWrapper
+            from pglite_pydb.django.backend.base import PGliteDatabaseWrapper
 
             # Create wrapper
             wrapper = PGliteDatabaseWrapper({}, "default")
@@ -93,9 +93,9 @@ class TestPGliteDatabaseCreation:
 
     def test_create_test_db_basic_flow(self):
         """Test _create_test_db basic flow."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
 
                 # Mock connection
                 mock_connection = Mock()
@@ -130,9 +130,9 @@ class TestPGliteDatabaseCreation:
 
     def test_create_test_db_already_running(self):
         """Test _create_test_db when manager is already running."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
 
                 mock_connection = Mock()
                 creation = PGliteDatabaseCreation(mock_connection)  # type: ignore
@@ -160,10 +160,10 @@ class TestPGliteDatabaseCreation:
 
     def test_get_pglite_manager_creates_new(self):
         """Test _get_pglite_manager creates new manager."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
-                from py_pglite.django.backend.base import _pglite_managers
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
+                from pglite_pydb.django.backend.base import _pglite_managers
 
                 # Clear managers dict
                 _pglite_managers.clear()
@@ -177,10 +177,10 @@ class TestPGliteDatabaseCreation:
                 # Mock PGliteManager and config
                 with (
                     patch(
-                        "py_pglite.django.backend.base.PGliteManager"
+                        "pglite_pydb.django.backend.base.PGliteManager"
                     ) as mock_manager_class,
                     patch(
-                        "py_pglite.django.backend.base.PGliteConfig"
+                        "pglite_pydb.django.backend.base.PGliteConfig"
                     ) as mock_config_class,
                 ):
                     with patch("tempfile.gettempdir", return_value="/tmp"):
@@ -202,10 +202,10 @@ class TestPGliteDatabaseCreation:
 
     def test_get_pglite_manager_returns_existing(self):
         """Test _get_pglite_manager returns existing manager."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
-                from py_pglite.django.backend.base import _pglite_managers
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
+                from pglite_pydb.django.backend.base import _pglite_managers
 
                 # Pre-populate managers dict
                 mock_manager = Mock()
@@ -225,9 +225,9 @@ class TestPGliteDatabaseCreation:
 
     def test_update_connection_settings(self):
         """Test _update_connection_settings updates Django connection."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
 
                 # Mock connection with settings_dict
                 mock_connection = Mock()
@@ -264,10 +264,10 @@ class TestPGliteDatabaseCreation:
 
     def test_create_test_schema_success(self):
         """Test _create_test_schema successful execution."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
-                from py_pglite.django.backend.base import _pglite_managers
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
+                from pglite_pydb.django.backend.base import _pglite_managers
 
                 # Mock manager
                 mock_manager = Mock()
@@ -285,7 +285,7 @@ class TestPGliteDatabaseCreation:
                 creation = PGliteDatabaseCreation(mock_connection)  # type: ignore
 
                 # Mock execute_sql to return success
-                with patch("py_pglite.utils.execute_sql") as mock_execute:
+                with patch("pglite_pydb.utils.execute_sql") as mock_execute:
                     mock_execute.return_value = True  # Success
 
                     # Call method
@@ -299,10 +299,10 @@ class TestPGliteDatabaseCreation:
 
     def test_create_test_schema_failure(self):
         """Test _create_test_schema handles failure gracefully."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
-                from py_pglite.django.backend.base import _pglite_managers
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
+                from pglite_pydb.django.backend.base import _pglite_managers
 
                 # Mock manager
                 mock_manager = Mock()
@@ -316,17 +316,17 @@ class TestPGliteDatabaseCreation:
 
                 # Mock execute_sql to raise exception
                 with patch(
-                    "py_pglite.utils.execute_sql", side_effect=Exception("SQL error")
+                    "pglite_pydb.utils.execute_sql", side_effect=Exception("SQL error")
                 ):
                     # Should not raise exception
                     creation._create_test_schema("test_schema", verbosity=0)
 
     def test_destroy_test_db(self):
         """Test _destroy_test_db cleanup."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
-                from py_pglite.django.backend.base import _pglite_managers
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
+                from pglite_pydb.django.backend.base import _pglite_managers
 
                 # Pre-populate manager
                 mock_manager = Mock()
@@ -351,10 +351,10 @@ class TestPGliteDatabaseCreation:
 
     def test_destroy_test_schema_success(self):
         """Test _destroy_test_schema successful execution."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
-                from py_pglite.django.backend.base import _pglite_managers
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
+                from pglite_pydb.django.backend.base import _pglite_managers
 
                 # Mock manager
                 mock_manager = Mock()
@@ -372,7 +372,7 @@ class TestPGliteDatabaseCreation:
                 creation = PGliteDatabaseCreation(mock_connection)  # type: ignore
 
                 # Mock execute_sql to return success
-                with patch("py_pglite.utils.execute_sql") as mock_execute:
+                with patch("pglite_pydb.utils.execute_sql") as mock_execute:
                     mock_execute.return_value = True  # Success
 
                     # Call method
@@ -387,9 +387,9 @@ class TestPGliteDatabaseCreation:
 
     def test_run_migrations_success(self):
         """Test _run_migrations calls Django migrate command."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
 
                 mock_connection = Mock()
                 mock_connection.settings_dict = {}
@@ -397,7 +397,7 @@ class TestPGliteDatabaseCreation:
                 creation = PGliteDatabaseCreation(mock_connection)  # type: ignore
 
                 # Mock call_command
-                with patch("py_pglite.django.backend.base.call_command") as mock_call:
+                with patch("pglite_pydb.django.backend.base.call_command") as mock_call:
                     # Call method
                     creation._run_migrations(verbosity=1)
 
@@ -412,9 +412,9 @@ class TestPGliteDatabaseCreation:
 
     def test_run_migrations_handles_exception(self):
         """Test _run_migrations handles exceptions gracefully."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
 
                 mock_connection = Mock()
                 mock_connection.settings_dict = {}
@@ -423,7 +423,7 @@ class TestPGliteDatabaseCreation:
 
                 # Mock call_command to raise exception
                 with patch(
-                    "py_pglite.django.backend.base.call_command",
+                    "pglite_pydb.django.backend.base.call_command",
                     side_effect=Exception("Migration error"),
                 ):
                     # Should not raise exception
@@ -436,7 +436,7 @@ class TestPGliteDatabaseWrapperConnection:
     def test_get_new_connection_without_test_database(self):
         """Test get_new_connection without test database."""
         # Mock Django components before importing our module
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
             # Mock psycopg at module level
             mock_psycopg = Mock()
             mock_psycopg.connect = Mock(return_value="mock_connection")
@@ -446,11 +446,11 @@ class TestPGliteDatabaseWrapperConnection:
             mock_base.DatabaseWrapper = Mock()
 
             with (
-                patch("py_pglite.django.backend.base.base", mock_base),
+                patch("pglite_pydb.django.backend.base.base", mock_base),
                 patch("psycopg.connect", mock_psycopg.connect),
             ):
                 # Import after mocking
-                from py_pglite.django.backend.base import PGliteDatabaseWrapper
+                from pglite_pydb.django.backend.base import PGliteDatabaseWrapper
 
                 # Create wrapper
                 settings_dict = {
@@ -476,7 +476,7 @@ class TestPGliteDatabaseWrapperConnection:
     def test_get_new_connection_with_test_database(self):
         """Test get_new_connection with test database and PGlite manager."""
         # Mock Django components before importing our module
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
             # Mock psycopg at module level
             mock_psycopg = Mock()
             mock_psycopg.connect = Mock(return_value="mock_connection")
@@ -486,12 +486,12 @@ class TestPGliteDatabaseWrapperConnection:
             mock_base.DatabaseWrapper = Mock()
 
             with (
-                patch("py_pglite.django.backend.base.base", mock_base),
+                patch("pglite_pydb.django.backend.base.base", mock_base),
                 patch("psycopg.connect", mock_psycopg.connect),
             ):
                 # Import after mocking
-                from py_pglite.django.backend.base import PGliteDatabaseWrapper
-                from py_pglite.django.backend.base import _pglite_managers
+                from pglite_pydb.django.backend.base import PGliteDatabaseWrapper
+                from pglite_pydb.django.backend.base import _pglite_managers
 
                 # Create wrapper
                 settings_dict = {
@@ -543,7 +543,7 @@ class TestPGliteDatabaseWrapperConnection:
     def test_get_new_connection_no_host_in_connection_string(self):
         """Test get_new_connection when connection string has no host."""
         # Mock Django components before importing our module
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
             # Mock psycopg at module level
             mock_psycopg = Mock()
             mock_psycopg.connect = Mock(return_value="mock_connection")
@@ -553,12 +553,12 @@ class TestPGliteDatabaseWrapperConnection:
             mock_base.DatabaseWrapper = Mock()
 
             with (
-                patch("py_pglite.django.backend.base.base", mock_base),
+                patch("pglite_pydb.django.backend.base.base", mock_base),
                 patch("psycopg.connect", mock_psycopg.connect),
             ):
                 # Import after mocking
-                from py_pglite.django.backend.base import PGliteDatabaseWrapper
-                from py_pglite.django.backend.base import _pglite_managers
+                from pglite_pydb.django.backend.base import PGliteDatabaseWrapper
+                from pglite_pydb.django.backend.base import _pglite_managers
 
                 # Create wrapper
                 settings_dict = {
@@ -600,8 +600,8 @@ class TestPGliteManagerRegistry:
 
     def test_get_pglite_manager_by_alias(self):
         """Test get_pglite_manager finds manager by alias."""
-        from py_pglite.django.backend.base import _pglite_managers
-        from py_pglite.django.backend.base import get_pglite_manager
+        from pglite_pydb.django.backend.base import _pglite_managers
+        from pglite_pydb.django.backend.base import get_pglite_manager
 
         # Clear and populate managers dict
         _pglite_managers.clear()
@@ -614,8 +614,8 @@ class TestPGliteManagerRegistry:
 
     def test_get_pglite_manager_by_exact_name(self):
         """Test get_pglite_manager finds manager by exact name."""
-        from py_pglite.django.backend.base import _pglite_managers
-        from py_pglite.django.backend.base import get_pglite_manager
+        from pglite_pydb.django.backend.base import _pglite_managers
+        from pglite_pydb.django.backend.base import get_pglite_manager
 
         # Clear and populate managers dict
         _pglite_managers.clear()
@@ -628,8 +628,8 @@ class TestPGliteManagerRegistry:
 
     def test_get_pglite_manager_not_found(self):
         """Test get_pglite_manager returns None when not found."""
-        from py_pglite.django.backend.base import _pglite_managers
-        from py_pglite.django.backend.base import get_pglite_manager
+        from pglite_pydb.django.backend.base import _pglite_managers
+        from pglite_pydb.django.backend.base import get_pglite_manager
 
         # Clear managers dict
         _pglite_managers.clear()
@@ -644,8 +644,8 @@ class TestThreadingSafety:
 
     def test_manager_registry_thread_safety(self):
         """Test that manager registry operations are thread-safe."""
-        from py_pglite.django.backend.base import _manager_lock
-        from py_pglite.django.backend.base import _pglite_managers
+        from pglite_pydb.django.backend.base import _manager_lock
+        from pglite_pydb.django.backend.base import _pglite_managers
 
         _pglite_managers.clear()
 
@@ -691,8 +691,8 @@ class TestDatabaseWrapperExported:
 
     def test_database_wrapper_export(self):
         """Test that DatabaseWrapper is exported as expected."""
-        from py_pglite.django.backend.base import DatabaseWrapper
-        from py_pglite.django.backend.base import PGliteDatabaseWrapper
+        from pglite_pydb.django.backend.base import DatabaseWrapper
+        from pglite_pydb.django.backend.base import PGliteDatabaseWrapper
 
         # DatabaseWrapper should be an alias for PGliteDatabaseWrapper
         assert DatabaseWrapper is PGliteDatabaseWrapper
@@ -700,8 +700,8 @@ class TestDatabaseWrapperExported:
     def test_database_wrapper_with_django_unavailable(self):
         """Test DatabaseWrapper behavior when Django is unavailable."""
         # Mock HAS_DJANGO as False
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", False):
-            from py_pglite.django.backend.base import DatabaseWrapper
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", False):
+            from pglite_pydb.django.backend.base import DatabaseWrapper
 
             # Should still be the PGliteDatabaseWrapper class
             # but instantiation should fail
@@ -714,10 +714,10 @@ class TestConnectionStringParsing:
 
     def test_connection_string_with_multiple_params(self):
         """Test parsing connection string with multiple URL parameters."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
-                from py_pglite.django.backend.base import _pglite_managers
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
+                from pglite_pydb.django.backend.base import _pglite_managers
 
                 mock_connection = Mock()
                 mock_connection.settings_dict = {}
@@ -739,10 +739,10 @@ class TestConnectionStringParsing:
 
     def test_connection_string_with_ampersand_in_host(self):
         """Test parsing connection string, host parameter contains special chars."""
-        with patch("py_pglite.django.backend.base.HAS_DJANGO", True):
-            with patch("py_pglite.django.backend.base.base.DatabaseWrapper"):
-                from py_pglite.django.backend.base import PGliteDatabaseCreation
-                from py_pglite.django.backend.base import _pglite_managers
+        with patch("pglite_pydb.django.backend.base.HAS_DJANGO", True):
+            with patch("pglite_pydb.django.backend.base.base.DatabaseWrapper"):
+                from pglite_pydb.django.backend.base import PGliteDatabaseCreation
+                from pglite_pydb.django.backend.base import _pglite_managers
 
                 mock_connection = Mock()
                 mock_connection.settings_dict = {}

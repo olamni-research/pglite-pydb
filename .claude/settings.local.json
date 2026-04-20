@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep *)",
+      "WebFetch(domain:github.com)",
+      "Bash(uv --version)",
+      "Bash(where uv *)",
+      "Bash(gh release *)",
+      "Bash(uv tool *)",
+      "Bash(specify init *)",
+      "Bash(PYTHONIOENCODING=utf-8 PYTHONUTF8=1 specify init *)",
+      "Bash(specify --version)",
+      "Bash(specify check *)",
+      "Bash(git *)",
+      "Bash(powershell.exe *)",
+      "Bash(grep -E \"\\\\.\\(py|js\\)$|^d\")",
+      "Bash(npm --version)",
+      "Bash(uv sync *)",
+      "Bash(uv python *)",
+      "Bash(uv run *)",
+      "Bash(.venv/Scripts/python.exe *)",
+      "Bash(docker --version)",
+      "Bash(docker info *)",
+      "Bash(uv build *)",
+      "Bash(gh auth *)",
+      "Bash(gh pr create --base main --head 001-pglite-pydb-port --title 'Rename py-pglite → pglite-pydb; add Windows/PowerShell support' --body ' *)",
+      "Bash(gh run *)",
+      "Bash(gh pr *)",
+      "Bash(gh api *)",
+      "Bash(gh repo *)"
+    ]
+  }
+}

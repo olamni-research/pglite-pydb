@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from py_pglite.utils import find_pglite_modules
-from py_pglite.utils import get_major_version
+from pglite_pydb.utils import find_pglite_modules
+from pglite_pydb.utils import get_major_version
 
 
 def test_get_major_version():
@@ -35,7 +35,7 @@ def test_find_pglite_modules():
 
 def test_utils_module_structure():
     """Test that the utils module has the expected structure."""
-    from py_pglite import utils
+    from pglite_pydb import utils
 
     # Check that key functions exist
     assert hasattr(utils, "get_connection_from_string")
@@ -50,11 +50,11 @@ def test_utils_module_structure():
 
 def test_utils_error_handling():
     """Test error handling in utility functions with invalid inputs."""
-    from py_pglite.utils import execute_sql
-    from py_pglite.utils import get_database_version
-    from py_pglite.utils import get_table_names
-    from py_pglite.utils import table_exists
-    from py_pglite.utils import test_connection
+    from pglite_pydb.utils import execute_sql
+    from pglite_pydb.utils import get_database_version
+    from pglite_pydb.utils import get_table_names
+    from pglite_pydb.utils import table_exists
+    from pglite_pydb.utils import test_connection
 
     # Test with malformed connection strings
     malformed_strings = [
@@ -74,9 +74,9 @@ def test_utils_error_handling():
 
 def test_utils_with_logging(caplog):
     """Test that utility functions properly log warnings on errors."""
-    from py_pglite.utils import execute_sql
-    from py_pglite.utils import get_table_names
-    from py_pglite.utils import table_exists
+    from pglite_pydb.utils import execute_sql
+    from pglite_pydb.utils import get_table_names
+    from pglite_pydb.utils import table_exists
 
     bad_conn_string = "postgresql://baduser:badpass@localhost:9999/baddb"
 

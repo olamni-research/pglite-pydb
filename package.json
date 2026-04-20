@@ -1,0 +1,12 @@
+{
+  "name": "pglite-pydb-runtime",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Node-side runtime dependencies for the pglite-pydb Python package (not published to npm).",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.4.4"
+  }
+}

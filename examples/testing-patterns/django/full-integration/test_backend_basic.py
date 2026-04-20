@@ -1,24 +1,24 @@
 """
-🌟 Django + py-pglite: Full Integration Pattern
+🌟 Django + pglite-pydb: Full Integration Pattern
 ==============================================
 
-Pattern 2: Custom py-pglite Django backend integration.
+Pattern 2: Custom pglite-pydb Django backend integration.
 
 This example demonstrates:
-• Django ORM with custom py_pglite.django.backend
-• Full py-pglite integration features
+• Django ORM with custom pglite_pydb.django.backend
+• Full pglite-pydb integration features
 • Advanced backend capabilities
 • Perfect for comprehensive Django testing
 
 📋 Pattern Details:
-• Backend: py_pglite.django.backend (custom)
-• Connection: Managed by py-pglite backend
+• Backend: pglite_pydb.django.backend (custom)
+• Connection: Managed by pglite-pydb backend
 • Setup: Full integration features
 • Use case: Comprehensive Django testing, production-like setup
 
 Compare with: ../lightweight/ for socket-based pattern
 
-Addresses community request: https://github.com/wey-gu/py-pglite/issues/5
+Addresses community request: https://github.com/wey-gu/pglite-pydb/issues/5
 """
 
 import pytest
@@ -36,8 +36,8 @@ def test_django_blog_with_backend_pattern(django_pglite_db):
     🎯 Test Django ORM with Full Integration Pattern!
 
     This shows the custom backend approach:
-    - Custom py_pglite.django.backend
-    - Full py-pglite integration features
+    - Custom pglite_pydb.django.backend
+    - Full pglite-pydb integration features
     - Advanced backend capabilities
     - Production-ready testing setup
     """
@@ -58,7 +58,7 @@ def test_django_blog_with_backend_pattern(django_pglite_db):
 
     # Test Django ORM operations
     post = BlogPost.objects.create(
-        title="Full Integration Pattern + py-pglite = 🚀",
+        title="Full Integration Pattern + pglite-pydb = 🚀",
         content="Custom backend PostgreSQL testing is powerful!",
         published=True,
     )

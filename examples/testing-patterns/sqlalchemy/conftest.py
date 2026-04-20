@@ -1,5 +1,5 @@
 """
-SQLAlchemy Testing Configuration for py-pglite
+SQLAlchemy Testing Configuration for pglite-pydb
 ==============================================
 
 Provides SQLAlchemy-specific fixtures with proper isolation.
@@ -15,8 +15,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 @pytest.fixture(scope="module")

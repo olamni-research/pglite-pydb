@@ -1,12 +1,18 @@
-# py-pglite
+# pglite-pydb
 
-<img src="https://github.com/user-attachments/assets/3c6ef886-5075-4d82-a180-a6b1dafe792b" alt="py-pglite Logo" width="60" align="left" style="margin-right: 16px;"/>
+<img src="https://github.com/user-attachments/assets/3c6ef886-5075-4d82-a180-a6b1dafe792b" alt="pglite-pydb Logo" width="60" align="left" style="margin-right: 16px;"/>
 
 **A Pythonic interface for PGlite - the instant, zero-config PostgreSQL.** ⚡️
 
-`py-pglite` brings the magic of [PGlite](https://github.com/electric-sql/pglite) to Python with a high-level, developer-friendly API. Real PostgreSQL, instant testing.
+`pglite-pydb` brings the magic of [PGlite](https://github.com/electric-sql/pglite) to Python with a high-level, developer-friendly API. Real PostgreSQL, instant testing. Runs on Linux, macOS, and Windows (PowerShell).
 
-`pip install py-pglite`
+`pip install pglite-pydb`
+
+> **Note:** This project was previously published under the name `py-pglite`.
+> The old PyPI distribution (`py-pglite==0.5.3`) is intentionally frozen and
+> receives no further updates. New installations should use
+> `pip install pglite-pydb`; existing projects must update imports from
+> `py_pglite` to `pglite_pydb` (no backward-compatibility alias is provided).
 
 <br clear="all"/>
 
@@ -20,13 +26,13 @@ def test_users(pglite_session):
 
 **That's it.** No Docker, no setup, no config files. Real PostgreSQL, instant testing.
 
-[![CI](https://github.com/wey-gu/py-pglite/actions/workflows/ci.yml/badge.svg)](https://github.com/wey-gu/py-pglite/actions/workflows/ci.yml) [![PyPI](https://badge.fury.io/py/py-pglite.svg)](https://badge.fury.io/py/py-pglite) [![Python](https://img.shields.io/pypi/pyversions/py-pglite.svg)](https://pypi.org/project/py-pglite/)
+[![CI](https://github.com/olamni-research/pglite-pydb/actions/workflows/ci.yml/badge.svg)](https://github.com/olamni-research/pglite-pydb/actions/workflows/ci.yml) [![PyPI](https://badge.fury.io/py/pglite-pydb.svg)](https://badge.fury.io/py/pglite-pydb) [![Python](https://img.shields.io/pypi/pyversions/pglite-pydb.svg)](https://pypi.org/project/pglite-pydb/)
 
-[![License](https://img.shields.io/pypi/l/py-pglite.svg)](https://github.com/wey-gu/py-pglite/blob/main/LICENSE) [![MyPy](https://img.shields.io/badge/type_checked-mypy-informational.svg)](https://mypy.readthedocs.io/en/stable/introduction.html) [![Ruff](https://img.shields.io/badge/style-ruff-blue?logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff) [![codecov](https://codecov.io/github/wey-gu/py-pglite/graph/badge.svg?token=VQHDHT5LIM)](https://codecov.io/github/wey-gu/py-pglite)
+[![License](https://img.shields.io/pypi/l/pglite-pydb.svg)](https://github.com/olamni-research/pglite-pydb/blob/main/LICENSE) [![MyPy](https://img.shields.io/badge/type_checked-mypy-informational.svg)](https://mypy.readthedocs.io/en/stable/introduction.html) [![Ruff](https://img.shields.io/badge/style-ruff-blue?logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff) [![codecov](https://codecov.io/github/olamni-research/pglite-pydb/graph/badge.svg?token=VQHDHT5LIM)](https://codecov.io/github/olamni-research/pglite-pydb)
 
 ---
 
-## **Why py-pglite?**
+## **Why pglite-pydb?**
 
 ```python
 # ❌ Traditional testing
@@ -38,7 +44,7 @@ def test_old_way():
     # 5. Docker containers...
     pass
 
-# ✅ py-pglite way
+# ✅ pglite-pydb way
 def test_new_way(pglite_session):
     User.objects.create(name="Alice")  # Just works!
 ```
@@ -57,16 +63,16 @@ def test_new_way(pglite_session):
 
 ```bash
 # Core (framework-agnostic)
-pip install py-pglite
+pip install pglite-pydb
 
 # With your stack
-pip install py-pglite[sqlalchemy]  # SQLAlchemy + SQLModel
-pip install py-pglite[django]      # Django + pytest-django
-pip install py-pglite[asyncpg]     # Pure async client
-pip install py-pglite[all]         # Everything
+pip install pglite-pydb[sqlalchemy]  # SQLAlchemy + SQLModel
+pip install pglite-pydb[django]      # Django + pytest-django
+pip install pglite-pydb[asyncpg]     # Pure async client
+pip install pglite-pydb[all]         # Everything
 
 # Extra Features
-pip install py-pglite[extensions]  # pglite extensions, like pgvector, fuzzystrmatch etc.
+pip install pglite-pydb[extensions]  # pglite extensions, like pgvector, fuzzystrmatch etc.
 ```
 
 ---
@@ -184,7 +190,7 @@ def test_postgresql_power(pglite_session):
 
 ### **PostgreSQL Extensions**
 
-`py-pglite` supports PostgreSQL extensions, allowing you to test advanced features like vector similarity search for AI/RAG applications.
+`pglite-pydb` supports PostgreSQL extensions, allowing you to test advanced features like vector similarity search for AI/RAG applications.
 
 ### **🚀 `pgvector` for RAG Applications**
 
@@ -193,13 +199,13 @@ Enable `pgvector` to test vector embeddings and similarity search directly in yo
 **1. Install with the `[extensions]` extra:**
 
 ```bash
-pip install 'py-pglite[extensions]'
+pip install 'pglite-pydb[extensions]'
 ```
 
 **2. Enable `pgvector` in the configuration:**
 
 ```python
-from py_pglite import PGliteConfig, PGliteManager
+from pglite_pydb import PGliteConfig, PGliteManager
 from pgvector.psycopg import register_vector
 import psycopg
 import numpy as np
@@ -222,7 +228,7 @@ with PGliteManager(config=config) as db:
         assert np.array_equal(result[0], np.array([1, 2, 3]))
 ```
 
-`py-pglite` can support many other extensions available in the underlying [PGlite extensions](https://pglite.dev/extensions/) ♥️.
+`pglite-pydb` can support many other extensions available in the underlying [PGlite extensions](https://pglite.dev/extensions/) ♥️.
 
 ---
 
@@ -232,8 +238,8 @@ with PGliteManager(config=config) as db:
 <summary><strong>🔧 Production Configuration</strong></summary>
 
 ```python
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 config = PGliteConfig(
     timeout=60,                    # Extended timeout for CI/CD
@@ -254,13 +260,13 @@ with SQLAlchemyPGliteManager(config) as manager:
 <details>
 <summary><strong>🌐 Socket Modes (Unix vs TCP)</strong></summary>
 
-py-pglite supports both Unix domain sockets (default) and TCP sockets for different use cases:
+pglite-pydb supports both Unix domain sockets (default) and TCP sockets for different use cases:
 
 ### Unix Socket Mode (Default)
 
 ```python
 # Default configuration - uses Unix domain socket for best performance
-from py_pglite import PGliteManager
+from pglite_pydb import PGliteManager
 
 with PGliteManager() as db:
     # Connection via Unix socket - fastest for local testing
@@ -270,7 +276,7 @@ with PGliteManager() as db:
 ### TCP Socket Mode
 
 ```python
-from py_pglite import PGliteConfig, PGliteManager
+from pglite_pydb import PGliteConfig, PGliteManager
 
 # Enable TCP mode for any TCP-only clients
 config = PGliteConfig(
@@ -308,7 +314,7 @@ with PGliteManager(config) as db:
 <summary><strong>🔄 Client Compatibility</strong></summary>
 
 ```python
-# py-pglite provides a REAL PostgreSQL server - any client works!
+# pglite-pydb provides a REAL PostgreSQL server - any client works!
 
 with SQLAlchemyPGliteManager() as manager:
     engine = manager.get_engine()
@@ -319,7 +325,7 @@ with SQLAlchemyPGliteManager() as manager:
 
     # Examples for different clients:
     # psycopg:  psycopg.connect(host=host, port=port, dbname=database)
-    # Django:   Uses custom py-pglite backend automatically
+    # Django:   Uses custom pglite-pydb backend automatically
 
 # asyncpg requires TCP mode and specific configuration:
 config = PGliteConfig(use_tcp=True)
@@ -363,10 +369,10 @@ pytest tests/sqlalchemy/              # Directory isolation
 
 **Built for developers who want PostgreSQL testing without the complexity.**
 
-🎯 [Examples](examples/) • 📚 [Contributing](CONTRIBUTING.md) • 🐛 [Issues](https://github.com/wey-gu/py-pglite/issues)
+🎯 [Examples](examples/) • 📚 [Contributing](CONTRIBUTING.md) • 🐛 [Issues](https://github.com/olamni-research/pglite-pydb/issues)
 
 ---
 
-*py-pglite: Because testing should be simple.* ⚡
+*pglite-pydb: Because testing should be simple.* ⚡
 
 Powered by the 🚀 amazing and ♥️ beloved [PGlite](https://github.com/electric-sql/pglite).

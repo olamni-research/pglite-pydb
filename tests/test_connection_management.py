@@ -1,4 +1,4 @@
-"""Connection management and reliability testing for py-pglite.
+"""Connection management and reliability testing for pglite-pydb.
 
 Tests connection pooling, cleanup, error recovery, and edge cases
 to ensure robust connection handling under various scenarios.
@@ -17,8 +17,8 @@ from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.pool import NullPool
 from sqlalchemy.pool import StaticPool
 
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 class TestConnectionPooling:
@@ -122,10 +122,10 @@ class TestConnectionLifecycle:
 
         # Create unique socket paths for each manager to avoid conflicts
         temp_dir1 = (
-            Path(tempfile.gettempdir()) / f"py-pglite-test1-{uuid.uuid4().hex[:8]}"
+            Path(tempfile.gettempdir()) / f"pglite-pydb-test1-{uuid.uuid4().hex[:8]}"
         )
         temp_dir2 = (
-            Path(tempfile.gettempdir()) / f"py-pglite-test2-{uuid.uuid4().hex[:8]}"
+            Path(tempfile.gettempdir()) / f"pglite-pydb-test2-{uuid.uuid4().hex[:8]}"
         )
         temp_dir1.mkdir(mode=0o700, exist_ok=True)
         temp_dir2.mkdir(mode=0o700, exist_ok=True)

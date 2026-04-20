@@ -1,10 +1,10 @@
 """
-Django Testing Configuration for py-pglite
+Django Testing Configuration for pglite-pydb
 ==========================================
 
 Provides fixtures and configuration for both Django integration patterns:
 • Pattern 1: Lightweight/Socket approach (standard PostgreSQL backend)
-• Pattern 2: Full Integration approach (custom py-pglite backend)
+• Pattern 2: Full Integration approach (custom pglite-pydb backend)
 
 Shows proper abstraction for different testing approaches.
 """
@@ -14,8 +14,8 @@ import pytest
 
 from django.conf import settings
 
-from py_pglite import PGliteConfig
-from py_pglite import PGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb import PGliteManager
 
 
 @pytest.fixture(scope="function")
@@ -119,12 +119,12 @@ def django_pglite_db(pglite_manager):
     """
     🔸 Pattern 2: Full Integration Django Configuration
 
-    Provides Django setup with custom py-pglite backend.
+    Provides Django setup with custom pglite-pydb backend.
     This is the main fixture for the full integration pattern.
 
     Features:
-    • py_pglite.django.backend (custom backend)
-    • Full py-pglite integration features
+    • pglite_pydb.django.backend (custom backend)
+    • Full pglite-pydb integration features
     • Advanced backend capabilities
     • Enhanced optimization
     """
@@ -137,7 +137,7 @@ def django_pglite_db(pglite_manager):
         settings.configure(
             DATABASES={
                 "default": {
-                    "ENGINE": "py_pglite.django.backend",  # Custom py-pglite backend
+                    "ENGINE": "pglite_pydb.django.backend",  # Custom pglite-pydb backend
                     "NAME": "postgres",
                     "USER": "postgres",
                     "PASSWORD": "postgres",

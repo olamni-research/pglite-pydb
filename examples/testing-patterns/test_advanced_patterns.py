@@ -1,9 +1,9 @@
 """
-🎪 Advanced py-pglite Patterns
+🎪 Advanced pglite-pydb Patterns
 =============================
 
 Production-ready patterns showing advanced configuration, error recovery,
-and sophisticated testing techniques with py-pglite.
+and sophisticated testing techniques with pglite-pydb.
 
 Run with: pytest examples/testing-patterns/test_advanced_patterns.py -v -s
 """
@@ -19,8 +19,8 @@ from sqlalchemy import text
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 Base = declarative_base()
@@ -97,7 +97,7 @@ class TestAdvancedPatterns:
                 assert count is not None and count >= 1
 
     def test_postgresql_advanced_features(self, benchmark_engine):
-        """Test advanced PostgreSQL features working with py-pglite."""
+        """Test advanced PostgreSQL features working with pglite-pydb."""
 
         with SQLAlchemyPGliteManager() as manager:
             manager.wait_for_ready()

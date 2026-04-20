@@ -1,5 +1,5 @@
 """
-Example of using pgvector with py-pglite for a simple RAG application.
+Example of using pgvector with pglite-pydb for a simple RAG application.
 
 This test demonstrates how to:
 1. Enable the `pgvector` extension.
@@ -14,8 +14,8 @@ from typing import TYPE_CHECKING
 import psycopg
 import pytest
 
-from py_pglite import PGliteManager
-from py_pglite.config import PGliteConfig
+from pglite_pydb import PGliteManager
+from pglite_pydb.config import PGliteConfig
 
 
 if TYPE_CHECKING:

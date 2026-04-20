@@ -7,7 +7,7 @@ inputs:
     required: false
     default: '3.11'
   node-version:
-    description: 'Node.js version to use'
+    description: 'Node.js version to use (Node 20 LTS and Node 22 LTS are officially supported per research.md R7)'
     required: false
     default: '22'
   run-tests:
@@ -45,4 +45,4 @@ runs:
     - name: Generate coverage report
       if: inputs.run-tests == 'true' && inputs.coverage == 'true'
       shell: bash
-      run: uv run pytest --cov=py_pglite --cov-report=xml --cov-report=term-missing
+      run: uv run pytest --cov=pglite_pydb --cov-report=xml --cov-report=term-missing

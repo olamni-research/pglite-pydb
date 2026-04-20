@@ -1,5 +1,5 @@
 """
-🔄 Django + py-pglite: Pattern Comparison
+🔄 Django + pglite-pydb: Pattern Comparison
 =========================================
 
 Side-by-side comparison of both Django integration patterns.
@@ -15,14 +15,14 @@ This example demonstrates:
 ┌─────────────────┬─────────────────────────┬────────────────────────────┐
 │ Aspect          │ Lightweight/Socket      │ Full Integration/Backend   │
 ├─────────────────┼─────────────────────────┼────────────────────────────┤
-│ Backend         │ django.db.backends.     │ py_pglite.django.backend   │
+│ Backend         │ django.db.backends.     │ pglite_pydb.django.backend   │
 │                 │ postgresql (standard)   │ (custom)                   │
 ├─────────────────┼─────────────────────────┼────────────────────────────┤
 │ Setup           │ Minimal, socket-based   │ Full integration features  │
 ├─────────────────┼─────────────────────────┼────────────────────────────┤
 │ Performance     │ Fast, lightweight       │ Optimized, feature-rich   │
 ├─────────────────┼─────────────────────────┼────────────────────────────┤
-│ Features        │ Standard PostgreSQL     │ Enhanced + py-pglite       │
+│ Features        │ Standard PostgreSQL     │ Enhanced + pglite-pydb       │
 ├─────────────────┼─────────────────────────┼────────────────────────────┤
 │ Use Case        │ Simple testing,         │ Comprehensive testing,     │
 │                 │ quick prototypes        │ production-like setup      │
@@ -86,8 +86,8 @@ def test_pattern_2_full_integration_backend(django_pglite_db):
     🔸 Pattern 2: Full Integration/Custom Backend Approach
 
     Features:
-    • Custom py_pglite.django.backend
-    • Full py-pglite integration
+    • Custom pglite_pydb.django.backend
+    • Full pglite-pydb integration
     • Advanced backend capabilities
     • Enhanced features and optimization
     """
@@ -153,12 +153,12 @@ def test_pattern_comparison_side_by_side():
             "optimization": "Standard PostgreSQL optimization",
         },
         "Pattern 2 (Full Integration/Backend)": {
-            "backend": "py_pglite.django.backend",
+            "backend": "pglite_pydb.django.backend",
             "setup": "Full integration with custom backend",
-            "features": "Enhanced PostgreSQL + py-pglite features",
+            "features": "Enhanced PostgreSQL + pglite-pydb features",
             "performance": "Optimized for comprehensive testing",
             "use_case": "Comprehensive testing, production-like",
-            "dependencies": "Full py-pglite Django integration",
+            "dependencies": "Full pglite-pydb Django integration",
             "json_support": "Enhanced JSON with backend optimization",
             "optimization": "Custom backend optimization",
         },
@@ -194,7 +194,7 @@ def test_pattern_performance_characteristics():
         },
         "Feature Availability": {
             "Lightweight/Socket": "📦 Standard Django + PostgreSQL",
-            "Full Integration/Backend": "📦 Enhanced Django + py-pglite features",
+            "Full Integration/Backend": "📦 Enhanced Django + pglite-pydb features",
         },
     }
 
@@ -214,7 +214,7 @@ def test_migration_between_patterns():
         "From Lightweight to Full Integration": [
             (
                 "1. Change ENGINE from 'django.db.backends.postgresql' to "
-                "'py_pglite.django.backend'"
+                "'pglite_pydb.django.backend'"
             ),
             "2. Update fixture usage from 'configured_django' to 'django_pglite_db'",
             "3. Remove manual socket configuration (handled by backend)",
@@ -223,7 +223,7 @@ def test_migration_between_patterns():
         ],
         "From Full Integration to Lightweight": [
             (
-                "1. Change ENGINE from 'py_pglite.django.backend' to "
+                "1. Change ENGINE from 'pglite_pydb.django.backend' to "
                 "'django.db.backends.postgresql'"
             ),
             "2. Update fixture usage from 'django_pglite_db' to 'configured_django'",

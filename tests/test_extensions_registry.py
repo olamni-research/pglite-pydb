@@ -2,9 +2,9 @@
 
 import pytest
 
-from py_pglite.config import PGliteConfig
-from py_pglite.extensions import SUPPORTED_EXTENSIONS
-from py_pglite.manager import PGliteManager
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.extensions import SUPPORTED_EXTENSIONS
+from pglite_pydb.manager import PGliteManager
 
 
 def test_supported_extensions_registry():

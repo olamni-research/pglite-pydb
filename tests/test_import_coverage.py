@@ -9,13 +9,13 @@ import pytest
 
 def test_main_package_imports():
     """Test main package imports work correctly."""
-    # Test all imports from py_pglite/__init__.py (lines 7-16)
-    from py_pglite import AsyncpgClient
-    from py_pglite import PGliteConfig
-    from py_pglite import PGliteManager
-    from py_pglite import PsycopgClient
-    from py_pglite import get_client
-    from py_pglite import get_default_client
+    # Test all imports from pglite_pydb/__init__.py (lines 7-16)
+    from pglite_pydb import AsyncpgClient
+    from pglite_pydb import PGliteConfig
+    from pglite_pydb import PGliteManager
+    from pglite_pydb import PsycopgClient
+    from pglite_pydb import get_client
+    from pglite_pydb import get_default_client
 
     # Verify classes can be instantiated (basic smoke test)
     config = PGliteConfig()
@@ -35,13 +35,13 @@ def test_main_package_imports():
 
 def test_django_package_imports():
     """Test Django package imports work correctly."""
-    # Test all imports from py_pglite/django/__init__.py (lines 7-18)
-    from py_pglite.django import configure_django_for_pglite
-    from py_pglite.django import create_django_superuser
-    from py_pglite.django import db
-    from py_pglite.django import django_pglite_db
-    from py_pglite.django import django_pglite_transactional_db
-    from py_pglite.django import transactional_db
+    # Test all imports from pglite_pydb/django/__init__.py (lines 7-18)
+    from pglite_pydb.django import configure_django_for_pglite
+    from pglite_pydb.django import create_django_superuser
+    from pglite_pydb.django import db
+    from pglite_pydb.django import django_pglite_db
+    from pglite_pydb.django import django_pglite_transactional_db
+    from pglite_pydb.django import transactional_db
 
     # Verify these are callable/importable
     assert callable(configure_django_for_pglite)
@@ -51,19 +51,19 @@ def test_django_package_imports():
 
 def test_sqlalchemy_package_imports():
     """Test SQLAlchemy package imports work correctly."""
-    # Test all imports from py_pglite/sqlalchemy/__init__.py (lines 7-20)
-    from py_pglite.sqlalchemy import SQLAlchemyAsyncPGliteManager
-    from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
-    from py_pglite.sqlalchemy import create_all_tables
-    from py_pglite.sqlalchemy import drop_all_tables
-    from py_pglite.sqlalchemy import get_session_class
-    from py_pglite.sqlalchemy import pglite_async_engine
-    from py_pglite.sqlalchemy import pglite_async_session
-    from py_pglite.sqlalchemy import pglite_engine
-    from py_pglite.sqlalchemy import pglite_session
-    from py_pglite.sqlalchemy import pglite_sqlalchemy_async_engine
-    from py_pglite.sqlalchemy import pglite_sqlalchemy_engine
-    from py_pglite.sqlalchemy import pglite_sqlalchemy_session
+    # Test all imports from pglite_pydb/sqlalchemy/__init__.py (lines 7-20)
+    from pglite_pydb.sqlalchemy import SQLAlchemyAsyncPGliteManager
+    from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
+    from pglite_pydb.sqlalchemy import create_all_tables
+    from pglite_pydb.sqlalchemy import drop_all_tables
+    from pglite_pydb.sqlalchemy import get_session_class
+    from pglite_pydb.sqlalchemy import pglite_async_engine
+    from pglite_pydb.sqlalchemy import pglite_async_session
+    from pglite_pydb.sqlalchemy import pglite_engine
+    from pglite_pydb.sqlalchemy import pglite_session
+    from pglite_pydb.sqlalchemy import pglite_sqlalchemy_async_engine
+    from pglite_pydb.sqlalchemy import pglite_sqlalchemy_engine
+    from pglite_pydb.sqlalchemy import pglite_sqlalchemy_session
 
     # Verify manager classes can be imported
     assert SQLAlchemyAsyncPGliteManager is not None
@@ -77,8 +77,8 @@ def test_sqlalchemy_package_imports():
 
 def test_extensions_registry():
     """Test extensions registry is accessible."""
-    # Test py_pglite/extensions.py (line 7)
-    from py_pglite.extensions import SUPPORTED_EXTENSIONS
+    # Test pglite_pydb/extensions.py (line 7)
+    from pglite_pydb.extensions import SUPPORTED_EXTENSIONS
 
     # Verify registry structure
     assert isinstance(SUPPORTED_EXTENSIONS, dict)
@@ -93,29 +93,31 @@ def test_extensions_registry():
 def test_all_exports_available():
     """Test that all __all__ exports are available."""
     # Test main package __all__
-    import py_pglite
+    import pglite_pydb
 
-    for name in py_pglite.__all__:
-        assert hasattr(py_pglite, name), f"Missing export: {name}"
+    for name in pglite_pydb.__all__:
+        assert hasattr(pglite_pydb, name), f"Missing export: {name}"
 
     # Test Django package __all__
-    import py_pglite.django
+    import pglite_pydb.django
 
-    for name in py_pglite.django.__all__:
-        assert hasattr(py_pglite.django, name), f"Missing Django export: {name}"
+    for name in pglite_pydb.django.__all__:
+        assert hasattr(pglite_pydb.django, name), f"Missing Django export: {name}"
 
     # Test SQLAlchemy package __all__
-    import py_pglite.sqlalchemy
+    import pglite_pydb.sqlalchemy
 
-    for name in py_pglite.sqlalchemy.__all__:
-        assert hasattr(py_pglite.sqlalchemy, name), f"Missing SQLAlchemy export: {name}"
+    for name in pglite_pydb.sqlalchemy.__all__:
+        assert hasattr(pglite_pydb.sqlalchemy, name), (
+            f"Missing SQLAlchemy export: {name}"
+        )
 
 
 def test_package_metadata():
     """Test package metadata is accessible."""
-    import py_pglite
+    import pglite_pydb
 
     # Test __version__ is accessible (part of lines 7-16)
-    assert hasattr(py_pglite, "__version__")
-    assert isinstance(py_pglite.__version__, str)
-    assert py_pglite.__version__ != ""
+    assert hasattr(pglite_pydb, "__version__")
+    assert isinstance(pglite_pydb.__version__, str)
+    assert pglite_pydb.__version__ != ""

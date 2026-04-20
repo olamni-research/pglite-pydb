@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-⚡ py-pglite: The Sweet Spot Between Speed & Power
+⚡ pglite-pydb: The Sweet Spot Between Speed & Power
 ================================================
 
-Honest comparison: SQLite vs py-pglite vs Docker PostgreSQL
-See why py-pglite gives you the best of both worlds!
+Honest comparison: SQLite vs pglite-pydb vs Docker PostgreSQL
+See why pglite-pydb gives you the best of both worlds!
 
 Usage:
     python simple_performance.py
@@ -15,13 +15,13 @@ import time
 
 from sqlalchemy import text
 
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 def measure_boot_time():
-    """Measure py-pglite boot time vs Docker PostgreSQL."""
+    """Measure pglite-pydb boot time vs Docker PostgreSQL."""
 
-    # py-pglite boot time
+    # pglite-pydb boot time
     start = time.time()
     with SQLAlchemyPGliteManager() as manager:
         engine = manager.get_engine()
@@ -193,7 +193,7 @@ def measure_raw_performance():
 
         # Bulk insert test
 
-        # py-pglite
+        # pglite-pydb
         start = time.time()
         with engine.connect() as conn:
             conn.execute(
@@ -225,7 +225,7 @@ def measure_raw_performance():
 
         # Query test
 
-        # py-pglite
+        # pglite-pydb
         start = time.time()
         with engine.connect() as conn:
             conn.execute(

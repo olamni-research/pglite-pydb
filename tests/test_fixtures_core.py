@@ -1,10 +1,10 @@
 """Tests for pytest fixtures functionality."""
 
-from py_pglite import PGliteConfig
-from py_pglite import PGliteManager
-from py_pglite.fixtures import pglite_config
-from py_pglite.fixtures import pglite_manager
-from py_pglite.fixtures import pglite_manager_custom
+from pglite_pydb import PGliteConfig
+from pglite_pydb import PGliteManager
+from pglite_pydb.fixtures import pglite_config
+from pglite_pydb.fixtures import pglite_manager
+from pglite_pydb.fixtures import pglite_manager_custom
 
 
 class TestPGliteFixtures:
@@ -398,7 +398,7 @@ class TestFixtureEdgeCases:
         assert len(socket_path) > 0
 
         # Should contain identifying information
-        assert "py-pglite" in socket_path
+        assert "pglite-pydb" in socket_path
 
         # Should be in a temporary location
         import tempfile

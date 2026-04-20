@@ -1,0 +1,59 @@
+# Pre-Refactor Test Baseline (SC-002 Invariant)
+
+**Feature**: 001-pglite-pydb-port
+**Spec reference**: SC-002, FR-015, Task T001
+
+## Capture policy
+
+SC-002 requires that the Linux pytest pass count be **exactly equal** before
+and after the refactor. The baseline is therefore authoritative only when
+captured on a Linux host with the project's standard extras set.
+
+**Canonical capture (to be filled after the first CI run on the feature branch
+or via Task 15 Docker verification)**:
+
+| Field                | Value                                                  |
+|----------------------|--------------------------------------------------------|
+| Date (UTC)           | <TO BE FILLED from first ubuntu-latest CI run>        |
+| Python version       | 3.12.x (middle of supported matrix)                   |
+| Node version         | 22 LTS                                                |
+| OS                   | ubuntu-latest                                         |
+| Command              | `uv sync --all-extras && uv run pytest tests/ -q`     |
+| **Pass count (N)**   | <TO BE FILLED>                                        |
+| Skip count           | <TO BE FILLED>                                        |
+| Fail count           | 0 (invariant — branch is not mergeable otherwise)     |
+
+## Local (Windows) attempt — for reference only
+
+Executed 2026-04-20 on the refactor author's Windows 11 host as part of Task
+T001. **Not usable as the SC-002 gate** because the project's current (pre-
+refactor) state is not intended to work on Windows at all — that is what this
+entire feature is porting.
+
+- Python: 3.13.5 (had to pin from 3.14.3 because asyncpg 0.30.0 lacks a 3.14
+  wheel and its C extension currently fails to build against CPython 3.14's
+  internals even with MSVC Build Tools available; unrelated to the refactor)
+- Node: 24.14.0 (outside the supported matrix per research.md R7 / Q4)
+- Extras installed: psycopg, sqlalchemy, sqlmodel, django, extensions, fastapi
+  (excluded asyncpg due to the build issue above)
+- Result: pre-collection errors from pytest-django (Django import chain
+  breakage, probably unrelated to this refactor) — no pass count produced.
+
+This is an expected failure on the current pre-refactor codebase on Windows
+and does not indicate a regression introduced by this branch.
+
+## Verification plan
+
+The SC-002 gate will be evaluated in two places:
+
+1. **Task 15 (local Docker)** — `docker/Dockerfile.verify` + `uv run python
+   tasks.py verify-linux` reproduces a Linux container and runs the suite.
+   This captures the baseline on the pre-refactor commit and re-runs it at
+   every subsequent commit on the feature branch.
+2. **CI (ubuntu-latest)** — after the CI matrix is expanded (Task 10 /
+   Step 11), every PR run produces a Linux pass count that must equal this
+   baseline.
+
+Once Task 15 is complete, the canonical capture table above will be
+over-written with the actual numbers from the first green Linux run on the
+pre-rename commit (`95cec59` — the tip of main prior to any Phase 2 edit).

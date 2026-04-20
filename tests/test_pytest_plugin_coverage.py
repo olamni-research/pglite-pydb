@@ -8,17 +8,17 @@ from unittest.mock import patch
 
 import pytest
 
-from py_pglite.pytest_plugin import HAS_DJANGO
-from py_pglite.pytest_plugin import HAS_PYTEST_DJANGO
-from py_pglite.pytest_plugin import HAS_SQLALCHEMY
-from py_pglite.pytest_plugin import _auto_mark_test
-from py_pglite.pytest_plugin import _check_framework_isolation
-from py_pglite.pytest_plugin import _is_explicitly_marked
-from py_pglite.pytest_plugin import _should_disable_django_plugin
-from py_pglite.pytest_plugin import pytest_collection_modifyitems
-from py_pglite.pytest_plugin import pytest_configure
-from py_pglite.pytest_plugin import pytest_runtest_setup
-from py_pglite.pytest_plugin import pytest_terminal_summary
+from pglite_pydb.pytest_plugin import HAS_DJANGO
+from pglite_pydb.pytest_plugin import HAS_PYTEST_DJANGO
+from pglite_pydb.pytest_plugin import HAS_SQLALCHEMY
+from pglite_pydb.pytest_plugin import _auto_mark_test
+from pglite_pydb.pytest_plugin import _check_framework_isolation
+from pglite_pydb.pytest_plugin import _is_explicitly_marked
+from pglite_pydb.pytest_plugin import _should_disable_django_plugin
+from pglite_pydb.pytest_plugin import pytest_collection_modifyitems
+from pglite_pydb.pytest_plugin import pytest_configure
+from pglite_pydb.pytest_plugin import pytest_runtest_setup
+from pglite_pydb.pytest_plugin import pytest_terminal_summary
 
 
 class TestFrameworkAvailabilityDetection:
@@ -87,7 +87,7 @@ class TestPytestConfigure:
         mock_config.pluginmanager = Mock()
 
         with patch(
-            "py_pglite.pytest_plugin._should_disable_django_plugin",
+            "pglite_pydb.pytest_plugin._should_disable_django_plugin",
             return_value=True,
         ):
             pytest_configure(mock_config)
@@ -103,7 +103,7 @@ class TestPytestConfigure:
         mock_config = Mock()
 
         with patch(
-            "py_pglite.pytest_plugin._should_disable_django_plugin",
+            "pglite_pydb.pytest_plugin._should_disable_django_plugin",
             return_value=False,
         ):
             pytest_configure(mock_config)
@@ -120,7 +120,7 @@ class TestPytestConfigure:
         delattr(mock_config, "pluginmanager")  # Remove pluginmanager attribute
 
         with patch(
-            "py_pglite.pytest_plugin._should_disable_django_plugin",
+            "pglite_pydb.pytest_plugin._should_disable_django_plugin",
             return_value=True,
         ):
             # Should not raise exception
@@ -212,8 +212,8 @@ class TestPytestRuntestSetup:
         )
 
         with (
-            patch("py_pglite.pytest_plugin.HAS_SQLALCHEMY", False),
-            patch("py_pglite.pytest_plugin._is_explicitly_marked", return_value=True),
+            patch("pglite_pydb.pytest_plugin.HAS_SQLALCHEMY", False),
+            patch("pglite_pydb.pytest_plugin._is_explicitly_marked", return_value=True),
         ):
             with pytest.raises(
                 expected_exception=pytest.skip.Exception,
@@ -230,8 +230,8 @@ class TestPytestRuntestSetup:
         )
 
         with (
-            patch("py_pglite.pytest_plugin.HAS_DJANGO", False),
-            patch("py_pglite.pytest_plugin._is_explicitly_marked", return_value=True),
+            patch("pglite_pydb.pytest_plugin.HAS_DJANGO", False),
+            patch("pglite_pydb.pytest_plugin._is_explicitly_marked", return_value=True),
         ):
             with pytest.raises(
                 expected_exception=pytest.skip.Exception,
@@ -248,8 +248,8 @@ class TestPytestRuntestSetup:
         )
 
         with (
-            patch("py_pglite.pytest_plugin.HAS_PYTEST_DJANGO", False),
-            patch("py_pglite.pytest_plugin._is_explicitly_marked", return_value=True),
+            patch("pglite_pydb.pytest_plugin.HAS_PYTEST_DJANGO", False),
+            patch("pglite_pydb.pytest_plugin._is_explicitly_marked", return_value=True),
         ):
             with pytest.raises(
                 pytest.skip.Exception,
@@ -266,13 +266,13 @@ class TestPytestRuntestSetup:
         )
 
         with (
-            patch("py_pglite.pytest_plugin.HAS_SQLALCHEMY", False),
+            patch("pglite_pydb.pytest_plugin.HAS_SQLALCHEMY", False),
             patch(
-                "py_pglite.pytest_plugin._is_explicitly_marked",
+                "pglite_pydb.pytest_plugin._is_explicitly_marked",
                 return_value=False,
             ),
             patch(
-                "py_pglite.pytest_plugin._check_framework_isolation",
+                "pglite_pydb.pytest_plugin._check_framework_isolation",
             ),
         ):
             # Should not raise skip exception
@@ -283,7 +283,9 @@ class TestPytestRuntestSetup:
         mock_item = Mock()
         mock_item.get_closest_marker.return_value = None
 
-        with patch("py_pglite.pytest_plugin._check_framework_isolation") as mock_check:
+        with patch(
+            "pglite_pydb.pytest_plugin._check_framework_isolation"
+        ) as mock_check:
             pytest_runtest_setup(mock_item)
 
             mock_check.assert_called_once_with(mock_item)
@@ -473,7 +475,7 @@ class TestPytestCollectionModifyitems:
         mock_config = Mock()
         mock_items = [Mock(), Mock(), Mock()]
 
-        with patch("py_pglite.pytest_plugin._auto_mark_test") as mock_auto_mark:
+        with patch("pglite_pydb.pytest_plugin._auto_mark_test") as mock_auto_mark:
             pytest_collection_modifyitems(mock_config, mock_items)  # type: ignore
 
             assert mock_auto_mark.call_count == 3
@@ -571,7 +573,7 @@ class TestPytestTerminalSummary:
         # Should write framework isolation tips
         mock_terminalreporter.write_sep.assert_called_once_with(
             "=",
-            "🚀 py-pglite Framework Isolation Tips",
+            "🚀 pglite-pydb Framework Isolation Tips",
         )
         mock_terminalreporter.write_line.assert_called_once()
 
@@ -606,7 +608,7 @@ class TestPluginIntegration:
             "pytest_terminal_summary",
         ]
 
-        from py_pglite.pytest_plugin import __all__
+        from pglite_pydb.pytest_plugin import __all__
 
         for func_name in expected_functions:
             assert func_name in __all__
