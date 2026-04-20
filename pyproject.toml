@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "pglite-pydb"
-version = "0.6.0"
+version = "2026.4.20.0"
 description = "Python testing library for PGlite - in-memory PostgreSQL for tests (cross-platform: Linux, macOS, Windows)"
 readme = "README.md"
 license = "Apache-2.0"

@@ -394,7 +394,8 @@ class TestProcessLifecycle:
             patch("os.chdir"),
             patch.object(manager, "_install_dependencies"),
             patch(
-                "pglite_pydb.utils.find_pglite_modules", return_value="/tmp/node_modules"
+                "pglite_pydb.utils.find_pglite_modules",
+                return_value="/tmp/node_modules",
             ),
             patch("subprocess.Popen", return_value=mock_process),
             patch("pathlib.Path.exists", return_value=True),

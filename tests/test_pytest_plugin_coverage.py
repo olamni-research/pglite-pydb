@@ -283,7 +283,9 @@ class TestPytestRuntestSetup:
         mock_item = Mock()
         mock_item.get_closest_marker.return_value = None
 
-        with patch("pglite_pydb.pytest_plugin._check_framework_isolation") as mock_check:
+        with patch(
+            "pglite_pydb.pytest_plugin._check_framework_isolation"
+        ) as mock_check:
             pytest_runtest_setup(mock_item)
 
             mock_check.assert_called_once_with(mock_item)

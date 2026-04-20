@@ -22,8 +22,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_LINK_MODE=copy \
-    UV_PYTHON_PREFERENCE=only-system \
     PATH="/root/.local/bin:${PATH}"
+# UV_PYTHON_PREFERENCE intentionally left at default (managed is OK) so
+# that a local .python-version (e.g. pinned to 3.13) doesn't fail the
+# container — uv will download the pinned interpreter if needed.
 
 # System packages: ca-certificates + curl for node/uv install; git so
 # pre-commit and coverage tooling that reads git metadata don't choke.

@@ -133,7 +133,9 @@ class TestSessionOperations:
 
         with (
             patch("pglite_pydb.sqlalchemy.utils.HAS_SQLMODEL", True),
-            patch("pglite_pydb.sqlalchemy.utils.SQLModelSession", mock_sqlmodel_session),
+            patch(
+                "pglite_pydb.sqlalchemy.utils.SQLModelSession", mock_sqlmodel_session
+            ),
         ):
             result = get_session_class()
 
@@ -149,7 +151,8 @@ class TestSessionOperations:
             patch("pglite_pydb.sqlalchemy.utils.HAS_SQLMODEL", False),
             patch("pglite_pydb.sqlalchemy.utils.HAS_SQLALCHEMY_ORM", True),
             patch(
-                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession", mock_sqlalchemy_session
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession",
+                mock_sqlalchemy_session,
             ),
         ):
             result = get_session_class()
@@ -272,7 +275,8 @@ class TestDataCleaning:
         with (
             patch("pglite_pydb.sqlalchemy.utils.HAS_SQLMODEL", False),
             patch(
-                "pglite_pydb.sqlalchemy.utils.reflect_tables", return_value=mock_metadata
+                "pglite_pydb.sqlalchemy.utils.reflect_tables",
+                return_value=mock_metadata,
             ),
         ):
             clear_all_data(mock_engine)

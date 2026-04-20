@@ -108,7 +108,9 @@ def test_all_exports_available():
     import pglite_pydb.sqlalchemy
 
     for name in pglite_pydb.sqlalchemy.__all__:
-        assert hasattr(pglite_pydb.sqlalchemy, name), f"Missing SQLAlchemy export: {name}"
+        assert hasattr(pglite_pydb.sqlalchemy, name), (
+            f"Missing SQLAlchemy export: {name}"
+        )
 
 
 def test_package_metadata():

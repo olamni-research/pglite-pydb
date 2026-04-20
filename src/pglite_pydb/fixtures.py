@@ -27,7 +27,9 @@ def pglite_manager() -> Generator[PGliteManager, None, None]:
 
     # Create a unique socket directory for this test session
     # PGlite expects socket_path to be the full path including .s.PGSQL.5432
-    socket_dir = Path(tempfile.gettempdir()) / f"pglite-pydb-test-{uuid.uuid4().hex[:8]}"
+    socket_dir = (
+        Path(tempfile.gettempdir()) / f"pglite-pydb-test-{uuid.uuid4().hex[:8]}"
+    )
     socket_dir.mkdir(mode=0o700, exist_ok=True)  # Restrict to user only
     config.socket_path = str(socket_dir / ".s.PGSQL.5432")
 
