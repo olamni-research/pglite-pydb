@@ -635,21 +635,6 @@ COMMENT ON TABLE webshop.products IS 'Groups articles (differing in sizes/color)
 
 
 --
--- Name: products_id_seq; Type: SEQUENCE; Schema: webshop; Owner: postgres
---
-
-CREATE SEQUENCE webshop.products_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE webshop.products_id_seq OWNER TO postgres;
-
---
 -- Name: products_id_seq; Type: SEQUENCE OWNED BY; Schema: webshop; Owner: postgres
 --
 
@@ -1751,21 +1736,6 @@ ALTER TABLE webshop.articles OWNER TO postgres;
 
 COMMENT ON TABLE webshop.articles IS 'Instance of a product with a size, color and price';
 
-
---
--- Name: articles_id_seq; Type: SEQUENCE; Schema: webshop; Owner: postgres
---
-
-CREATE SEQUENCE webshop.articles_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE webshop.articles_id_seq OWNER TO postgres;
 
 --
 -- Name: articles_id_seq; Type: SEQUENCE OWNED BY; Schema: webshop; Owner: postgres
@@ -19592,21 +19562,6 @@ COMMENT ON TABLE webshop.labels IS 'Brands / labels';
 
 
 --
--- Name: labels_id_seq; Type: SEQUENCE; Schema: webshop; Owner: postgres
---
-
-CREATE SEQUENCE webshop.labels_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE webshop.labels_id_seq OWNER TO postgres;
-
---
 -- Name: labels_id_seq; Type: SEQUENCE OWNED BY; Schema: webshop; Owner: postgres
 --
 
@@ -20868,21 +20823,6 @@ COMMENT ON TABLE webshop.customer IS 'Basic customer data';
 
 
 --
--- Name: customer_id_seq1; Type: SEQUENCE; Schema: webshop; Owner: postgres
---
-
-CREATE SEQUENCE webshop.customer_id_seq1
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE webshop.customer_id_seq1 OWNER TO postgres;
-
---
 -- Name: customer_id_seq1; Type: SEQUENCE OWNED BY; Schema: webshop; Owner: postgres
 --
 
@@ -21975,21 +21915,6 @@ COMMENT ON TABLE webshop.address IS 'Addresses for receipts and shipping';
 
 
 --
--- Name: address_id_seq; Type: SEQUENCE; Schema: webshop; Owner: postgres
---
-
-CREATE SEQUENCE webshop.address_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE webshop.address_id_seq OWNER TO postgres;
-
---
 -- Name: address_id_seq; Type: SEQUENCE OWNED BY; Schema: webshop; Owner: postgres
 --
 
@@ -23078,21 +23003,6 @@ ALTER TABLE webshop."order" OWNER TO postgres;
 
 COMMENT ON TABLE webshop."order" IS 'Metadata for an order, see order_positions as well';
 
-
---
--- Name: order_id_seq; Type: SEQUENCE; Schema: webshop; Owner: postgres
---
-
-CREATE SEQUENCE webshop.order_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE webshop.order_id_seq OWNER TO postgres;
 
 --
 -- Name: order_id_seq; Type: SEQUENCE OWNED BY; Schema: webshop; Owner: postgres
@@ -25190,21 +25100,6 @@ ALTER TABLE webshop.order_positions OWNER TO postgres;
 
 COMMENT ON TABLE webshop.order_positions IS 'Articles that are contained in an order';
 
-
---
--- Name: order_positions_id_seq; Type: SEQUENCE; Schema: webshop; Owner: postgres
---
-
-CREATE SEQUENCE webshop.order_positions_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE webshop.order_positions_id_seq OWNER TO postgres;
 
 --
 -- Name: order_positions_id_seq; Type: SEQUENCE OWNED BY; Schema: webshop; Owner: postgres
@@ -31293,21 +31188,6 @@ ALTER TABLE webshop.stock OWNER TO postgres;
 
 COMMENT ON TABLE webshop.stock IS 'Amount of articles on stock';
 
-
---
--- Name: stock_id_seq; Type: SEQUENCE; Schema: webshop; Owner: postgres
---
-
-CREATE SEQUENCE webshop.stock_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE webshop.stock_id_seq OWNER TO postgres;
 
 --
 -- Name: stock_id_seq; Type: SEQUENCE OWNED BY; Schema: webshop; Owner: postgres
