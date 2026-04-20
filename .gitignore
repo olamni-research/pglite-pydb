@@ -203,3 +203,9 @@ perf-tests/
 
 # JetBrains IDEs
 .idea/
+
+# Node.js / npm (PGlite runtime and dev tooling)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
