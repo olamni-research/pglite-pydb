@@ -1,0 +1,21 @@
+UPSTREAM LICENSE STATUS
+=======================
+
+Upstream repository:
+    https://github.com/JannikArndt/PostgreSQLSampleDatabase
+Pinned commit:
+    78df7422e16f5bf8e21c84da70894b092f799e29
+
+At the pinned commit the upstream repository contains NO LICENSE file, and
+the GitHub API reports license == null. Code published on GitHub without a
+license is "all rights reserved" by default.
+
+Written redistribution permission for the files vendored here was obtained
+directly from the upstream author, Jannik Arndt, for the sole purpose of
+bundling the sample dump with this example. Redistribution outside of this
+repository is not implied by that grant.
+
+Record of permission:
+    <REPLACE_WITH_PERMISSION_STATEMENT_EXCERPT>
+
+Vendored files (see UPSTREAM_ATTRIBUTION.md for file list and SHAs).
