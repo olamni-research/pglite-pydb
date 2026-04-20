@@ -3,9 +3,9 @@ requires = ["uv_build>=0.7.19,<0.8.0"]
 build-backend = "uv_build"
 
 [project]
-name = "py-pglite"
+name = "pglite-pydb"
 version = "0.5.3"
-description = "Python testing library for PGlite - in-memory PostgreSQL for tests"
+description = "Python testing library for PGlite - in-memory PostgreSQL for tests (cross-platform: Linux, macOS, Windows)"
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10"
@@ -74,29 +74,29 @@ extensions = [
     "numpy>=1.0.0"
 ]
 examples = [
-    "py-pglite[fastapi]",
+    "pglite-pydb[fastapi]",
     "python-jose>=3.3.0",
     "passlib>=1.7.4",
     "bcrypt>=4.3.0",
 ]
 test-extensions = [
-    "py-pglite[extensions]",
+    "pglite-pydb[extensions]",
 ]
 all = [
-    "py-pglite[psycopg]",
-    "py-pglite[asyncpg]",
-    "py-pglite[sqlalchemy]",
-    "py-pglite[sqlmodel]",
-    "py-pglite[django]",
-    "py-pglite[fastapi]",
-    "py-pglite[extensions]",
-    "py-pglite[examples]",
+    "pglite-pydb[psycopg]",
+    "pglite-pydb[asyncpg]",
+    "pglite-pydb[sqlalchemy]",
+    "pglite-pydb[sqlmodel]",
+    "pglite-pydb[django]",
+    "pglite-pydb[fastapi]",
+    "pglite-pydb[extensions]",
+    "pglite-pydb[examples]",
     "pytest-asyncio>=0.21.0",
 ]
 
 [dependency-groups]
 dev = [
-    "py-pglite[all]",
+    "pglite-pydb[all]",
     "ruff>=0.11.12",
     "bandit[toml]>=1.8.3",
     "safety>=3.5.2",
@@ -121,19 +121,19 @@ typing = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/wey-gu/py-pglite"
-Documentation = "https://github.com/wey-gu/py-pglite#readme"
-Repository = "https://github.com/wey-gu/py-pglite"
-Issues = "https://github.com/wey-gu/py-pglite/issues"
+Homepage = "https://github.com/olamni-research/pglite-pydb"
+Documentation = "https://github.com/olamni-research/pglite-pydb#readme"
+Repository = "https://github.com/olamni-research/pglite-pydb"
+Issues = "https://github.com/olamni-research/pglite-pydb/issues"
 
 [project.entry-points.pytest11]
-py_pglite = "py_pglite.pytest_plugin"
+pglite_pydb = "pglite_pydb.pytest_plugin"
 
 [tool.uv]
 default-groups = ["dev"]
 
 [tool.uv.build-backend]
-module-name = "py_pglite"
+module-name = "pglite_pydb"
 module-root = "src"
 
 [tool.mypy]
@@ -161,7 +161,7 @@ ignore_errors = true
 
 # Ignore Django files due to complexity
 [[tool.mypy.overrides]]
-module = "py_pglite.django.*"
+module = "pglite_pydb.django.*"
 ignore_errors = true
 
 # Allow untyped external imports
@@ -215,7 +215,7 @@ unfixable = [
 force-single-line = true
 lines-between-types = 1
 lines-after-imports = 2
-known-first-party = ["py_pglite"]
+known-first-party = ["pglite_pydb"]
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
@@ -227,7 +227,7 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.coverage.run]
-source = ["src/py_pglite"]
+source = ["src/pglite_pydb"]
 omit = [
     "src/**/fixtures.py",
     "*/tests/*",
