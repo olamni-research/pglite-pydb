@@ -52,10 +52,10 @@ Spec-kit artifacts live at the outer repo root under `specs/001-example-db-psyco
 - [X] T009 [P] Author overlay schema (`audit_log`, `country_overlay`) exactly per data-model.md Layer 2 in `examples/windows_sample_db/sql/00_schema_overlay.sql`
 - [X] T010 [P] Author role creation + grants for `example_user` (SELECT on upstream, SELECT/INSERT/UPDATE/DELETE on overlay tables) in `examples/windows_sample_db/sql/01_role.sql`
 - [X] T011 [P] Author all 10 PL/pgSQL procedures exactly per `specs/001-example-db-psycopg3-windows/contracts/procedures.md` (signatures, SQLSTATE codes `P0002`/`22023`, no raw `RAISE` without `ERRCODE`) in `examples/windows_sample_db/sql/10_procedures.sql`
-- [ ] T012 [P] Implement `install()` + `verify()` for the 10 procedures (idempotent via install-marker file, `EXECUTE` grants to `example_user`) in `examples/windows_sample_db/procedures.py`
-- [ ] T013 Implement Node bridge with PGlite `dataDir` persistence. Bridge accepts a required `--transport {tcp|pipe}` CLI argument and binds **exactly one** listener per process (never both). For this foundational task, implement the `--transport tcp` path only (`net.createServer().listen(port, '127.0.0.1')`); the `pipe` branch is fleshed out in T027. Include the bridge-layer role gate that rejects any startup packet with `user != example_user` (FR-021) and the `[bridge] start …` + `[bridge] accept …` log lines from `contracts/transport.md`. File: `examples/windows_sample_db/node/pglite_bridge.js`
-- [ ] T014 Implement `launcher.py` that spawns `pglite_bridge.js` via subprocess, polls the TCP port for readiness up to 10s, emits `[bridge] accept ...` log parsing, and cleans up the Node process on exit (depends on T013) in `examples/windows_sample_db/launcher.py`
-- [ ] T015 Implement `run_example.py` argparse skeleton: all flags from `contracts/cli.md`, non-Windows exit 2 guard, `--reset` handling, and logging format exactly per the CLI contract (depends on T007, T014) in `examples/windows_sample_db/run_example.py`
+- [X] T012 [P] Implement `install()` + `verify()` for the 10 procedures (idempotent via install-marker file, `EXECUTE` grants to `example_user`) in `examples/windows_sample_db/procedures.py`
+- [X] T013 Implement Node bridge with PGlite `dataDir` persistence. Bridge accepts a required `--transport {tcp|pipe}` CLI argument and binds **exactly one** listener per process (never both). For this foundational task, implement the `--transport tcp` path only (`net.createServer().listen(port, '127.0.0.1')`); the `pipe` branch is fleshed out in T027. Include the bridge-layer role gate that rejects any startup packet with `user != example_user` (FR-021) and the `[bridge] start …` + `[bridge] accept …` log lines from `contracts/transport.md`. File: `examples/windows_sample_db/node/pglite_bridge.js`
+- [X] T014 Implement `launcher.py` that spawns `pglite_bridge.js` via subprocess, polls the TCP port for readiness up to 10s, emits `[bridge] accept ...` log parsing, and cleans up the Node process on exit (depends on T013) in `examples/windows_sample_db/launcher.py`
+- [X] T015 Implement `run_example.py` argparse skeleton: all flags from `contracts/cli.md`, non-Windows exit 2 guard, `--reset` handling, and logging format exactly per the CLI contract (depends on T007, T014) in `examples/windows_sample_db/run_example.py`
 
 **Checkpoint**: Foundation ready — US1 implementation can now begin.
 
@@ -71,18 +71,18 @@ Spec-kit artifacts live at the outer repo root under `specs/001-example-db-psyco
 
 > Write these tests FIRST, ensure they FAIL before implementation of T021–T024.
 
-- [ ] T016 [P] [US1] Test loader: fresh run loads dump, SHA-256 mismatch aborts with exit code 3, warm run reuses `pgdata/` (spec FR-001, FR-002, FR-015) in `tests/windows_sample_db/test_loader.py`
-- [ ] T017 [P] [US1] Test TCP transport happy path: connect as `example_user`, run `SELECT 1`, confirm role restriction (connecting as `postgres` is rejected by the bridge per FR-021) in `tests/windows_sample_db/test_transport_tcp.py`
-- [ ] T018 [P] [US1] Test on-disk persistence: start + quit + restart + query returns same rows; assert `pgdata/PG_VERSION` present after first run (FR-015) in `tests/windows_sample_db/test_persistence.py`
-- [ ] T018b [P] [US1] Timing assertion for SC-002: record wall-clock from process start to first procedure result on a warm run; assert `< 10.0 s`. Exclude the preceding fresh-load run from the timed window. File: `tests/windows_sample_db/test_persistence.py`
-- [ ] T019 [P] [US1] Test happy-path procedure invocations over TCP only (2 representative procedures: `get_country_by_iso` and `count_airports_per_country`) to prove end-to-end wiring — full 10×2 matrix comes in US3 in `tests/windows_sample_db/test_procedures_happy.py`
+- [X] T016 [P] [US1] Test loader: fresh run loads dump, SHA-256 mismatch aborts with exit code 3, warm run reuses `pgdata/` (spec FR-001, FR-002, FR-015) in `tests/windows_sample_db/test_loader.py`
+- [X] T017 [P] [US1] Test TCP transport happy path: connect as `example_user`, run `SELECT 1`, confirm role restriction (connecting as `postgres` is rejected by the bridge per FR-021) in `tests/windows_sample_db/test_transport_tcp.py`
+- [X] T018 [P] [US1] Test on-disk persistence: start + quit + restart + query returns same rows; assert `pgdata/PG_VERSION` present after first run (FR-015) in `tests/windows_sample_db/test_persistence.py`
+- [X] T018b [P] [US1] Timing assertion for SC-002: record wall-clock from process start to first procedure result on a warm run; assert `< 10.0 s`. Exclude the preceding fresh-load run from the timed window. File: `tests/windows_sample_db/test_persistence.py`
+- [X] T019 [P] [US1] Test happy-path procedure invocations over TCP only (2 representative procedures — see implementation note in `test_procedures_happy.py`; the two names listed in earlier drafts of this line referenced a country/airport dataset that predates the locked webshop procedures contract) to prove end-to-end wiring — full 10×2 matrix comes in US3 in `tests/windows_sample_db/test_procedures_happy.py`
 
 ### Implementation for User Story 1
 
-- [ ] T020 [US1] Build TCP psycopg 3 connection string in `TransportConfig.to_dsn()` (host, port, user=`example_user`, dbname=`postgres`, no password) in `examples/windows_sample_db/transport.py`
-- [ ] T021 [US1] Implement the `invoke_all_procedures()` driver in `run_example.py`: calls each of the 10 procedures with representative inputs (`'DE'`, `('US', 10, 1)`, `()`, `(5)`, `'FR'`, `'CH'`, `'JP'`, `'US'`, `('US', 'United States')`, `'DE'`) and logs `proc=… rows=… elapsed_ms=…` per CLI contract in `examples/windows_sample_db/run_example.py`
-- [ ] T022 [US1] Emit the full ordered log contract from `contracts/cli.md` (transport line, dump line, pgdata status, procedures installed, connected line, per-proc lines, done line) in `examples/windows_sample_db/run_example.py`
-- [ ] T023 [US1] TCP port-in-use detection in the launcher readiness loop: distinguish "port busy" (exit 5, names the port) from "not yet up" (keep polling) in `examples/windows_sample_db/launcher.py`
+- [X] T020 [US1] Build TCP psycopg 3 connection string in `TransportConfig.to_dsn()` (host, port, user=`example_user`, dbname=`postgres`, no password) in `examples/windows_sample_db/transport.py`
+- [X] T021 [US1] Implement the `invoke_all_procedures()` driver in `run_example.py`: calls each of the 10 webshop procedures (see `contracts/procedures.md`) with representative inputs discovered live from the loaded dump, and logs `proc=… rows=… elapsed_ms=…` per CLI contract in `examples/windows_sample_db/run_example.py`
+- [X] T022 [US1] Emit the full ordered log contract from `contracts/cli.md` (transport line, dump line, pgdata status, procedures installed, connected line, per-proc lines, done line) in `examples/windows_sample_db/run_example.py`
+- [X] T023 [US1] TCP port-in-use detection in the launcher readiness loop: distinguish "port busy" (exit 5, names the port) from "not yet up" (keep polling) in `examples/windows_sample_db/launcher.py`
 - [X] T024 [US1] Write the example README (mirror `quickstart.md` with paths relative to the repo root; link to the spec-kit quickstart at `../../../specs/001-example-db-psycopg3-windows/quickstart.md`) in `examples/windows_sample_db/README.md`
 
 **Checkpoint**: User Story 1 is fully functional — TCP run clone-to-output works, data persists, first-time vs. warm run behaviors are observable. Shippable as MVP.
