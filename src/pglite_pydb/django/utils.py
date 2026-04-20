@@ -1,4 +1,4 @@
-"""Django utilities for py-pglite."""
+"""Django utilities for pglite-pydb."""
 
 import os
 import secrets
@@ -26,7 +26,7 @@ except ImportError:
     # Django components will be None when Django is not available
     pass
 
-from py_pglite.manager import PGliteManager
+from pglite_pydb.manager import PGliteManager
 
 
 def create_django_test_database(manager: PGliteManager, verbosity: int = 1) -> str:
@@ -42,7 +42,7 @@ def create_django_test_database(manager: PGliteManager, verbosity: int = 1) -> s
     if not HAS_DJANGO:
         raise ImportError(
             "Django is required for Django integration. "
-            "Install with: pip install 'py-pglite[django]'"
+            "Install with: pip install 'pglite-pydb[django]'"
         )
 
     if verbosity >= 1:
@@ -82,7 +82,7 @@ def migrate_django_database(verbosity: int = 1) -> None:
     if not HAS_DJANGO:
         raise ImportError(
             "Django is required for Django integration. "
-            "Install with: pip install 'py-pglite[django]'"
+            "Install with: pip install 'pglite-pydb[django]'"
         )
 
     if call_command:
@@ -107,7 +107,7 @@ def flush_django_database(verbosity: int = 0) -> None:
     if not HAS_DJANGO:
         raise ImportError(
             "Django is required for Django integration. "
-            "Install with: pip install 'py-pglite[django]'"
+            "Install with: pip install 'pglite-pydb[django]'"
         )
 
     if call_command:
@@ -130,7 +130,7 @@ def configure_django_for_pglite(
     if not HAS_DJANGO:
         raise ImportError(
             "Django is required for Django integration. "
-            "Install with: pip install 'py-pglite[django]'"
+            "Install with: pip install 'pglite-pydb[django]'"
         )
 
     if settings and settings.configured:
@@ -138,7 +138,7 @@ def configure_django_for_pglite(
 
     # Generate secure socket path if not provided
     if socket_path is None:
-        socket_dir = Path(tempfile.gettempdir()) / f"py-pglite-django-{os.getpid()}"
+        socket_dir = Path(tempfile.gettempdir()) / f"pglite-pydb-django-{os.getpid()}"
         socket_dir.mkdir(mode=0o700, exist_ok=True)  # Restrict to user only
         socket_path = str(socket_dir / ".s.PGSQL.5432")
 
@@ -149,7 +149,7 @@ def configure_django_for_pglite(
         "DEBUG": True,
         "DATABASES": {
             "default": {
-                "ENGINE": "py_pglite.django.backend",
+                "ENGINE": "pglite_pydb.django.backend",
                 "NAME": "postgres",
                 "USER": "postgres",
                 "PASSWORD": "postgres",
@@ -195,14 +195,14 @@ def get_django_connection_params(manager: PGliteManager) -> dict[str, Any]:
 
     # Extract socket directory from connection string
     socket_dir = (
-        Path(tempfile.gettempdir()) / f"py-pglite-django-{os.getpid()}"
+        Path(tempfile.gettempdir()) / f"pglite-pydb-django-{os.getpid()}"
     )  # Default
     if "host=" in conn_str:
         socket_dir_str = conn_str.split("host=")[1].split("&")[0]
         socket_dir = Path(socket_dir_str)
 
     return {
-        "ENGINE": "py_pglite.django.backend",
+        "ENGINE": "pglite_pydb.django.backend",
         "NAME": "postgres",
         "USER": "postgres",
         "PASSWORD": "postgres",
@@ -238,7 +238,7 @@ def get_django_models() -> list[Any]:
     if not HAS_DJANGO:
         raise ImportError(
             "Django is required for Django integration. "
-            "Install with: pip install 'py-pglite[django]'"
+            "Install with: pip install 'pglite-pydb[django]'"
         )
 
     from django.apps import apps  # type: ignore
@@ -268,7 +268,7 @@ def create_django_superuser(
     if not HAS_DJANGO:
         raise ImportError(
             "Django is required for Django integration. "
-            "Install with: pip install 'py-pglite[django]'"
+            "Install with: pip install 'pglite-pydb[django]'"
         )
 
     from django.contrib.auth import get_user_model

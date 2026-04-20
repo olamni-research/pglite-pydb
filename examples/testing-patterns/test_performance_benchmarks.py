@@ -1,8 +1,8 @@
 """
-🚀 Performance Benchmarking with py-pglite
+🚀 Performance Benchmarking with pglite-pydb
 ==========================================
 
-Real-world performance testing patterns showing how py-pglite
+Real-world performance testing patterns showing how pglite-pydb
 handles production workloads with reliability and speed.
 
 Run with: pytest examples/testing-patterns/test_performance_benchmarks.py -v -s
@@ -25,8 +25,8 @@ from sqlmodel import SQLModel
 from sqlmodel import create_engine
 from sqlmodel import select
 
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 # Utility function for resilient connections

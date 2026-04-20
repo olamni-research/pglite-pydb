@@ -1,19 +1,19 @@
 """
-🌟 Django + py-pglite: Advanced Full Integration Pattern
+🌟 Django + pglite-pydb: Advanced Full Integration Pattern
 =======================================================
 
 Pattern 2: Advanced Django features with custom backend integration.
 
 This example demonstrates advanced Django patterns with the full integration approach:
-• Advanced Django ORM features with custom py_pglite.django.backend
+• Advanced Django ORM features with custom pglite_pydb.django.backend
 • Complex queries, relationships, and database constraints
 • Transaction management and bulk operations
 • Custom backend optimization features
 • Production-ready advanced patterns
 
 📋 Pattern Details:
-• Backend: py_pglite.django.backend (custom)
-• Connection: Managed by py-pglite backend
+• Backend: pglite_pydb.django.backend (custom)
+• Connection: Managed by pglite-pydb backend
 • Features: Full backend integration capabilities
 • Use case: Advanced Django testing, enterprise applications
 

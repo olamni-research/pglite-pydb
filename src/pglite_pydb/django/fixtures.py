@@ -39,8 +39,8 @@ except ImportError:
     # Django is not available - functions will raise appropriate errors when called
     pass
 
-from py_pglite.config import PGliteConfig
-from py_pglite.manager import PGliteManager
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.manager import PGliteManager
 
 
 @pytest.fixture(scope="session")
@@ -49,7 +49,7 @@ def django_pglite_settings() -> None:
     if not HAS_DJANGO:
         raise ImportError(
             "Django is required for Django integration. "
-            "Install with: pip install 'py-pglite[django]'"
+            "Install with: pip install 'pglite-pydb[django]'"
         )
 
     # Configure Django to use PGlite backend
@@ -63,7 +63,7 @@ def django_pglite_settings() -> None:
             DEBUG=True,
             DATABASES={
                 "default": {
-                    "ENGINE": "py_pglite.django.backend",
+                    "ENGINE": "pglite_pydb.django.backend",
                     "NAME": "test_pglite_db",
                     "USER": "postgres",
                     "PASSWORD": "postgres",
@@ -113,7 +113,7 @@ def django_pglite_db(pglite_manager: PGliteManager) -> Generator[None, None, Non
     if not HAS_DJANGO:
         raise ImportError(
             "Django is required for Django integration. "
-            "Install with: pip install 'py-pglite[django]'"
+            "Install with: pip install 'pglite-pydb[django]'"
         )
 
     # Auto-configure Django to use our PGlite instance
@@ -127,7 +127,7 @@ def django_pglite_db(pglite_manager: PGliteManager) -> Generator[None, None, Non
     original_config = connection.settings_dict.copy()  # type: ignore
     connection.settings_dict.update(
         {  # type: ignore
-            "ENGINE": "py_pglite.django.backend",
+            "ENGINE": "pglite_pydb.django.backend",
             "HOST": socket_dir,
             "PORT": "",
             "NAME": "postgres",
@@ -198,7 +198,7 @@ def django_pglite_transactional_db(
     if not HAS_DJANGO:
         raise ImportError(
             "Django is required for Django integration. "
-            "Install with: pip install 'py-pglite[django]'"
+            "Install with: pip install 'pglite-pydb[django]'"
         )
 
     # Auto-configure Django to use our PGlite instance
@@ -211,7 +211,7 @@ def django_pglite_transactional_db(
     original_config = connection.settings_dict.copy()  # type: ignore
     connection.settings_dict.update(
         {  # type: ignore
-            "ENGINE": "py_pglite.django.backend",
+            "ENGINE": "pglite_pydb.django.backend",
             "HOST": socket_dir,
             "PORT": "",
             "NAME": "postgres",
@@ -273,7 +273,7 @@ def django_pglite_transactional_db(
 def db(django_pglite_db: None) -> None:
     """Auto-configured database fixture compatible with pytest-django.
 
-    Just use this fixture and py-pglite automatically configures Django
+    Just use this fixture and pglite-pydb automatically configures Django
     to use ultra-fast PGlite with zero setup required!
     """
     # The actual work is done by django_pglite_db
@@ -302,7 +302,7 @@ def django_user_model(django_pglite_db: None) -> Any:
     if not HAS_DJANGO:
         raise ImportError(
             "Django is required for Django integration. "
-            "Install with: pip install 'py-pglite[django]'"
+            "Install with: pip install 'pglite-pydb[django]'"
         )
 
     from django.contrib.auth import get_user_model
@@ -347,7 +347,7 @@ def django_client(django_pglite_db: None) -> Any:
     if not HAS_DJANGO:
         raise ImportError(
             "Django is required for Django integration. "
-            "Install with: pip install 'py-pglite[django]'"
+            "Install with: pip install 'pglite-pydb[django]'"
         )
 
     from django.test import Client

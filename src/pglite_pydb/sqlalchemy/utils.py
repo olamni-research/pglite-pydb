@@ -1,4 +1,4 @@
-"""SQLAlchemy utilities for py-pglite."""
+"""SQLAlchemy utilities for pglite-pydb."""
 
 from typing import Any
 
@@ -22,7 +22,7 @@ def _ensure_sqlalchemy() -> None:
     if not HAS_SQLALCHEMY_ORM or SQLAlchemySession is None:
         raise ImportError(
             "SQLAlchemy is required for these utilities. "
-            "Install with: pip install 'py-pglite[sqlalchemy]'"
+            "Install with: pip install 'pglite-pydb[sqlalchemy]'"
         )
 
 
@@ -69,7 +69,7 @@ def create_all_tables(engine: Engine, base: DeclarativeBase | None = None) -> No
     else:
         raise ValueError(
             "Either provide a declarative base or install SQLModel: "
-            "pip install 'py-pglite[sqlmodel]'"
+            "pip install 'pglite-pydb[sqlmodel]'"
         )
 
 
@@ -87,7 +87,7 @@ def drop_all_tables(engine: Engine, base: DeclarativeBase | None = None) -> None
     else:
         raise ValueError(
             "Either provide a declarative base or install SQLModel: "
-            "pip install 'py-pglite[sqlmodel]'"
+            "pip install 'pglite-pydb[sqlmodel]'"
         )
 
 
@@ -104,7 +104,7 @@ def get_session_class() -> type[Any]:
     else:
         raise ImportError(
             "Neither SQLModel nor SQLAlchemy ORM Session found. "
-            "Install with: pip install 'py-pglite[sqlmodel]' or 'py-pglite[sqlalchemy]'"
+            "Install with: pip install 'pglite-pydb[sqlmodel]' or 'pglite-pydb[sqlalchemy]'"
         )
 
 

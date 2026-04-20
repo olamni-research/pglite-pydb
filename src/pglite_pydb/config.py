@@ -10,14 +10,14 @@ from dataclasses import field
 from pathlib import Path
 from typing import Literal
 
-from py_pglite.extensions import SUPPORTED_EXTENSIONS
+from pglite_pydb.extensions import SUPPORTED_EXTENSIONS
 
 
 def _get_secure_socket_path() -> str:
     """Generate a secure socket path in user's temp directory."""
     # Use both PID and UUID to ensure uniqueness
     unique_id = f"{os.getpid()}-{uuid.uuid4().hex[:8]}"
-    temp_dir = Path(tempfile.gettempdir()) / f"py-pglite-{unique_id}"
+    temp_dir = Path(tempfile.gettempdir()) / f"pglite-pydb-{unique_id}"
     temp_dir.mkdir(mode=0o700, exist_ok=True)  # Restrict to user only
     # Use PostgreSQL's standard socket naming convention
     return str(temp_dir / ".s.PGSQL.5432")

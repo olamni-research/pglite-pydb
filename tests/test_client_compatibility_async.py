@@ -2,7 +2,7 @@
 🔄 PostgreSQL Client Compatibility Demonstration
 ==============================================
 
-Simple demonstration that py-pglite works with different PostgreSQL
+Simple demonstration that pglite-pydb works with different PostgreSQL
 clients by providing a real PostgreSQL server.
 
 Shows:
@@ -16,8 +16,8 @@ import pytest
 
 from sqlalchemy import text
 
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyAsyncPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyAsyncPGliteManager
 
 
 @pytest.fixture(scope="module")
@@ -146,7 +146,7 @@ class TestClientCompatibilityPrinciples:
             assert status == "Core always works!"
 
     async def test_real_postgresql_server_principle(self, client_demo_manager):
-        """Demonstrate that py-pglite provides a real PostgreSQL server."""
+        """Demonstrate that pglite-pydb provides a real PostgreSQL server."""
 
         engine = client_demo_manager.get_engine()
 

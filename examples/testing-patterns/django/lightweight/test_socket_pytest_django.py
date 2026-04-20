@@ -1,5 +1,5 @@
 """
-🌟 pytest-django + py-pglite: Lightweight/Socket Pattern
+🌟 pytest-django + pglite-pydb: Lightweight/Socket Pattern
 ========================================================
 
 Pattern 1: pytest-django integration with socket connection.
@@ -7,7 +7,7 @@ Pattern 1: pytest-django integration with socket connection.
 This shows how to use pytest-django features with the lightweight approach:
 • Using @pytest.mark.django_db decorator with socket connection
 • pytest-django fixtures and utilities with standard backend
-• Django test utilities with py-pglite
+• Django test utilities with pglite-pydb
 • Direct socket connection to PGlite
 
 📋 Pattern Details:
@@ -18,7 +18,7 @@ This shows how to use pytest-django features with the lightweight approach:
 
 Compare with: ../full-integration/ for custom backend pattern
 
-Note: This is an OPTIONAL integration. You can use py-pglite with Django
+Note: This is an OPTIONAL integration. You can use pglite-pydb with Django
 without pytest-django. This example is for users who specifically want
 to use pytest-django features with the lightweight socket approach.
 
@@ -38,10 +38,10 @@ pytestmark = pytest.mark.django
 
 def test_with_django_db_marker(configured_django):
     """
-    🎯 Using @pytest.mark.django_db decorator with py-pglite
+    🎯 Using @pytest.mark.django_db decorator with pglite-pydb
 
     This demonstrates pytest-django specific functionality:
-    - Working with py-pglite backend
+    - Working with pglite-pydb backend
     - Proper database configuration via fixtures
     - Clean test isolation
     """
@@ -60,7 +60,7 @@ def test_with_django_db_marker(configured_django):
 
     # Use Django ORM
     article = Article.objects.create(
-        title="pytest-django Works!", content="Using Django testing with py-pglite"
+        title="pytest-django Works!", content="Using Django testing with pglite-pydb"
     )
 
     assert Article.objects.count() == 1
@@ -74,7 +74,7 @@ def test_with_db_access(configured_django):
     This shows pytest-django pattern:
     - Database access via proper fixtures
     - Clean abstraction through conftest.py
-    - Works with py-pglite backend
+    - Works with pglite-pydb backend
     """
 
     # Define model
@@ -99,7 +99,7 @@ def test_django_transaction_support(configured_django):
     """
     🎯 Django transaction support
 
-    Shows transaction testing with py-pglite:
+    Shows transaction testing with pglite-pydb:
     - Real transaction behavior
     - Rollback testing
     - Works with PostgreSQL features
@@ -140,12 +140,12 @@ def test_django_transaction_support(configured_django):
 
 def test_django_testing_utilities(configured_django):
     """
-    🎯 Django testing utilities with py-pglite
+    🎯 Django testing utilities with pglite-pydb
 
     Shows how to use Django's testing utilities:
     - Django TestCase features available
     - Test client functionality
-    - All working with py-pglite backend
+    - All working with pglite-pydb backend
     """
 
     from django.http import HttpResponse
@@ -153,7 +153,7 @@ def test_django_testing_utilities(configured_django):
 
     # Create a simple view for testing
     def simple_view(request):
-        return HttpResponse("Hello from py-pglite + Django testing!")
+        return HttpResponse("Hello from pglite-pydb + Django testing!")
 
     # Test with Django test client
     client = Client()

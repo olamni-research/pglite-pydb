@@ -1,4 +1,4 @@
-"""SQLAlchemy-specific manager for py-pglite.
+"""SQLAlchemy-specific manager for pglite-pydb.
 
 Extends the core PGliteManager with SQLAlchemy-specific functionality.
 """
@@ -7,7 +7,7 @@ import time
 
 from typing import Any
 
-from py_pglite.manager import PGliteManager
+from pglite_pydb.manager import PGliteManager
 
 
 class SQLAlchemyAsyncPGliteManager(PGliteManager):
@@ -70,7 +70,7 @@ class SQLAlchemyAsyncPGliteManager(PGliteManager):
         except ImportError as e:
             raise ImportError(
                 "SQLAlchemy is required for get_engine(). "
-                "Install with: pip install py-pglite[sqlalchemy]"
+                "Install with: pip install pglite-pydb[sqlalchemy]"
             ) from e
 
         # Default configuration optimized for testing with PGlite
@@ -80,7 +80,7 @@ class SQLAlchemyAsyncPGliteManager(PGliteManager):
             "pool_recycle": 3600,  # Longer recycle time for testing
             "connect_args": {
                 "connect_timeout": 60,  # Much longer timeout for table creation
-                "application_name": "py-pglite",
+                "application_name": "pglite-pydb",
                 "sslmode": "disable",  # Disable SSL for Unix sockets
                 "prepare_threshold": None,  # Disable prepared states for test stability
                 "keepalives_idle": 600,  # Keep connection alive longer
@@ -133,7 +133,7 @@ class SQLAlchemyAsyncPGliteManager(PGliteManager):
         except ImportError as e:
             raise ImportError(
                 "SQLAlchemy is required for wait_for_ready(). "
-                "Install with: pip install py-pglite[sqlalchemy]"
+                "Install with: pip install pglite-pydb[sqlalchemy]"
             ) from e
 
         # Use the shared engine that get_engine() creates

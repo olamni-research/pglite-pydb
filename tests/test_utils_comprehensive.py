@@ -1,4 +1,4 @@
-"""Comprehensive tests for py_pglite utils module."""
+"""Comprehensive tests for pglite_pydb utils module."""
 
 import logging
 
@@ -9,14 +9,14 @@ from unittest.mock import patch
 
 import pytest
 
-from py_pglite.utils import check_connection
-from py_pglite.utils import execute_sql
-from py_pglite.utils import find_pglite_modules
-from py_pglite.utils import get_connection_from_string
-from py_pglite.utils import get_database_version
-from py_pglite.utils import get_major_version
-from py_pglite.utils import get_table_names
-from py_pglite.utils import table_exists
+from pglite_pydb.utils import check_connection
+from pglite_pydb.utils import execute_sql
+from pglite_pydb.utils import find_pglite_modules
+from pglite_pydb.utils import get_connection_from_string
+from pglite_pydb.utils import get_database_version
+from pglite_pydb.utils import get_major_version
+from pglite_pydb.utils import get_table_names
+from pglite_pydb.utils import table_exists
 
 
 class TestConnectionUtilities:
@@ -28,7 +28,7 @@ class TestConnectionUtilities:
         mock_connection = Mock()
         mock_client.connect.return_value = mock_connection
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = get_connection_from_string("postgresql://test")
 
             assert result is mock_connection
@@ -50,7 +50,7 @@ class TestConnectionUtilities:
         mock_client = Mock()
         mock_client.test_connection.return_value = True
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = check_connection("postgresql://test")
 
             assert result is True
@@ -68,12 +68,12 @@ class TestConnectionUtilities:
 
     def test_test_connection_alias_exists(self):
         """Test that test_connection alias exists and works."""
-        from py_pglite.utils import test_connection
+        from pglite_pydb.utils import test_connection
 
         mock_client = Mock()
         mock_client.test_connection.return_value = True
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = test_connection("postgresql://test")
 
             assert result is True
@@ -87,7 +87,7 @@ class TestDatabaseIntrospection:
         mock_client = Mock()
         mock_client.get_database_version.return_value = "PostgreSQL 15.2"
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = get_database_version("postgresql://test")
 
             assert result == "PostgreSQL 15.2"
@@ -112,7 +112,7 @@ class TestDatabaseIntrospection:
         mock_client.connect.return_value = mock_connection
         mock_client.execute_query.return_value = [("users",), ("posts",), ("comments",)]
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = get_table_names("postgresql://test")
 
             assert result == ["users", "posts", "comments"]
@@ -143,7 +143,7 @@ class TestDatabaseIntrospection:
         mock_client = Mock()
         mock_client.connect.side_effect = Exception("Connection failed")
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = get_table_names("postgresql://invalid")
 
             assert result == []
@@ -155,7 +155,7 @@ class TestDatabaseIntrospection:
         mock_client.connect.return_value = mock_connection
         mock_client.execute_query.side_effect = Exception("Query failed")
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = get_table_names("postgresql://test")
 
             assert result == []
@@ -168,7 +168,7 @@ class TestDatabaseIntrospection:
         mock_client.connect.return_value = mock_connection
         mock_client.execute_query.return_value = [(True,)]
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = table_exists("postgresql://test", "users")
 
             assert result is True
@@ -198,7 +198,7 @@ class TestDatabaseIntrospection:
         mock_client.connect.return_value = mock_connection
         mock_client.execute_query.return_value = []
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = table_exists("postgresql://test", "users")
 
             assert result is False
@@ -208,7 +208,7 @@ class TestDatabaseIntrospection:
         mock_client = Mock()
         mock_client.connect.side_effect = Exception("Connection failed")
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = table_exists("postgresql://invalid", "users")
 
             assert result is False
@@ -224,7 +224,7 @@ class TestSQLExecution:
         mock_client.connect.return_value = mock_connection
         mock_client.execute_query.return_value = [("result1",), ("result2",)]
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = execute_sql("postgresql://test", "SELECT * FROM users")
 
             assert result == [("result1",), ("result2",)]
@@ -258,7 +258,7 @@ class TestSQLExecution:
         mock_client = Mock()
         mock_client.connect.side_effect = Exception("Connection failed")
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = execute_sql("postgresql://invalid", "SELECT 1")
 
             assert result is None
@@ -270,7 +270,7 @@ class TestSQLExecution:
         mock_client.connect.return_value = mock_connection
         mock_client.execute_query.side_effect = Exception("Query failed")
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             result = execute_sql("postgresql://test", "INVALID SQL")
 
             assert result is None
@@ -345,8 +345,8 @@ class TestLoggingAndErrorHandling:
         mock_client.connect.side_effect = Exception("Connection failed")
 
         with (
-            patch("py_pglite.utils.get_default_client", return_value=mock_client),
-            patch("py_pglite.utils.logger") as mock_logger,
+            patch("pglite_pydb.utils.get_default_client", return_value=mock_client),
+            patch("pglite_pydb.utils.logger") as mock_logger,
         ):
             result = get_table_names("postgresql://invalid")
 
@@ -360,8 +360,8 @@ class TestLoggingAndErrorHandling:
         mock_client.connect.side_effect = Exception("Connection failed")
 
         with (
-            patch("py_pglite.utils.get_default_client", return_value=mock_client),
-            patch("py_pglite.utils.logger") as mock_logger,
+            patch("pglite_pydb.utils.get_default_client", return_value=mock_client),
+            patch("pglite_pydb.utils.logger") as mock_logger,
         ):
             result = table_exists("postgresql://invalid", "users")
 
@@ -377,8 +377,8 @@ class TestLoggingAndErrorHandling:
         mock_client.connect.side_effect = Exception("Connection failed")
 
         with (
-            patch("py_pglite.utils.get_default_client", return_value=mock_client),
-            patch("py_pglite.utils.logger") as mock_logger,
+            patch("pglite_pydb.utils.get_default_client", return_value=mock_client),
+            patch("pglite_pydb.utils.logger") as mock_logger,
         ):
             result = execute_sql("postgresql://invalid", "SELECT 1")
 
@@ -399,7 +399,7 @@ class TestClientIntegration:
         mock_client.execute_query.return_value = []
 
         with patch(
-            "py_pglite.utils.get_default_client", return_value=mock_client
+            "pglite_pydb.utils.get_default_client", return_value=mock_client
         ) as mock_get_client:
             # Test all functions that use client
             check_connection("postgresql://test")
@@ -419,7 +419,7 @@ class TestClientIntegration:
         mock_client.connect.return_value = Mock()
         mock_client.execute_query.return_value = []
 
-        with patch("py_pglite.utils.get_default_client") as mock_get_client:
+        with patch("pglite_pydb.utils.get_default_client") as mock_get_client:
             # Test all functions with custom client
             check_connection("postgresql://test", client=mock_client)
             get_database_version("postgresql://test", client=mock_client)
@@ -459,7 +459,7 @@ class TestUtilityFunctionIntegration:
             [("row1",), ("row2",)],  # execute_sql results
         ]
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             # Check if table exists
             exists = table_exists("postgresql://test", "users")
             assert exists is True
@@ -474,7 +474,7 @@ class TestUtilityFunctionIntegration:
         mock_client = Mock()
         mock_client.get_database_version.return_value = "15.2.1"
 
-        with patch("py_pglite.utils.get_default_client", return_value=mock_client):
+        with patch("pglite_pydb.utils.get_default_client", return_value=mock_client):
             version_string = get_database_version("postgresql://test")
             if version_string:
                 major_version = get_major_version(version_string)

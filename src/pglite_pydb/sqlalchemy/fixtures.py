@@ -17,9 +17,9 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 
-from py_pglite.config import PGliteConfig
-from py_pglite.sqlalchemy.manager import SQLAlchemyPGliteManager
-from py_pglite.sqlalchemy.manager_async import SQLAlchemyAsyncPGliteManager
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.sqlalchemy.manager import SQLAlchemyPGliteManager
+from pglite_pydb.sqlalchemy.manager_async import SQLAlchemyAsyncPGliteManager
 
 
 # Try to import SQLModel

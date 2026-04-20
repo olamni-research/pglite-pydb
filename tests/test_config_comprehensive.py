@@ -1,4 +1,4 @@
-"""Comprehensive tests for py_pglite.config module to achieve full coverage."""
+"""Comprehensive tests for pglite_pydb.config module to achieve full coverage."""
 
 import logging
 import os
@@ -9,8 +9,8 @@ from unittest.mock import patch
 
 import pytest
 
-from py_pglite.config import PGliteConfig
-from py_pglite.config import _get_secure_socket_path
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.config import _get_secure_socket_path
 
 
 class TestSecureSocketPathGeneration:
@@ -30,7 +30,7 @@ class TestSecureSocketPathGeneration:
         assert str(tempfile.gettempdir()) in socket_path
 
         # Should contain process ID and UUID components
-        assert "py-pglite-" in socket_path
+        assert "pglite-pydb-" in socket_path
 
     def test_secure_socket_path_uniqueness(self):
         """Test that multiple calls generate unique paths."""
@@ -357,7 +357,7 @@ class TestPGliteConfigEdgeCases:
 
         # Should work regardless of temp directory
         assert socket_path.endswith(".s.PGSQL.5432")
-        assert "py-pglite-" in socket_path
+        assert "pglite-pydb-" in socket_path
 
 
 class TestPGliteConfigValidationIntegration:
@@ -408,8 +408,8 @@ class TestPGliteConfigImports:
     def test_config_module_imports(self):
         """Test that all necessary imports are working."""
         # Test that we can import all the components
-        from py_pglite.config import PGliteConfig
-        from py_pglite.config import _get_secure_socket_path
+        from pglite_pydb.config import PGliteConfig
+        from pglite_pydb.config import _get_secure_socket_path
 
         # Test that the function works
         socket_path = _get_secure_socket_path()

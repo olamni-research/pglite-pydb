@@ -1,4 +1,4 @@
-"""Basic example showing how to use py-pglite fixtures."""
+"""Basic example showing how to use pglite-pydb fixtures."""
 
 from sqlmodel import Field
 from sqlmodel import Session

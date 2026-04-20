@@ -1,4 +1,4 @@
-"""Pytest plugin for py-pglite.
+"""Pytest plugin for pglite-pydb.
 
 Provides automatic fixture discovery and perfect isolation between frameworks,
 delivering a Vite-like developer experience for database testing.
@@ -37,7 +37,7 @@ except ImportError:
 
 
 def pytest_configure(config: pytest.Config) -> None:
-    """Configure pytest with world-class py-pglite integration."""
+    """Configure pytest with world-class pglite-pydb integration."""
     # Register comprehensive markers for elegant test organization
     markers = [
         "pglite: mark test to use PGlite database",
@@ -82,38 +82,38 @@ def _should_disable_django_plugin(config: pytest.Config) -> bool:
 
 
 # Core fixtures (always available)
-from py_pglite.fixtures import pglite_manager
-from py_pglite.fixtures import pglite_manager_custom
+from pglite_pydb.fixtures import pglite_manager
+from pglite_pydb.fixtures import pglite_manager_custom
 
 
 # Smart fixture loading with perfect isolation
 if HAS_SQLALCHEMY:
     try:
         # async
-        from py_pglite.sqlalchemy.fixtures import pglite_async_engine
-        from py_pglite.sqlalchemy.fixtures import pglite_async_session
-        from py_pglite.sqlalchemy.fixtures import pglite_async_sqlalchemy_manager
-        from py_pglite.sqlalchemy.fixtures import pglite_config
-        from py_pglite.sqlalchemy.fixtures import pglite_engine
-        from py_pglite.sqlalchemy.fixtures import pglite_session
-        from py_pglite.sqlalchemy.fixtures import pglite_sqlalchemy_async_engine
-        from py_pglite.sqlalchemy.fixtures import pglite_sqlalchemy_engine
-        from py_pglite.sqlalchemy.fixtures import pglite_sqlalchemy_manager
-        from py_pglite.sqlalchemy.fixtures import pglite_sqlalchemy_session
+        from pglite_pydb.sqlalchemy.fixtures import pglite_async_engine
+        from pglite_pydb.sqlalchemy.fixtures import pglite_async_session
+        from pglite_pydb.sqlalchemy.fixtures import pglite_async_sqlalchemy_manager
+        from pglite_pydb.sqlalchemy.fixtures import pglite_config
+        from pglite_pydb.sqlalchemy.fixtures import pglite_engine
+        from pglite_pydb.sqlalchemy.fixtures import pglite_session
+        from pglite_pydb.sqlalchemy.fixtures import pglite_sqlalchemy_async_engine
+        from pglite_pydb.sqlalchemy.fixtures import pglite_sqlalchemy_engine
+        from pglite_pydb.sqlalchemy.fixtures import pglite_sqlalchemy_manager
+        from pglite_pydb.sqlalchemy.fixtures import pglite_sqlalchemy_session
     except ImportError:
         pass
 
 if HAS_DJANGO:
     try:
-        from py_pglite.django.fixtures import db
-        from py_pglite.django.fixtures import django_admin_user
-        from py_pglite.django.fixtures import django_client
-        from py_pglite.django.fixtures import django_pglite_db
-        from py_pglite.django.fixtures import django_pglite_settings
-        from py_pglite.django.fixtures import django_pglite_transactional_db
-        from py_pglite.django.fixtures import django_user_model
-        from py_pglite.django.fixtures import pglite_django_manager
-        from py_pglite.django.fixtures import transactional_db
+        from pglite_pydb.django.fixtures import db
+        from pglite_pydb.django.fixtures import django_admin_user
+        from pglite_pydb.django.fixtures import django_client
+        from pglite_pydb.django.fixtures import django_pglite_db
+        from pglite_pydb.django.fixtures import django_pglite_settings
+        from pglite_pydb.django.fixtures import django_pglite_transactional_db
+        from pglite_pydb.django.fixtures import django_user_model
+        from pglite_pydb.django.fixtures import pglite_django_manager
+        from pglite_pydb.django.fixtures import transactional_db
     except ImportError:
         pass
 
@@ -131,7 +131,7 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
         ):
             pytest.skip(
                 "🚫 SQLAlchemy not available.\n"
-                "Install with: pip install 'py-pglite[sqlalchemy]'"
+                "Install with: pip install 'pglite-pydb[sqlalchemy]'"
             )
 
     # Check for explicit Django markers only
@@ -139,7 +139,7 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
     if any(item.get_closest_marker(marker) for marker in explicit_django_markers):
         if not HAS_DJANGO and _is_explicitly_marked(item, explicit_django_markers):
             pytest.skip(
-                "🚫 Django not available. Install: pip install py-pglite[django]"
+                "🚫 Django not available. Install: pip install pglite-pydb[django]"
             )
 
     # Check for explicit pytest-django markers
@@ -275,7 +275,7 @@ def _auto_mark_test(item: pytest.Item) -> None:
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     """Provide helpful summary with framework isolation tips."""
     if exitstatus != 0:
-        terminalreporter.write_sep("=", "🚀 py-pglite Framework Isolation Tips")
+        terminalreporter.write_sep("=", "🚀 pglite-pydb Framework Isolation Tips")
         terminalreporter.write_line(
             "For perfect framework isolation, try these patterns:\n"
             "  pytest -m sqlalchemy -p no:django     # Pure SQLAlchemy tests\n"

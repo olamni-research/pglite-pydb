@@ -1,8 +1,8 @@
 """
-Advanced FastAPI Authentication Example with py-pglite
+Advanced FastAPI Authentication Example with pglite-pydb
 
 This example demonstrates production-ready patterns for testing FastAPI applications
-with authentication, user roles, and complex relationships using py-pglite.
+with authentication, user roles, and complex relationships using pglite-pydb.
 
 Key patterns shown:
 1. JWT Authentication with superuser creation

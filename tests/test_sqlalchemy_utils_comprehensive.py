@@ -13,31 +13,31 @@ class TestSQLAlchemyImports:
 
     def test_has_sqlalchemy_orm_flag(self):
         """Test that HAS_SQLALCHEMY_ORM is properly set."""
-        from py_pglite.sqlalchemy.utils import HAS_SQLALCHEMY_ORM
+        from pglite_pydb.sqlalchemy.utils import HAS_SQLALCHEMY_ORM
 
         # Should be True in test environment
         assert HAS_SQLALCHEMY_ORM is True
 
     def test_has_sqlmodel_flag(self):
         """Test that HAS_SQLMODEL flag is set correctly."""
-        from py_pglite.sqlalchemy.utils import HAS_SQLMODEL
+        from pglite_pydb.sqlalchemy.utils import HAS_SQLMODEL
 
         # May be True or False depending on installation
         assert isinstance(HAS_SQLMODEL, bool)
 
     def test_ensure_sqlalchemy_success(self):
         """Test _ensure_sqlalchemy when SQLAlchemy is available."""
-        from py_pglite.sqlalchemy.utils import _ensure_sqlalchemy
+        from pglite_pydb.sqlalchemy.utils import _ensure_sqlalchemy
 
-        with patch("py_pglite.sqlalchemy.utils.HAS_SQLALCHEMY_ORM", True):
+        with patch("pglite_pydb.sqlalchemy.utils.HAS_SQLALCHEMY_ORM", True):
             # Should not raise exception
             _ensure_sqlalchemy()
 
     def test_ensure_sqlalchemy_failure(self):
         """Test _ensure_sqlalchemy raises error when SQLAlchemy unavailable."""
-        from py_pglite.sqlalchemy.utils import _ensure_sqlalchemy
+        from pglite_pydb.sqlalchemy.utils import _ensure_sqlalchemy
 
-        with patch("py_pglite.sqlalchemy.utils.HAS_SQLALCHEMY_ORM", False):
+        with patch("pglite_pydb.sqlalchemy.utils.HAS_SQLALCHEMY_ORM", False):
             with pytest.raises(ImportError, match="SQLAlchemy is required"):
                 _ensure_sqlalchemy()
 
@@ -47,7 +47,7 @@ class TestTableOperations:
 
     def test_create_all_tables_with_base(self):
         """Test create_all_tables with declarative base."""
-        from py_pglite.sqlalchemy.utils import create_all_tables
+        from pglite_pydb.sqlalchemy.utils import create_all_tables
 
         mock_engine = Mock()
         mock_base = Mock()
@@ -59,15 +59,15 @@ class TestTableOperations:
 
     def test_create_all_tables_with_sqlmodel(self):
         """Test create_all_tables with SQLModel."""
-        from py_pglite.sqlalchemy.utils import create_all_tables
+        from pglite_pydb.sqlalchemy.utils import create_all_tables
 
         mock_engine = Mock()
         mock_sqlmodel = Mock()
         mock_sqlmodel.metadata = Mock()
 
         with (
-            patch("py_pglite.sqlalchemy.utils.HAS_SQLMODEL", True),
-            patch("py_pglite.sqlalchemy.utils.SQLModel", mock_sqlmodel),
+            patch("pglite_pydb.sqlalchemy.utils.HAS_SQLMODEL", True),
+            patch("pglite_pydb.sqlalchemy.utils.SQLModel", mock_sqlmodel),
         ):
             create_all_tables(mock_engine)
 
@@ -75,17 +75,17 @@ class TestTableOperations:
 
     def test_create_all_tables_no_base_no_sqlmodel(self):
         """Test create_all_tables raises error when no base and no SQLModel."""
-        from py_pglite.sqlalchemy.utils import create_all_tables
+        from pglite_pydb.sqlalchemy.utils import create_all_tables
 
         mock_engine = Mock()
 
-        with patch("py_pglite.sqlalchemy.utils.HAS_SQLMODEL", False):
+        with patch("pglite_pydb.sqlalchemy.utils.HAS_SQLMODEL", False):
             with pytest.raises(ValueError, match="Either provide a declarative base"):
                 create_all_tables(mock_engine)
 
     def test_drop_all_tables_with_base(self):
         """Test drop_all_tables with declarative base."""
-        from py_pglite.sqlalchemy.utils import drop_all_tables
+        from pglite_pydb.sqlalchemy.utils import drop_all_tables
 
         mock_engine = Mock()
         mock_base = Mock()
@@ -97,15 +97,15 @@ class TestTableOperations:
 
     def test_drop_all_tables_with_sqlmodel(self):
         """Test drop_all_tables with SQLModel."""
-        from py_pglite.sqlalchemy.utils import drop_all_tables
+        from pglite_pydb.sqlalchemy.utils import drop_all_tables
 
         mock_engine = Mock()
         mock_sqlmodel = Mock()
         mock_sqlmodel.metadata = Mock()
 
         with (
-            patch("py_pglite.sqlalchemy.utils.HAS_SQLMODEL", True),
-            patch("py_pglite.sqlalchemy.utils.SQLModel", mock_sqlmodel),
+            patch("pglite_pydb.sqlalchemy.utils.HAS_SQLMODEL", True),
+            patch("pglite_pydb.sqlalchemy.utils.SQLModel", mock_sqlmodel),
         ):
             drop_all_tables(mock_engine)
 
@@ -113,11 +113,11 @@ class TestTableOperations:
 
     def test_drop_all_tables_no_base_no_sqlmodel(self):
         """Test drop_all_tables raises error when no base and no SQLModel."""
-        from py_pglite.sqlalchemy.utils import drop_all_tables
+        from pglite_pydb.sqlalchemy.utils import drop_all_tables
 
         mock_engine = Mock()
 
-        with patch("py_pglite.sqlalchemy.utils.HAS_SQLMODEL", False):
+        with patch("pglite_pydb.sqlalchemy.utils.HAS_SQLMODEL", False):
             with pytest.raises(ValueError, match="Either provide a declarative base"):
                 drop_all_tables(mock_engine)
 
@@ -127,13 +127,13 @@ class TestSessionOperations:
 
     def test_get_session_class_sqlmodel_available(self):
         """Test get_session_class returns SQLModel session when available."""
-        from py_pglite.sqlalchemy.utils import get_session_class
+        from pglite_pydb.sqlalchemy.utils import get_session_class
 
         mock_sqlmodel_session = Mock()
 
         with (
-            patch("py_pglite.sqlalchemy.utils.HAS_SQLMODEL", True),
-            patch("py_pglite.sqlalchemy.utils.SQLModelSession", mock_sqlmodel_session),
+            patch("pglite_pydb.sqlalchemy.utils.HAS_SQLMODEL", True),
+            patch("pglite_pydb.sqlalchemy.utils.SQLModelSession", mock_sqlmodel_session),
         ):
             result = get_session_class()
 
@@ -141,15 +141,15 @@ class TestSessionOperations:
 
     def test_get_session_class_sqlalchemy_fallback(self):
         """Test get_session_class falls back to SQLAlchemy session."""
-        from py_pglite.sqlalchemy.utils import get_session_class
+        from pglite_pydb.sqlalchemy.utils import get_session_class
 
         mock_sqlalchemy_session = Mock()
 
         with (
-            patch("py_pglite.sqlalchemy.utils.HAS_SQLMODEL", False),
-            patch("py_pglite.sqlalchemy.utils.HAS_SQLALCHEMY_ORM", True),
+            patch("pglite_pydb.sqlalchemy.utils.HAS_SQLMODEL", False),
+            patch("pglite_pydb.sqlalchemy.utils.HAS_SQLALCHEMY_ORM", True),
             patch(
-                "py_pglite.sqlalchemy.utils.SQLAlchemySession", mock_sqlalchemy_session
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession", mock_sqlalchemy_session
             ),
         ):
             result = get_session_class()
@@ -158,11 +158,11 @@ class TestSessionOperations:
 
     def test_get_session_class_no_sessions_available(self):
         """Test get_session_class raises error when no sessions available."""
-        from py_pglite.sqlalchemy.utils import get_session_class
+        from pglite_pydb.sqlalchemy.utils import get_session_class
 
         with (
-            patch("py_pglite.sqlalchemy.utils.HAS_SQLMODEL", False),
-            patch("py_pglite.sqlalchemy.utils.HAS_SQLALCHEMY_ORM", False),
+            patch("pglite_pydb.sqlalchemy.utils.HAS_SQLMODEL", False),
+            patch("pglite_pydb.sqlalchemy.utils.HAS_SQLALCHEMY_ORM", False),
             pytest.raises(
                 ImportError, match="Neither SQLModel nor SQLAlchemy ORM Session found"
             ),
@@ -175,12 +175,12 @@ class TestMetadataOperations:
 
     def test_reflect_tables(self):
         """Test reflect_tables functionality."""
-        from py_pglite.sqlalchemy.utils import reflect_tables
+        from pglite_pydb.sqlalchemy.utils import reflect_tables
 
         mock_engine = Mock()
         mock_metadata = Mock()
 
-        with patch("py_pglite.sqlalchemy.utils.MetaData", return_value=mock_metadata):
+        with patch("pglite_pydb.sqlalchemy.utils.MetaData", return_value=mock_metadata):
             result = reflect_tables(mock_engine)
 
             assert result is mock_metadata
@@ -188,14 +188,14 @@ class TestMetadataOperations:
 
     def test_get_table_names(self):
         """Test get_table_names functionality."""
-        from py_pglite.sqlalchemy.utils import get_table_names
+        from pglite_pydb.sqlalchemy.utils import get_table_names
 
         mock_engine = Mock()
         mock_metadata = Mock()
         mock_metadata.tables = {"table1": Mock(), "table2": Mock()}
 
         with patch(
-            "py_pglite.sqlalchemy.utils.reflect_tables", return_value=mock_metadata
+            "pglite_pydb.sqlalchemy.utils.reflect_tables", return_value=mock_metadata
         ):
             result = get_table_names(mock_engine)
 
@@ -207,7 +207,7 @@ class TestDataCleaning:
 
     def test_clear_all_data_with_base(self):
         """Test clear_all_data with declarative base."""
-        from py_pglite.sqlalchemy.utils import clear_all_data
+        from pglite_pydb.sqlalchemy.utils import clear_all_data
 
         mock_engine = Mock()
         mock_connection = Mock()
@@ -230,7 +230,7 @@ class TestDataCleaning:
 
     def test_clear_all_data_with_sqlmodel(self):
         """Test clear_all_data with SQLModel."""
-        from py_pglite.sqlalchemy.utils import clear_all_data
+        from pglite_pydb.sqlalchemy.utils import clear_all_data
 
         mock_engine = Mock()
         mock_connection = Mock()
@@ -245,8 +245,8 @@ class TestDataCleaning:
         mock_sqlmodel.metadata.sorted_tables = [mock_table]
 
         with (
-            patch("py_pglite.sqlalchemy.utils.HAS_SQLMODEL", True),
-            patch("py_pglite.sqlalchemy.utils.SQLModel", mock_sqlmodel),
+            patch("pglite_pydb.sqlalchemy.utils.HAS_SQLMODEL", True),
+            patch("pglite_pydb.sqlalchemy.utils.SQLModel", mock_sqlmodel),
         ):
             clear_all_data(mock_engine)
 
@@ -255,7 +255,7 @@ class TestDataCleaning:
 
     def test_clear_all_data_reflect_fallback(self):
         """Test clear_all_data falls back to reflection when no base."""
-        from py_pglite.sqlalchemy.utils import clear_all_data
+        from pglite_pydb.sqlalchemy.utils import clear_all_data
 
         mock_engine = Mock()
         mock_connection = Mock()
@@ -270,9 +270,9 @@ class TestDataCleaning:
         mock_metadata.sorted_tables = [mock_table]
 
         with (
-            patch("py_pglite.sqlalchemy.utils.HAS_SQLMODEL", False),
+            patch("pglite_pydb.sqlalchemy.utils.HAS_SQLMODEL", False),
             patch(
-                "py_pglite.sqlalchemy.utils.reflect_tables", return_value=mock_metadata
+                "pglite_pydb.sqlalchemy.utils.reflect_tables", return_value=mock_metadata
             ),
         ):
             clear_all_data(mock_engine)
@@ -285,7 +285,7 @@ class TestDatabaseMaintenance:
 
     def test_clean_database_data(self):
         """Test clean_database_data functionality."""
-        from py_pglite.sqlalchemy.utils import clean_database_data
+        from pglite_pydb.sqlalchemy.utils import clean_database_data
 
         mock_engine = Mock()
         mock_session = Mock()
@@ -305,9 +305,9 @@ class TestDatabaseMaintenance:
         mock_connection.execute.return_value = mock_result
 
         with (
-            patch("py_pglite.sqlalchemy.utils._ensure_sqlalchemy"),
+            patch("pglite_pydb.sqlalchemy.utils._ensure_sqlalchemy"),
             patch(
-                "py_pglite.sqlalchemy.utils.SQLAlchemySession",
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession",
                 return_value=mock_session,
             ),
         ):
@@ -318,7 +318,7 @@ class TestDatabaseMaintenance:
 
     def test_clean_database_data_with_exclusions(self):
         """Test clean_database_data with excluded tables."""
-        from py_pglite.sqlalchemy.utils import clean_database_data
+        from pglite_pydb.sqlalchemy.utils import clean_database_data
 
         mock_engine = Mock()
         mock_session = Mock()
@@ -338,9 +338,9 @@ class TestDatabaseMaintenance:
         mock_connection.execute.return_value = mock_result
 
         with (
-            patch("py_pglite.sqlalchemy.utils._ensure_sqlalchemy"),
+            patch("pglite_pydb.sqlalchemy.utils._ensure_sqlalchemy"),
             patch(
-                "py_pglite.sqlalchemy.utils.SQLAlchemySession",
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession",
                 return_value=mock_session,
             ),
         ):
@@ -351,7 +351,7 @@ class TestDatabaseMaintenance:
 
     def test_reset_sequences(self):
         """Test reset_sequences functionality."""
-        from py_pglite.sqlalchemy.utils import reset_sequences
+        from pglite_pydb.sqlalchemy.utils import reset_sequences
 
         mock_engine = Mock()
         mock_session = Mock()
@@ -371,9 +371,9 @@ class TestDatabaseMaintenance:
         mock_connection.execute.return_value = mock_result
 
         with (
-            patch("py_pglite.sqlalchemy.utils._ensure_sqlalchemy"),
+            patch("pglite_pydb.sqlalchemy.utils._ensure_sqlalchemy"),
             patch(
-                "py_pglite.sqlalchemy.utils.SQLAlchemySession",
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession",
                 return_value=mock_session,
             ),
         ):
@@ -383,7 +383,7 @@ class TestDatabaseMaintenance:
 
     def test_get_table_row_counts(self):
         """Test get_table_row_counts functionality."""
-        from py_pglite.sqlalchemy.utils import get_table_row_counts
+        from pglite_pydb.sqlalchemy.utils import get_table_row_counts
 
         mock_engine = Mock()
         mock_session = Mock()
@@ -414,9 +414,9 @@ class TestDatabaseMaintenance:
         ]
 
         with (
-            patch("py_pglite.sqlalchemy.utils._ensure_sqlalchemy"),
+            patch("pglite_pydb.sqlalchemy.utils._ensure_sqlalchemy"),
             patch(
-                "py_pglite.sqlalchemy.utils.SQLAlchemySession",
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession",
                 return_value=mock_session,
             ),
         ):
@@ -426,7 +426,7 @@ class TestDatabaseMaintenance:
 
     def test_get_table_row_counts_empty_result(self):
         """Test get_table_row_counts handles empty count results."""
-        from py_pglite.sqlalchemy.utils import get_table_row_counts
+        from pglite_pydb.sqlalchemy.utils import get_table_row_counts
 
         mock_engine = Mock()
         mock_session = Mock()
@@ -454,9 +454,9 @@ class TestDatabaseMaintenance:
         ]
 
         with (
-            patch("py_pglite.sqlalchemy.utils._ensure_sqlalchemy"),
+            patch("pglite_pydb.sqlalchemy.utils._ensure_sqlalchemy"),
             patch(
-                "py_pglite.sqlalchemy.utils.SQLAlchemySession",
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession",
                 return_value=mock_session,
             ),
         ):
@@ -466,12 +466,12 @@ class TestDatabaseMaintenance:
 
     def test_verify_database_empty_true(self):
         """Test verify_database_empty returns True for empty database."""
-        from py_pglite.sqlalchemy.utils import verify_database_empty
+        from pglite_pydb.sqlalchemy.utils import verify_database_empty
 
         mock_engine = Mock()
 
         with patch(
-            "py_pglite.sqlalchemy.utils.get_table_row_counts",
+            "pglite_pydb.sqlalchemy.utils.get_table_row_counts",
             return_value={"table1": 0, "table2": 0},
         ):
             result = verify_database_empty(mock_engine)
@@ -479,12 +479,12 @@ class TestDatabaseMaintenance:
 
     def test_verify_database_empty_false(self):
         """Test verify_database_empty returns False for non-empty database."""
-        from py_pglite.sqlalchemy.utils import verify_database_empty
+        from pglite_pydb.sqlalchemy.utils import verify_database_empty
 
         mock_engine = Mock()
 
         with patch(
-            "py_pglite.sqlalchemy.utils.get_table_row_counts",
+            "pglite_pydb.sqlalchemy.utils.get_table_row_counts",
             return_value={"table1": 5, "table2": 0},
         ):
             result = verify_database_empty(mock_engine)
@@ -492,13 +492,13 @@ class TestDatabaseMaintenance:
 
     def test_verify_database_empty_with_exclusions(self):
         """Test verify_database_empty with excluded tables."""
-        from py_pglite.sqlalchemy.utils import verify_database_empty
+        from pglite_pydb.sqlalchemy.utils import verify_database_empty
 
         mock_engine = Mock()
 
         # Table 'exclude_me' has data but should be ignored
         with patch(
-            "py_pglite.sqlalchemy.utils.get_table_row_counts",
+            "pglite_pydb.sqlalchemy.utils.get_table_row_counts",
             return_value={"table1": 0, "exclude_me": 100},
         ):
             result = verify_database_empty(mock_engine, exclude_tables=["exclude_me"])
@@ -510,7 +510,7 @@ class TestSchemaOperations:
 
     def test_create_test_schema(self):
         """Test create_test_schema functionality."""
-        from py_pglite.sqlalchemy.utils import create_test_schema
+        from pglite_pydb.sqlalchemy.utils import create_test_schema
 
         mock_engine = Mock()
         mock_session = Mock()
@@ -525,9 +525,9 @@ class TestSchemaOperations:
         mock_session.connection.return_value = mock_conn_context
 
         with (
-            patch("py_pglite.sqlalchemy.utils._ensure_sqlalchemy"),
+            patch("pglite_pydb.sqlalchemy.utils._ensure_sqlalchemy"),
             patch(
-                "py_pglite.sqlalchemy.utils.SQLAlchemySession",
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession",
                 return_value=mock_session,
             ),
         ):
@@ -537,7 +537,7 @@ class TestSchemaOperations:
 
     def test_create_test_schema_invalid_name(self):
         """Test create_test_schema rejects invalid schema names."""
-        from py_pglite.sqlalchemy.utils import create_test_schema
+        from pglite_pydb.sqlalchemy.utils import create_test_schema
 
         mock_engine = Mock()
         mock_session = Mock()
@@ -552,9 +552,9 @@ class TestSchemaOperations:
         mock_session.connection.return_value = mock_conn_context
 
         with (
-            patch("py_pglite.sqlalchemy.utils._ensure_sqlalchemy"),
+            patch("pglite_pydb.sqlalchemy.utils._ensure_sqlalchemy"),
             patch(
-                "py_pglite.sqlalchemy.utils.SQLAlchemySession",
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession",
                 return_value=mock_session,
             ),
             pytest.raises(ValueError, match="Invalid schema name"),
@@ -565,7 +565,7 @@ class TestSchemaOperations:
 
     def test_drop_test_schema(self):
         """Test drop_test_schema functionality."""
-        from py_pglite.sqlalchemy.utils import drop_test_schema
+        from pglite_pydb.sqlalchemy.utils import drop_test_schema
 
         mock_engine = Mock()
         mock_session = Mock()
@@ -580,9 +580,9 @@ class TestSchemaOperations:
         mock_session.connection.return_value = mock_conn_context
 
         with (
-            patch("py_pglite.sqlalchemy.utils._ensure_sqlalchemy"),
+            patch("pglite_pydb.sqlalchemy.utils._ensure_sqlalchemy"),
             patch(
-                "py_pglite.sqlalchemy.utils.SQLAlchemySession",
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession",
                 return_value=mock_session,
             ),
         ):
@@ -592,7 +592,7 @@ class TestSchemaOperations:
 
     def test_drop_test_schema_invalid_name(self):
         """Test drop_test_schema rejects invalid schema names."""
-        from py_pglite.sqlalchemy.utils import drop_test_schema
+        from pglite_pydb.sqlalchemy.utils import drop_test_schema
 
         mock_engine = Mock()
         mock_session = Mock()
@@ -607,9 +607,9 @@ class TestSchemaOperations:
         mock_session.connection.return_value = mock_conn_context
 
         with (
-            patch("py_pglite.sqlalchemy.utils._ensure_sqlalchemy"),
+            patch("pglite_pydb.sqlalchemy.utils._ensure_sqlalchemy"),
             patch(
-                "py_pglite.sqlalchemy.utils.SQLAlchemySession",
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession",
                 return_value=mock_session,
             ),
         ):
@@ -624,7 +624,7 @@ class TestSQLFileOperations:
 
     def test_execute_sql_file(self):
         """Test execute_sql_file functionality."""
-        from py_pglite.sqlalchemy.utils import execute_sql_file
+        from pglite_pydb.sqlalchemy.utils import execute_sql_file
 
         mock_engine = Mock()
         mock_session = Mock()
@@ -641,9 +641,9 @@ class TestSQLFileOperations:
         test_sql = "CREATE TABLE test (id INTEGER); INSERT INTO test VALUES (1);"
 
         with (
-            patch("py_pglite.sqlalchemy.utils._ensure_sqlalchemy"),
+            patch("pglite_pydb.sqlalchemy.utils._ensure_sqlalchemy"),
             patch(
-                "py_pglite.sqlalchemy.utils.SQLAlchemySession",
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession",
                 return_value=mock_session,
             ),
             patch("builtins.open", mock_open(test_sql)),
@@ -656,7 +656,7 @@ class TestSQLFileOperations:
 
     def test_execute_sql_file_empty_statements_filtered(self):
         """Test execute_sql_file filters out empty statements."""
-        from py_pglite.sqlalchemy.utils import execute_sql_file
+        from pglite_pydb.sqlalchemy.utils import execute_sql_file
 
         mock_engine = Mock()
         mock_session = Mock()
@@ -676,9 +676,9 @@ class TestSQLFileOperations:
         )
 
         with (
-            patch("py_pglite.sqlalchemy.utils._ensure_sqlalchemy"),
+            patch("pglite_pydb.sqlalchemy.utils._ensure_sqlalchemy"),
             patch(
-                "py_pglite.sqlalchemy.utils.SQLAlchemySession",
+                "pglite_pydb.sqlalchemy.utils.SQLAlchemySession",
                 return_value=mock_session,
             ),
             patch("builtins.open", mock_open(test_sql)),

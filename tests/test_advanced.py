@@ -11,12 +11,12 @@ from sqlmodel import Session
 from sqlmodel import SQLModel
 from sqlmodel import select
 
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 if TYPE_CHECKING:
-    from py_pglite.sqlalchemy import (
+    from pglite_pydb.sqlalchemy import (
         SQLAlchemyPGliteManager as SQLAlchemyPGliteManagerType,
     )
 

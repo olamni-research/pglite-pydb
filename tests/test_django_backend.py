@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from py_pglite import PGliteManager
+from pglite_pydb import PGliteManager
 
 
 class TestDjangoBackendDecoupling:
@@ -20,9 +20,9 @@ class TestDjangoBackendDecoupling:
             import django
 
             # Should be able to import Django backend components
-            from py_pglite.django.backend import PGliteDatabaseCreation
-            from py_pglite.django.backend import PGliteDatabaseWrapper
-            from py_pglite.django.backend import get_pglite_manager
+            from pglite_pydb.django.backend import PGliteDatabaseCreation
+            from pglite_pydb.django.backend import PGliteDatabaseWrapper
+            from pglite_pydb.django.backend import get_pglite_manager
 
             assert PGliteDatabaseCreation is not None
             assert PGliteDatabaseWrapper is not None
@@ -102,7 +102,7 @@ class TestDjangoBackendDecoupling:
         """Test that Django backend fails gracefully when Django is not available."""
         try:
             # Simple test - try to import Django backend components
-            from py_pglite.django.backend import PGliteDatabaseWrapper
+            from pglite_pydb.django.backend import PGliteDatabaseWrapper
 
             # If we can import, Django is available
             # The actual error handling is built into the class
@@ -120,7 +120,7 @@ class TestFrameworkDecouplingValidation:
     def test_sqlalchemy_manager_still_works(self):
         """Test that SQLAlchemy manager still has its own wait_for_ready."""
         try:
-            from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+            from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
             manager = SQLAlchemyPGliteManager()
 
@@ -157,7 +157,7 @@ class TestFrameworkDecouplingValidation:
 
         # SQLAlchemy manager (if available)
         try:
-            from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+            from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
             sqlalchemy_manager = SQLAlchemyPGliteManager()
             assert hasattr(sqlalchemy_manager, "wait_for_ready")

@@ -1,4 +1,4 @@
-"""SQLAlchemy + py-pglite Real Usage Example"""
+"""SQLAlchemy + pglite-pydb Real Usage Example"""
 
 import pytest
 
@@ -18,8 +18,8 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 Base = declarative_base()
@@ -64,7 +64,7 @@ def sqlalchemy_session(
 
 
 def test_user_creation_with_pglite(sqlalchemy_session: Session):
-    """Test using py-pglite's session fixture - real PostgreSQL!
+    """Test using pglite-pydb's session fixture - real PostgreSQL!
 
     Zero-config SQLAlchemy testing with ultra-fast PGlite.
     Just use the fixtures and everything works automatically! 🚀

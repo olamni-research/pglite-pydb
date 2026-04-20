@@ -1,18 +1,18 @@
 """
-🌟 pytest-django + py-pglite: Full Integration Pattern
+🌟 pytest-django + pglite-pydb: Full Integration Pattern
 ======================================================
 
 Pattern 2: pytest-django integration with custom backend.
 
 This shows how to use pytest-django features with the full integration approach:
 • Using @pytest.mark.django_db decorator with custom backend
-• pytest-django fixtures and utilities with py_pglite.django.backend
+• pytest-django fixtures and utilities with pglite_pydb.django.backend
 • Django test utilities enhanced by custom backend
 • Backend-managed connection and optimization
 
 📋 Pattern Details:
-• Backend: py_pglite.django.backend (custom)
-• Connection: Managed by py-pglite backend
+• Backend: pglite_pydb.django.backend (custom)
+• Connection: Managed by pglite-pydb backend
 • Framework: pytest-django integration with backend features
 • Use case: pytest-django users who want full backend integration
 
@@ -43,7 +43,7 @@ def test_with_django_db_backend_marker(django_pglite_db):
     🎯 Using @pytest.mark.django_db decorator with custom backend
 
     This demonstrates pytest-django with full backend integration:
-    - Working with py_pglite.django.backend
+    - Working with pglite_pydb.django.backend
     - Backend-managed database configuration
     - Enhanced performance and features
     """
@@ -64,7 +64,7 @@ def test_with_django_db_backend_marker(django_pglite_db):
     # Use Django ORM with backend features
     article = Article.objects.create(
         title="pytest-django + Custom Backend Works!",
-        content="Using Django testing with py-pglite custom backend",
+        content="Using Django testing with pglite-pydb custom backend",
         metadata={"tags": ["pytest-django", "backend", "integration"]},
     )
 

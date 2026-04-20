@@ -7,8 +7,8 @@ import uuid
 
 from typing import Any
 
-from py_pglite.config import PGliteConfig
-from py_pglite.manager import PGliteManager
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.manager import PGliteManager
 
 
 # Import Django components with error handling
@@ -84,7 +84,7 @@ class PGliteDatabaseCreation(DatabaseCreation):  # type: ignore
                     return
 
             # Use framework-agnostic utilities instead of SQLAlchemy
-            from py_pglite.utils import execute_sql
+            from pglite_pydb.utils import execute_sql
 
             conn_str = manager.config.get_connection_string()
 
@@ -130,7 +130,7 @@ class PGliteDatabaseCreation(DatabaseCreation):  # type: ignore
                     return
 
             # Use framework-agnostic utilities instead of SQLAlchemy
-            from py_pglite.utils import execute_sql
+            from pglite_pydb.utils import execute_sql
 
             conn_str = manager.config.get_connection_string()
 
@@ -163,7 +163,7 @@ class PGliteDatabaseCreation(DatabaseCreation):  # type: ignore
                 # Create unique socket directory but use standard socket name
                 socket_dir = (
                     Path(tempfile.gettempdir())
-                    / f"py-pglite-{db_name}-{uuid.uuid4().hex[:8]}"
+                    / f"pglite-pydb-{db_name}-{uuid.uuid4().hex[:8]}"
                 )
                 socket_dir.mkdir(mode=0o700, exist_ok=True)
                 config.socket_path = str(socket_dir / ".s.PGSQL.5432")
@@ -179,7 +179,7 @@ class PGliteDatabaseCreation(DatabaseCreation):  # type: ignore
 
         # Parse PGlite connection string
         conn_str = manager.config.get_connection_string()
-        # postgresql+psycopg://postgres:postgres@/postgres?host=/tmp/py-pglite-test-abc123
+        # postgresql+psycopg://postgres:postgres@/postgres?host=/tmp/pglite-pydb-test-abc123
 
         # Extract socket directory from connection string
         if "host=" in conn_str:
@@ -232,7 +232,7 @@ class PGliteDatabaseWrapper(base.DatabaseWrapper):  # type: ignore
         if not HAS_DJANGO:
             raise ImportError(
                 "Django is required for Django integration. "
-                "Install with: pip install 'py-pglite[django]'"
+                "Install with: pip install 'pglite-pydb[django]'"
             )
 
         # Ensure we use the PGlite creation class

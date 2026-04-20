@@ -1,9 +1,9 @@
 """
-🧪 py-pglite Testing Patterns Showcase
+🧪 pglite-pydb Testing Patterns Showcase
 =====================================
 
 Demonstrates powerful testing patterns, fixtures, and sugar for various scenarios.
-This shows how py-pglite makes testing with real PostgreSQL effortless.
+This shows how pglite-pydb makes testing with real PostgreSQL effortless.
 """
 
 import time
@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func
 
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 Base = declarative_base()
@@ -243,7 +243,7 @@ def test_bulk_operations_performance(clean_db):
         user_count = session.query(User).count()
         assert user_count == 50
 
-        # Performance assertion (should be fast with py-pglite)
+        # Performance assertion (should be fast with pglite-pydb)
         assert insert_time < 10.0  # Should complete reasonably fast
 
 
@@ -279,11 +279,11 @@ def test_postgresql_json_and_arrays(clean_db):
         # Test JSON operations
         result = session.execute(
             text("""
-            SELECT '{"name": "py-pglite", "version": "0.1.0"}'::json ->> 'name' as name
+            SELECT '{"name": "pglite-pydb", "version": "0.1.0"}'::json ->> 'name' as name
         """)
         ).fetchone()
         assert result is not None
-        assert result[0] == "py-pglite"
+        assert result[0] == "pglite-pydb"
 
         # Test array operations
         result = session.execute(

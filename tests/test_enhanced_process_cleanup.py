@@ -12,8 +12,8 @@ from unittest.mock import patch
 import psutil
 import pytest
 
-from py_pglite.config import PGliteConfig
-from py_pglite.manager import PGliteManager
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.manager import PGliteManager
 
 
 class TestEnhancedProcessCleanup:
@@ -129,7 +129,7 @@ class TestEnhancedProcessCleanup:
             patch("os.chdir"),
             patch.object(manager, "_install_dependencies"),
             patch(
-                "py_pglite.utils.find_pglite_modules", return_value="/tmp/node_modules"
+                "pglite_pydb.utils.find_pglite_modules", return_value="/tmp/node_modules"
             ),
             patch("subprocess.Popen", return_value=mock_process) as mock_popen,
             patch("pathlib.Path.exists", return_value=True),
@@ -163,7 +163,7 @@ class TestEnhancedProcessCleanup:
             patch("os.chdir"),
             patch.object(manager, "_install_dependencies"),
             patch(
-                "py_pglite.utils.find_pglite_modules", return_value="/tmp/node_modules"
+                "pglite_pydb.utils.find_pglite_modules", return_value="/tmp/node_modules"
             ),
             patch("subprocess.Popen", return_value=mock_process) as mock_popen,
             patch("pathlib.Path.exists", return_value=True),

@@ -4,11 +4,11 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyAsyncPGliteManager
-from py_pglite.sqlalchemy.fixtures import pglite_async_engine
-from py_pglite.sqlalchemy.fixtures import pglite_async_session
-from py_pglite.sqlalchemy.fixtures import pglite_async_sqlalchemy_manager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyAsyncPGliteManager
+from pglite_pydb.sqlalchemy.fixtures import pglite_async_engine
+from pglite_pydb.sqlalchemy.fixtures import pglite_async_session
+from pglite_pydb.sqlalchemy.fixtures import pglite_async_sqlalchemy_manager
 
 
 class TestSQLAlchemyAsyncFixtures:

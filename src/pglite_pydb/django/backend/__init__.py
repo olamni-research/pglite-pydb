@@ -1,9 +1,9 @@
-"""Django backend package for py-pglite integration."""
+"""Django backend package for pglite-pydb integration."""
 
-from py_pglite.django.backend.base import DatabaseWrapper
-from py_pglite.django.backend.base import PGliteDatabaseCreation
-from py_pglite.django.backend.base import PGliteDatabaseWrapper
-from py_pglite.django.backend.base import get_pglite_manager
+from pglite_pydb.django.backend.base import DatabaseWrapper
+from pglite_pydb.django.backend.base import PGliteDatabaseCreation
+from pglite_pydb.django.backend.base import PGliteDatabaseWrapper
+from pglite_pydb.django.backend.base import get_pglite_manager
 
 
 # Expose both names for compatibility

@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 # ⚡ ONE LINE SETUP - Real PostgreSQL ready!
@@ -57,7 +57,7 @@ class UserResponse(BaseModel):
 
 # 🚀 FastAPI App
 app = FastAPI(
-    title="⚡ py-pglite FastAPI Demo",
+    title="⚡ pglite-pydb FastAPI Demo",
     description="Instant PostgreSQL API - zero config!",
     version="1.0.0",
 )
@@ -66,7 +66,7 @@ app = FastAPI(
 @app.get("/")
 def read_root():
     return {
-        "message": "🚀 py-pglite + FastAPI = Instant PostgreSQL API!",
+        "message": "🚀 pglite-pydb + FastAPI = Instant PostgreSQL API!",
         "docs": "Visit /docs for interactive API documentation",
         "database": "Real PostgreSQL (not SQLite!)",
     }

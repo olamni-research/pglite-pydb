@@ -11,9 +11,9 @@ from unittest.mock import patch
 
 import pytest
 
-from py_pglite import PGliteConfig
-from py_pglite import PGliteManager
-from py_pglite.utils import check_connection
+from pglite_pydb import PGliteConfig
+from pglite_pydb import PGliteManager
+from pglite_pydb.utils import check_connection
 
 
 class TestPGliteManagerCore:
@@ -350,7 +350,7 @@ class TestPGliteManagerCore:
 
         # Should have auto-generated socket path
         assert config.socket_path is not None
-        assert "py-pglite" in config.socket_path
+        assert "pglite-pydb" in config.socket_path
 
         # Manager needs to be started before getting connection string
         manager.start()
@@ -474,7 +474,7 @@ class TestPGliteManagerErrorHandling:
         ready = manager.wait_for_ready(max_retries=1, delay=0.01)
         assert ready is False  # Should return False, not crash
 
-    @patch("py_pglite.manager.subprocess.Popen")
+    @patch("pglite_pydb.manager.subprocess.Popen")
     def test_managerprocess_creation_failure(self, mock_popen):
         """Test handling of process creation failure."""
         mock_popen.side_effect = OSError("Failed to create process")

@@ -14,10 +14,10 @@ from typing import Any
 
 import psutil
 
-from py_pglite import __version__
-from py_pglite.config import PGliteConfig
-from py_pglite.extensions import SUPPORTED_EXTENSIONS
-from py_pglite.utils import find_pglite_modules
+from pglite_pydb import __version__
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.extensions import SUPPORTED_EXTENSIONS
+from pglite_pydb.utils import find_pglite_modules
 
 
 class PGliteManager:
@@ -62,15 +62,15 @@ class PGliteManager:
             work_dir = self.config.work_dir
             work_dir.mkdir(parents=True, exist_ok=True)
         else:
-            work_dir = Path(tempfile.mkdtemp(prefix="py-pglite-"))
+            work_dir = Path(tempfile.mkdtemp(prefix="pglite-pydb-"))
 
         # Create package.json if it doesn't exist
         package_json = work_dir / "package.json"
         if not package_json.exists():
             package_content = {
-                "name": "py-pglite-env",
+                "name": "pglite-pydb-env",
                 "version": __version__,
-                "description": "PGlite test environment for py-pglite",
+                "description": "PGlite test environment for pglite-pydb",
                 "scripts": {"start": "node pglite_manager.js"},
                 "dependencies": {
                     "@electric-sql/pglite": "^0.3.0",
@@ -592,7 +592,7 @@ class PGliteManager:
         Returns:
             True if database becomes ready, False otherwise
         """
-        from py_pglite.utils import check_connection
+        from pglite_pydb.utils import check_connection
 
         for attempt in range(max_retries):
             try:

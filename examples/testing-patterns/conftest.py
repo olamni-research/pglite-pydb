@@ -4,8 +4,8 @@ import pytest
 
 from sqlmodel import SQLModel
 
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 @pytest.fixture(scope="function")

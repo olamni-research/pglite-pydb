@@ -1,5 +1,5 @@
 """
-🌟 Django + py-pglite: Advanced Lightweight/Socket Pattern
+🌟 Django + pglite-pydb: Advanced Lightweight/Socket Pattern
 =========================================================
 
 Pattern 1: Advanced Django features with socket connection.
@@ -70,7 +70,7 @@ def test_basic_django_operations(configured_django):
     """
     🎯 Test basic Django ORM operations
 
-    Shows fundamental Django operations with py-pglite:
+    Shows fundamental Django operations with pglite-pydb:
     - Model creation and queries
     - Field validation
     - Basic relationships
@@ -125,7 +125,7 @@ def test_advanced_django_queries(configured_django):
     """
     🎯 Test advanced Django query features
 
-    Demonstrates complex Django queries with py-pglite:
+    Demonstrates complex Django queries with pglite-pydb:
     - Filtering and aggregation
     - Complex conditions with Q objects
     - Forward relationship queries
@@ -250,7 +250,7 @@ def test_django_transactions(configured_django):
     """
     🎯 Test Django transaction support
 
-    Demonstrates transaction behavior with py-pglite:
+    Demonstrates transaction behavior with pglite-pydb:
     - Atomic transactions
     - Rollback on error
     - Transaction isolation
@@ -292,7 +292,7 @@ def test_bulk_operations(configured_django):
     """
     🎯 Test bulk operations for performance
 
-    Shows Django bulk operations with py-pglite:
+    Shows Django bulk operations with pglite-pydb:
     - bulk_create for efficiency
     - bulk_update operations
     - Performance with PostgreSQL

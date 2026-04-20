@@ -1,4 +1,4 @@
-"""Example showing how to use py-pglite utils for advanced database operations."""
+"""Example showing how to use pglite-pydb utils for advanced database operations."""
 
 from sqlalchemy import text
 from sqlmodel import Field
@@ -6,7 +6,7 @@ from sqlmodel import Session
 from sqlmodel import SQLModel
 from sqlmodel import select
 
-from py_pglite.sqlalchemy import utils
+from pglite_pydb.sqlalchemy import utils
 
 
 # Example models for testing

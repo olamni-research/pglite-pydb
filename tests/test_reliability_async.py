@@ -1,4 +1,4 @@
-"""Reliability and error scenario testing for py-pglite.
+"""Reliability and error scenario testing for pglite-pydb.
 
 Tests process recovery, timeout handling, resource cleanup, and edge cases
 to ensure robust behavior under adverse conditions.
@@ -18,9 +18,9 @@ from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import ProgrammingError
 
-from py_pglite import PGliteConfig
-from py_pglite.sqlalchemy import SQLAlchemyAsyncPGliteManager
-from py_pglite.sqlalchemy.manager import SQLAlchemyPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb.sqlalchemy import SQLAlchemyAsyncPGliteManager
+from pglite_pydb.sqlalchemy.manager import SQLAlchemyPGliteManager
 
 
 class TestProcessReliability:
@@ -122,7 +122,7 @@ class TestProcessReliability:
 
         # Create a unique socket path for this test
         temp_dir = (
-            Path(tempfile.gettempdir()) / f"py-pglite-cleanup-{uuid.uuid4().hex[:8]}"
+            Path(tempfile.gettempdir()) / f"pglite-pydb-cleanup-{uuid.uuid4().hex[:8]}"
         )
         temp_dir.mkdir(mode=0o700, exist_ok=True)
         socket_path = str(temp_dir / ".s.PGSQL.5432")
@@ -197,7 +197,7 @@ class TestResourceManagement:
         import uuid
 
         temp_dir = (
-            Path(tempfile.gettempdir()) / f"py-pglite-socket-{uuid.uuid4().hex[:8]}"
+            Path(tempfile.gettempdir()) / f"pglite-pydb-socket-{uuid.uuid4().hex[:8]}"
         )
         temp_dir.mkdir(mode=0o700, exist_ok=True)
         socket_path = str(temp_dir / ".s.PGSQL.5432")
@@ -231,7 +231,7 @@ class TestResourceManagement:
         import uuid
 
         work_dir = (
-            Path(tempfile.gettempdir()) / f"py-pglite-work-{uuid.uuid4().hex[:8]}"
+            Path(tempfile.gettempdir()) / f"pglite-pydb-work-{uuid.uuid4().hex[:8]}"
         )
         config = PGliteConfig(work_dir=work_dir)
 
@@ -407,7 +407,7 @@ class TestEdgeCases:
                 unicode_data = [
                     "Hello 世界",  # Chinese
                     "Здравствуй мир",  # Russian
-                    "🚀 py-pglite ✨",  # Emojis
+                    "🚀 pglite-pydb ✨",  # Emojis
                     "Café résumé naïve",  # Accented characters
                 ]
 

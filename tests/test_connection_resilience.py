@@ -2,9 +2,9 @@
 
 import pytest
 
-from py_pglite import PGliteManager
-from py_pglite.config import PGliteConfig
-from py_pglite.utils import check_connection
+from pglite_pydb import PGliteManager
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.utils import check_connection
 
 
 class TestConnectionStringFormats:
@@ -95,7 +95,7 @@ class TestConnectionResilience:
 
     def test_connection_format_error_messages(self):
         """Test that connection errors provide helpful messages."""
-        from py_pglite.utils import get_database_version
+        from pglite_pydb.utils import get_database_version
 
         # Test with SQLAlchemy format (should fail for direct psycopg)
         sqlalchemy_format = (
@@ -151,7 +151,7 @@ class TestConnectionCompatibility:
 
     def test_psycopg_client_compatibility(self):
         """Test that connection formats work with psycopg client."""
-        from py_pglite.clients import PsycopgClient
+        from pglite_pydb.clients import PsycopgClient
 
         config = PGliteConfig()
         client = PsycopgClient()

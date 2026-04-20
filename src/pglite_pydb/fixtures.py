@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from py_pglite.config import PGliteConfig
-from py_pglite.manager import PGliteManager
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.manager import PGliteManager
 
 
 @pytest.fixture(scope="session")
@@ -27,7 +27,7 @@ def pglite_manager() -> Generator[PGliteManager, None, None]:
 
     # Create a unique socket directory for this test session
     # PGlite expects socket_path to be the full path including .s.PGSQL.5432
-    socket_dir = Path(tempfile.gettempdir()) / f"py-pglite-test-{uuid.uuid4().hex[:8]}"
+    socket_dir = Path(tempfile.gettempdir()) / f"pglite-pydb-test-{uuid.uuid4().hex[:8]}"
     socket_dir.mkdir(mode=0o700, exist_ok=True)  # Restrict to user only
     config.socket_path = str(socket_dir / ".s.PGSQL.5432")
 
@@ -57,7 +57,7 @@ def pglite_manager_isolated() -> Generator[PGliteManager, None, None]:
     # Create a unique socket directory for this test module
     # PGlite expects socket_path to be the full path including .s.PGSQL.5432
     socket_dir = (
-        Path(tempfile.gettempdir()) / f"py-pglite-module-{uuid.uuid4().hex[:8]}"
+        Path(tempfile.gettempdir()) / f"pglite-pydb-module-{uuid.uuid4().hex[:8]}"
     )
     socket_dir.mkdir(mode=0o700, exist_ok=True)  # Restrict to user only
     config.socket_path = str(socket_dir / ".s.PGSQL.5432")
@@ -100,7 +100,7 @@ def pglite_manager_custom(
     # Ensure unique socket path even with custom config
     if not hasattr(pglite_config, "socket_path") or not pglite_config.socket_path:
         socket_dir = (
-            Path(tempfile.gettempdir()) / f"py-pglite-custom-{uuid.uuid4().hex[:8]}"
+            Path(tempfile.gettempdir()) / f"pglite-pydb-custom-{uuid.uuid4().hex[:8]}"
         )
         socket_dir.mkdir(mode=0o700, exist_ok=True)  # Restrict to user only
         pglite_config.socket_path = str(socket_dir / ".s.PGSQL.5432")

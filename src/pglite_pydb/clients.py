@@ -1,4 +1,4 @@
-"""Database client abstraction for py-pglite.
+"""Database client abstraction for pglite-pydb.
 
 Provides unified interface for both psycopg and asyncpg clients,
 allowing users to choose their preferred PostgreSQL driver.

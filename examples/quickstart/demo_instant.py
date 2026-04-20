@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-⚡ py-pglite: Instant PostgreSQL Magic
+⚡ pglite-pydb: Instant PostgreSQL Magic
 ====================================
 
 The simplest demo possible - 5 lines, real PostgreSQL!
@@ -10,7 +10,7 @@ Usage:
     python demo_instant.py
 """
 
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 def main():
@@ -30,7 +30,7 @@ def main():
             # Test 2: JSON power (not available in SQLite!)
             conn.execute(
                 text("""
-                SELECT '{"framework": "py-pglite", "speed": "instant"}'::json
+                SELECT '{"framework": "pglite-pydb", "speed": "instant"}'::json
                     ->> 'framework'
             """)
             ).scalar()

@@ -4,10 +4,10 @@
 ================================
 
 Zero-config asyncpg with real PostgreSQL in 30 seconds.
-Shows the proper configuration for asyncpg with py-pglite.
+Shows the proper configuration for asyncpg with pglite-pydb.
 
 Usage:
-    pip install py-pglite[asyncpg]
+    pip install pglite-pydb[asyncpg]
     python simple_asyncpg.py
 
 Recent findings: asyncpg DOES work with PGlite TCP mode when configured properly!
@@ -17,8 +17,8 @@ import asyncio
 import json
 import logging
 
-from py_pglite import PGliteConfig
-from py_pglite import PGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb import PGliteManager
 
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ try:
     import asyncpg
 except ImportError:
     logger.info(
-        "❌ asyncpg not available. Install with: pip install py-pglite[asyncpg]"
+        "❌ asyncpg not available. Install with: pip install pglite-pydb[asyncpg]"
     )
     exit(1)
 
@@ -36,7 +36,7 @@ except ImportError:
 async def main():
     """⚡ Instant PostgreSQL with asyncpg - proper configuration!"""
 
-    # print("🚀 Starting py-pglite with asyncpg...")
+    # print("🚀 Starting pglite-pydb with asyncpg...")
 
     # Enable TCP mode (required for asyncpg)
     config = PGliteConfig(use_tcp=True, tcp_port=5432)
@@ -162,7 +162,7 @@ async def main():
                 logger.info("⚠️  Connection cleanup timed out (known limitation)")
                 # This is not a failure - all operations completed successfully
 
-        logger.info("🎉 asyncpg + py-pglite demo completed successfully!")
+        logger.info("🎉 asyncpg + pglite-pydb demo completed successfully!")
         logger.info(
             "💡 Key finding: server_settings={} is critical for asyncpg compatibility"
         )

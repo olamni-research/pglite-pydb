@@ -11,8 +11,8 @@ from unittest.mock import patch
 import psutil
 import pytest
 
-from py_pglite.config import PGliteConfig
-from py_pglite.manager import PGliteManager
+from pglite_pydb.config import PGliteConfig
+from pglite_pydb.manager import PGliteManager
 
 
 class TestPGliteManagerInitialization:
@@ -57,7 +57,7 @@ class TestPGliteManagerInitialization:
 
             manager = PGliteManager(config)  # noqa: F841
 
-            mock_get_logger.assert_called_once_with("py_pglite.manager")
+            mock_get_logger.assert_called_once_with("pglite_pydb.manager")
             mock_handler_class.assert_called_once()
             mock_logger.addHandler.assert_called_once_with(mock_handler)
 
@@ -119,7 +119,7 @@ class TestWorkingDirectorySetup:
         manager = PGliteManager()
 
         with patch("tempfile.mkdtemp") as mock_mkdtemp:
-            mock_mkdtemp.return_value = "/tmp/py-pglite-test123"
+            mock_mkdtemp.return_value = "/tmp/pglite-pydb-test123"
 
             with (
                 patch("pathlib.Path.exists", return_value=False),
@@ -127,8 +127,8 @@ class TestWorkingDirectorySetup:
             ):
                 result = manager._setup_work_dir()
 
-                assert str(result) == "/tmp/py-pglite-test123"
-                mock_mkdtemp.assert_called_once_with(prefix="py-pglite-")
+                assert str(result) == "/tmp/pglite-pydb-test123"
+                mock_mkdtemp.assert_called_once_with(prefix="pglite-pydb-")
 
     def test_package_json_creation(self):
         """Test package.json file creation."""
@@ -394,7 +394,7 @@ class TestProcessLifecycle:
             patch("os.chdir"),
             patch.object(manager, "_install_dependencies"),
             patch(
-                "py_pglite.utils.find_pglite_modules", return_value="/tmp/node_modules"
+                "pglite_pydb.utils.find_pglite_modules", return_value="/tmp/node_modules"
             ),
             patch("subprocess.Popen", return_value=mock_process),
             patch("pathlib.Path.exists", return_value=True),
@@ -632,7 +632,7 @@ class TestReadinessWaiting:
         manager = PGliteManager()
 
         with (
-            patch("py_pglite.utils.check_connection", return_value=True),
+            patch("pglite_pydb.utils.check_connection", return_value=True),
             patch.object(manager.config, "get_dsn", return_value="host=/tmp/socket"),
             patch("time.sleep"),
         ):
@@ -645,7 +645,7 @@ class TestReadinessWaiting:
         manager = PGliteManager()
 
         with (
-            patch("py_pglite.utils.check_connection", return_value=False),
+            patch("pglite_pydb.utils.check_connection", return_value=False),
             patch.object(manager.config, "get_dsn", return_value="host=/tmp/socket"),
             patch("time.sleep"),
         ):
@@ -659,7 +659,7 @@ class TestReadinessWaiting:
 
         with (
             patch(
-                "py_pglite.utils.check_connection",
+                "pglite_pydb.utils.check_connection",
                 side_effect=Exception("Connection error"),
             ),
             patch.object(manager.config, "get_dsn", return_value="host=/tmp/socket"),
@@ -732,7 +732,7 @@ class TestEnvironmentVariables:
             patch("os.getcwd", return_value="/original/dir"),
             patch("os.chdir"),
             patch.object(manager, "_install_dependencies"),
-            patch("py_pglite.utils.find_pglite_modules", return_value=None),
+            patch("pglite_pydb.utils.find_pglite_modules", return_value=None),
             patch("subprocess.Popen", return_value=mock_process) as mock_popen,
             patch("pathlib.Path.exists", return_value=True),
             patch("socket.socket"),

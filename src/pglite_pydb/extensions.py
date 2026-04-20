@@ -1,4 +1,4 @@
-"""Extension management for py-pglite.
+"""Extension management for pglite-pydb.
 
 This module provides a registry of supported PGlite extensions and the
 necessary JavaScript import details for each.

@@ -1,4 +1,4 @@
-"""Example showing how to integrate py-pglite with FastAPI testing."""
+"""Example showing how to integrate pglite-pydb with FastAPI testing."""
 
 import pytest
 
@@ -12,7 +12,7 @@ from sqlmodel import SQLModel
 from sqlmodel import create_engine
 from sqlmodel import select
 
-from py_pglite.sqlalchemy import pglite_engine
+from pglite_pydb.sqlalchemy import pglite_engine
 
 
 # Example models

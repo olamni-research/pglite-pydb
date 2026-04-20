@@ -11,8 +11,8 @@ from sqlalchemy import create_engine
 from sqlalchemy import text
 from sqlalchemy.pool import StaticPool
 
-from py_pglite import PGliteConfig
-from py_pglite import PGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb import PGliteManager
 
 
 # Optional dependencies - only import if available

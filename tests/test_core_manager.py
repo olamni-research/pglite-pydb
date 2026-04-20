@@ -11,10 +11,10 @@ import pytest
 
 from sqlalchemy import text
 
-from py_pglite import PGliteConfig
-from py_pglite import PGliteManager
-from py_pglite.sqlalchemy import SQLAlchemyAsyncPGliteManager
-from py_pglite.sqlalchemy import SQLAlchemyPGliteManager
+from pglite_pydb import PGliteConfig
+from pglite_pydb import PGliteManager
+from pglite_pydb.sqlalchemy import SQLAlchemyAsyncPGliteManager
+from pglite_pydb.sqlalchemy import SQLAlchemyPGliteManager
 
 
 class TestPGliteConfig:

@@ -1,4 +1,4 @@
-"""Tests for py_pglite.clients module."""
+"""Tests for pglite_pydb.clients module."""
 
 import asyncio
 import sys  # type: ignore[reportUnusedImport]
@@ -9,11 +9,11 @@ from unittest.mock import patch
 
 import pytest
 
-from py_pglite.clients import AsyncpgClient
-from py_pglite.clients import DatabaseClient
-from py_pglite.clients import PsycopgClient
-from py_pglite.clients import get_client
-from py_pglite.clients import get_default_client
+from pglite_pydb.clients import AsyncpgClient
+from pglite_pydb.clients import DatabaseClient
+from pglite_pydb.clients import PsycopgClient
+from pglite_pydb.clients import get_client
+from pglite_pydb.clients import get_default_client
 
 
 @pytest.fixture(autouse=True)
@@ -346,7 +346,7 @@ class TestAsyncpgClient:
 class TestClientFactory:
     """Test client factory functions."""
 
-    @patch("py_pglite.clients.PsycopgClient")
+    @patch("pglite_pydb.clients.PsycopgClient")
     def test_get_default_client_psycopg(self, mock_psycopg_client):
         """Test get_default_client returns PsycopgClient by default."""
         mock_instance = Mock()
@@ -357,7 +357,7 @@ class TestClientFactory:
         assert result is mock_instance
         mock_psycopg_client.assert_called_once()
 
-    @patch("py_pglite.clients.PsycopgClient")
+    @patch("pglite_pydb.clients.PsycopgClient")
     def test_get_client_psycopg(self, mock_psycopg_client):
         """Test get_client returns PsycopgClient for 'psycopg'."""
         mock_instance = Mock()
@@ -369,7 +369,7 @@ class TestClientFactory:
         mock_psycopg_client.assert_called_once()
 
     @pytest.mark.asyncio
-    @patch("py_pglite.clients.AsyncpgClient")
+    @patch("pglite_pydb.clients.AsyncpgClient")
     async def test_get_client_asyncpg(self, mock_asyncpg_client):
         """Test get_client returns AsyncpgClient for 'asyncpg'."""
         mock_instance = AsyncMock()  # Use AsyncMock instead of Mock
