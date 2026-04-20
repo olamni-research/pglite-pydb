@@ -8,11 +8,7 @@
 
 `pip install pglite-pydb`
 
-> **Note:** This project was previously published under the name `py-pglite`.
-> The old PyPI distribution (`py-pglite==0.5.3`) is intentionally frozen and
-> receives no further updates. New installations should use
-> `pip install pglite-pydb`; existing projects must update imports from
-> `py_pglite` to `pglite_pydb` (no backward-compatibility alias is provided).
+
 
 <br clear="all"/>
 
