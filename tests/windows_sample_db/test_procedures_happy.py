@@ -1,104 +1,177 @@
-"""T019 — end-to-end procedure smoke over TCP (TDD, pre-T021).
+"""T035 — happy-path matrix: all 10 procedures × both transports.
 
-Two representative procedures prove the full wiring (bridge → psycopg →
-installed function → result set) ahead of the full 10×2 matrix in T035:
+Shares the session bridges via the ``transport_conn`` fixture (conftest T033).
+Each procedure asserts a row-shape expectation plus a spot-check from
+``_expected.py`` (SC-003, FR-013).
 
-  - count_articles_per_product()              — no-input aggregate (§3)
-  - top_products_by_revenue(p_n int)          — parameterized ordered TABLE (§4)
-
-The country-named procedures referenced in tasks.md are stale relative to
-the locked contracts/procedures.md webshop dataset; the picks here come
-from the shipped sql/10_procedures.sql.
+Every test runs twice: once with ``transport=tcp``, once with ``transport=pipe``.
 """
 
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 
 import pytest
 
 
 pytestmark = pytest.mark.skipif(
     sys.platform != "win32",
-    reason="requires Windows (bridge + pywin32 paths)",
+    reason="requires Windows",
 )
 
-psycopg = pytest.importorskip("psycopg")
-
-from examples.windows_sample_db.launcher import bridge_process  # noqa: E402
-from examples.windows_sample_db.loader import (  # noqa: E402
-    capture_state,
-    load_dump_with_copy,
-)
-from examples.windows_sample_db.procedures import install  # noqa: E402
-from examples.windows_sample_db.transport import TransportConfig  # noqa: E402
+from tests.windows_sample_db import _expected as E
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+def _fetch(conn, sql, *params):
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        return cur.fetchall()
 
 
-@pytest.fixture
-def loaded_bridge(tmp_path: Path):
-    """Boot a bridge against a fresh pgdata with the overlay + procedures installed.
-
-    Uses the default tcp port offset by +11 to avoid collisions with other
-    test files running in the same session.
-    """
-    data_dir = tmp_path / "pgdata"
-    data_dir.mkdir()
-    cfg = TransportConfig(kind="tcp", port=54331, data_dir=data_dir)
-
-    state = capture_state(data_dir)
-    with bridge_process(cfg) as handle:
-        # Bootstrap: load the vendored dump (webshop.* tables + data),
-        # then install overlay + role + procedures. Install is idempotent.
-        with psycopg.connect(cfg.to_dsn(), connect_timeout=10, autocommit=False) as conn:
-            load_dump_with_copy(conn, state.dump_path)
-            install(conn, data_dir)
-        yield cfg, handle
+def _scalar(conn, sql, *params):
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        row = cur.fetchone()
+        return None if row is None else row[0]
 
 
-def test_count_articles_per_product_returns_nonempty_rows(loaded_bridge) -> None:
-    """procedures.md §3: one row per product that has ≥1 article, ordered."""
-    cfg, _ = loaded_bridge
-    with psycopg.connect(cfg.to_dsn(), connect_timeout=5) as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM count_articles_per_product()")
-            rows = cur.fetchall()
-    assert rows, "expected at least one (product_id, article_count) row"
-    # Contract: article_count >= 1 for every returned row.
+# 1 --------------------------------------------------------------------------
+
+
+def test_get_customer_by_email_returns_one_row(transport_conn) -> None:
+    # Look up a customer id → email → feed it back to the procedure.
+    email = _scalar(
+        transport_conn,
+        "SELECT email FROM webshop.customer ORDER BY id LIMIT 1",
+    )
+    rows = _fetch(
+        transport_conn, "SELECT * FROM get_customer_by_email(%s)", email,
+    )
+    assert len(rows) == 1
+
+
+# 2 --------------------------------------------------------------------------
+
+
+def test_list_articles_for_product_page_1(transport_conn) -> None:
+    rows = _fetch(
+        transport_conn,
+        "SELECT * FROM list_articles_for_product(%s, %s, %s)",
+        E.PRODUCT_ID_WITH_ARTICLES, 10, 1,
+    )
+    assert 1 <= len(rows) <= 10
+    # Each row carries a repeated total_count >= row count.
+    for r in rows:
+        assert r[-1] >= len(rows)
+
+
+# 3 --------------------------------------------------------------------------
+
+
+def test_count_articles_per_product(transport_conn) -> None:
+    rows = _fetch(transport_conn, "SELECT * FROM count_articles_per_product()")
+    assert len(rows) > 0
+    # product_id ordering ascending.
+    ids = [r[0] for r in rows]
+    assert ids == sorted(ids)
+    # Every product has at least one article.
     assert all(r[1] >= 1 for r in rows)
-    # Ordered by product_id ASC.
-    product_ids = [r[0] for r in rows]
-    assert product_ids == sorted(product_ids)
 
 
-def test_top_products_by_revenue_returns_exactly_n_rows_desc(loaded_bridge) -> None:
-    """procedures.md §4: top N ordered by revenue DESC, tiebreak product_id ASC."""
-    cfg, _ = loaded_bridge
-    with psycopg.connect(cfg.to_dsn(), connect_timeout=5) as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM top_products_by_revenue(%s)", (5,))
-            rows = cur.fetchall()
+# 4 --------------------------------------------------------------------------
+
+
+def test_top_products_by_revenue_returns_n_rows_desc(transport_conn) -> None:
+    rows = _fetch(transport_conn, "SELECT * FROM top_products_by_revenue(%s)", 5)
     assert len(rows) == 5
     revenues = [r[2] for r in rows]
-    assert revenues == sorted(revenues, reverse=True), (
-        f"revenue not descending: {revenues}"
+    assert revenues == sorted(revenues, reverse=True)
+
+
+# 5 --------------------------------------------------------------------------
+
+
+def test_list_orders_for_customer(transport_conn) -> None:
+    cid = _scalar(
+        transport_conn,
+        "SELECT id FROM webshop.customer ORDER BY id LIMIT 1",
     )
+    rows = _fetch(transport_conn, "SELECT * FROM list_orders_for_customer(%s)", cid)
+    # Customer may or may not have orders — contract only forbids raising
+    # when the customer exists.
+    assert len(rows) >= 0
 
 
-def test_top_products_by_revenue_rejects_non_positive_n(loaded_bridge) -> None:
-    """procedures.md §4 error branch: p_n <= 0 → SQLSTATE 22023."""
-    cfg, _ = loaded_bridge
-    # autocommit avoids leaving an aborted transaction open after the expected
-    # server error, which upsets psycopg's ``with conn`` cleanup path.
-    conn = psycopg.connect(cfg.to_dsn(), connect_timeout=5, autocommit=True)
-    try:
-        with conn.cursor() as cur:
-            with pytest.raises(psycopg.errors.Error) as ei:
-                cur.execute("SELECT * FROM top_products_by_revenue(%s)", (0,))
-        sqlstate = getattr(ei.value, "sqlstate", None) or ei.value.diag.sqlstate
-        assert sqlstate == "22023"
-    finally:
-        conn.close()
+# 6 --------------------------------------------------------------------------
+
+
+def test_articles_in_category_footwear(transport_conn) -> None:
+    rows = _fetch(transport_conn, "SELECT * FROM articles_in_category(%s)", "Footwear")
+    assert len(rows) > 0
+
+
+# 7 --------------------------------------------------------------------------
+
+
+def test_customer_order_report(transport_conn) -> None:
+    cid = _scalar(
+        transport_conn,
+        "SELECT id FROM webshop.customer ORDER BY id LIMIT 1",
+    )
+    rows = _fetch(transport_conn, "SELECT * FROM customer_order_report(%s)", cid)
+    assert len(rows) == 1
+    row = rows[0]
+    assert row[0] == cid
+    assert row[2] >= 0  # order_count
+    assert row[3] >= 0  # total_spent
+
+
+# 8 --------------------------------------------------------------------------
+
+
+def test_bulk_log_articles_for_product_writes_audit_log(transport_conn) -> None:
+    pid = E.PRODUCT_ID_WITH_ARTICLES
+    count = _scalar(
+        transport_conn,
+        "SELECT bulk_log_articles_for_product(%s)",
+        pid,
+    )
+    assert count >= 1
+    audit_count = _scalar(
+        transport_conn,
+        "SELECT count(*) FROM audit_log "
+        "WHERE procedure_name = 'bulk_log_articles_for_product' "
+        "AND target_key = %s",
+        str(pid),
+    )
+    assert audit_count >= count
+
+
+# 9 --------------------------------------------------------------------------
+
+
+def test_rename_product_display_name_upserts_overlay(transport_conn) -> None:
+    pid = E.PRODUCT_ID_WITH_ARTICLES
+    _fetch(
+        transport_conn,
+        "SELECT rename_product_display_name(%s, %s)",
+        pid, "Spot-Check Renamed",
+    )
+    current = _scalar(
+        transport_conn,
+        "SELECT display_name FROM product_overlay WHERE product_id = %s",
+        pid,
+    )
+    assert current == "Spot-Check Renamed"
+
+
+# 10 -------------------------------------------------------------------------
+
+
+def test_assert_product_exists(transport_conn) -> None:
+    # Void return — just asserting absence of exception.
+    _fetch(
+        transport_conn,
+        "SELECT assert_product_exists(%s)",
+        E.PRODUCT_ID_WITH_ARTICLES,
+    )

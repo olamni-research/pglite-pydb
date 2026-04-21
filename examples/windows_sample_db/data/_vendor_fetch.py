@@ -11,7 +11,9 @@ import hashlib
 import re
 import sys
 import urllib.request
+
 from pathlib import Path
+
 
 UPSTREAM_REPO = "JannikArndt/PostgreSQLSampleDatabase"
 UPSTREAM_SHA = "78df7422e16f5bf8e21c84da70894b092f799e29"
@@ -31,7 +33,7 @@ ORDER = [
 
 def fetch(path: str) -> str:
     url = f"https://raw.githubusercontent.com/{UPSTREAM_REPO}/{UPSTREAM_SHA}/{path}"
-    with urllib.request.urlopen(url) as resp:  # noqa: S310 (fixed host)
+    with urllib.request.urlopen(url) as resp:
         return resp.read().decode("utf-8")
 
 

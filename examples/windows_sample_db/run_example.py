@@ -15,17 +15,16 @@ import os
 import shutil
 import sys
 import time
+
 from pathlib import Path
 from typing import Any
 
 from examples.windows_sample_db import transport as _transport
-from examples.windows_sample_db.launcher import (
-    BridgeSpawnError,
-    BridgeStartTimeout,
-    LauncherError,
-    PortInUseError,
-    bridge_process,
-)
+from examples.windows_sample_db.launcher import BridgeSpawnError
+from examples.windows_sample_db.launcher import BridgeStartTimeout
+from examples.windows_sample_db.launcher import LauncherError
+from examples.windows_sample_db.launcher import PortInUseError
+from examples.windows_sample_db.launcher import bridge_process
 from examples.windows_sample_db.loader import DumpIntegrityError
 from examples.windows_sample_db.loader import LoaderError
 from examples.windows_sample_db.loader import PgDataStatus
@@ -255,7 +254,7 @@ def run(argv: list[str] | None = None) -> int:
     except BridgeSpawnError as e:
         sys.stderr.write(f"{e}\n")
         return e.exit_code
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         sys.stderr.write(f"unexpected error: {e}\n")
         return 1
 

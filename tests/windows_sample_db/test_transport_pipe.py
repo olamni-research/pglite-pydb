@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import sys
 import time
+
 from pathlib import Path
 
 import pytest
@@ -31,11 +32,9 @@ psycopg = pytest.importorskip("psycopg")
 psutil = pytest.importorskip("psutil")
 pytest.importorskip("win32file")  # pywin32
 
-from examples.windows_sample_db.launcher import (  # noqa: E402
-    PortInUseError,
-    bridge_process,
-)
-from examples.windows_sample_db.transport import TransportConfig  # noqa: E402
+from examples.windows_sample_db.launcher import PortInUseError
+from examples.windows_sample_db.launcher import bridge_process
+from examples.windows_sample_db.transport import TransportConfig
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]

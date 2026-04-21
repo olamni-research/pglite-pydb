@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import sys
 import time
+
 from pathlib import Path
 
 import pytest
@@ -23,8 +24,8 @@ pytestmark = pytest.mark.skipif(
 
 psycopg = pytest.importorskip("psycopg")
 
-from examples.windows_sample_db.launcher import bridge_process  # noqa: E402
-from examples.windows_sample_db.transport import TransportConfig  # noqa: E402
+from examples.windows_sample_db.launcher import bridge_process
+from examples.windows_sample_db.transport import TransportConfig
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]

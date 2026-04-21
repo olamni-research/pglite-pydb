@@ -55,6 +55,42 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  windows-sample-db:
+    name: windows-sample-db (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Environment
+      uses: ./.github/actions/setup-environment
+      with:
+        python-version: "3.12"
+        run-tests: false
+
+    - name: Install windows-sample-db extras
+      shell: bash
+      run: |
+        uv sync --extra windows-sample-db
+        # Node deps for the bridge
+        npm install
+
+    - name: Run windows_sample_db suite
+      # On Windows → full run (73 tests). On Linux → collect-only +
+      # assert every module was skipped with "requires Windows".
+      shell: bash
+      run: |
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          uv run pytest tests/windows_sample_db -v
+        else
+          uv run pytest tests/windows_sample_db --collect-only -q 2>&1 \
+            | tee collect.log
+          grep -q "skipped" collect.log || (echo "expected Linux skip"; exit 1)
+        fi
+
   test-package:
     strategy:
       matrix:

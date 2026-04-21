@@ -13,6 +13,7 @@ import os
 import socket
 import threading
 import uuid
+
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
@@ -234,9 +235,9 @@ class PipeRelay:
         traffic (a pending ReadFile blocks any concurrent WriteFile from
         a sibling thread until data arrives).
         """
+        import pywintypes
         import win32event
         import win32file
-        import pywintypes
 
         try:
             handle = win32file.CreateFile(
@@ -280,7 +281,7 @@ class PipeRelay:
                 while not done.is_set():
                     win32event.ResetEvent(ov.hEvent)
                     try:
-                        hr, _ = win32file.ReadFile(handle, buf, ov)
+                        win32file.ReadFile(handle, buf, ov)
                     except pywintypes.error:
                         return
                     n = win32file.GetOverlappedResult(handle, ov, True)
@@ -296,8 +297,10 @@ class PipeRelay:
 
         t1 = threading.Thread(target=_sock_to_pipe, daemon=True)
         t2 = threading.Thread(target=_pipe_to_sock, daemon=True)
-        t1.start(); t2.start()
-        t1.join(); t2.join()
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
 
         with contextlib.suppress(Exception):
             win32file.CloseHandle(handle)
