@@ -84,18 +84,18 @@ Single-project Python src-layout (inherited from feature 001):
 
 ### Tests for User Story 1 ⚠️ (write first, ensure they fail, then implement)
 
-- [ ] T016 [P] [US1] Integration test `tests/test_data_dir_mandatory.py::test_missing_data_dir_fails` — constructing `PGliteConfig()` without `data_dir` raises `MissingDataDirError`; no PGlite subprocess is spawned. Maps FR-001, SC-001.
-- [ ] T017 [P] [US1] Integration test `tests/test_data_dir_mandatory.py::test_fresh_path_initialises_only_inside` — start the wrapper at a tmp_path subdirectory; assert a `PG_VERSION` file exists inside it; walk `tmp_path.parent` (the mktemp root) and assert no PGlite files appear outside the supplied subdir. Maps FR-002, FR-004, SC-002.
-- [ ] T018 [P] [US1] Integration test `tests/test_data_dir_mandatory.py::test_existing_path_preserves_data` — start, create 3 schemas with 10 rows each, stop, restart, assert all 30 rows present and no reinitialisation marker changed. Maps FR-004, SC-003.
-- [ ] T019 [P] [US1] Integration test `tests/test_data_dir_mandatory.py::test_rejectable_paths` — parametrised over: (a) path points at a regular file, (b) path points at a non-empty dir with unrelated content, (c) path is not writable. Each raises `InvalidDataDirError` with the specific sub-reason in the message; target location is byte-unchanged after the failure. Maps FR-005.
-- [ ] T020 [P] [US1] Integration test `tests/test_data_dir_mandatory.py::test_concurrent_start_same_path_fails_fast` — spawn a subprocess holding a wrapper open on a path; from the parent, attempt a second start on the same resolved path; assert `InstanceInUseError` within 100 ms (plan Performance Goals) and that the subprocess's instance is unaffected. Maps FR-006.
-- [ ] T021 [P] [US1] Integration test `tests/test_data_dir_mandatory.py::test_symlink_resolves_to_same_instance` — create a symlink that points at the data dir; start via the symlink and separately via the real path; assert both resolve to the same `InstanceLock` (second attempt fails with the real path in the error message). Maps FR-003 + edge-cases list.
+- [X] T016 [P] [US1] Integration test `tests/test_data_dir_mandatory.py::test_missing_data_dir_fails` — constructing `PGliteConfig()` without `data_dir` raises `MissingDataDirError`; no PGlite subprocess is spawned. Maps FR-001, SC-001.
+- [X] T017 [P] [US1] Integration test `tests/test_data_dir_mandatory.py::test_fresh_path_initialises_only_inside` — start the wrapper at a tmp_path subdirectory; assert a `PG_VERSION` file exists inside it; walk `tmp_path.parent` (the mktemp root) and assert no PGlite files appear outside the supplied subdir. Maps FR-002, FR-004, SC-002.
+- [X] T018 [P] [US1] Integration test `tests/test_data_dir_mandatory.py::test_existing_path_preserves_data` — start, create 3 schemas with 10 rows each, stop, restart, assert all 30 rows present and no reinitialisation marker changed. Maps FR-004, SC-003.
+- [X] T019 [P] [US1] Integration test `tests/test_data_dir_mandatory.py::test_rejectable_paths` — parametrised over: (a) path points at a regular file, (b) path points at a non-empty dir with unrelated content, (c) path is not writable. Each raises `InvalidDataDirError` with the specific sub-reason in the message; target location is byte-unchanged after the failure. Maps FR-005.
+- [X] T020 [P] [US1] Integration test `tests/test_data_dir_mandatory.py::test_concurrent_start_same_path_fails_fast` — spawn a subprocess holding a wrapper open on a path; from the parent, attempt a second start on the same resolved path; assert `InstanceInUseError` within 100 ms (plan Performance Goals) and that the subprocess's instance is unaffected. Maps FR-006.
+- [X] T021 [P] [US1] Integration test `tests/test_data_dir_mandatory.py::test_symlink_resolves_to_same_instance` — create a symlink that points at the data dir; start via the symlink and separately via the real path; assert both resolve to the same `InstanceLock` (second attempt fails with the real path in the error message). Maps FR-003 + edge-cases list.
 
 ### Implementation for User Story 1
 
 All of US1's production code lands in Phase 2 (T014/T015 are load-bearing). If T016–T021 turn up residual gaps, those gaps are fixed in `src/pglite_pydb/manager.py` / `src/pglite_pydb/config.py`; no new source files are introduced in this phase.
 
-- [ ] T022 [US1] Fix any residual failures from T016–T021 in `src/pglite_pydb/manager.py` and `src/pglite_pydb/config.py`. Do NOT create new modules here — this task is only to close the gap between Phase-2 implementation and the US1 acceptance tests.
+- [X] T022 [US1] Fix any residual failures from T016–T021 in `src/pglite_pydb/manager.py` and `src/pglite_pydb/config.py`. Do NOT create new modules here — this task is only to close the gap between Phase-2 implementation and the US1 acceptance tests.
 
 **Checkpoint**: US1 is shippable on its own as MVP. All five Acceptance Scenarios from spec.md US1 map to a passing test. SC-001, SC-002, SC-003 measurable outcomes pass on Linux and Windows CI matrix entries.
 
