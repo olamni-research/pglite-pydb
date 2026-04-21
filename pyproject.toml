@@ -130,6 +130,9 @@ Documentation = "https://github.com/olamni-research/pglite-pydb#readme"
 Repository = "https://github.com/olamni-research/pglite-pydb"
 Issues = "https://github.com/olamni-research/pglite-pydb/issues"
 
+[project.scripts]
+pglite-pydb = "pglite_pydb.cli.main:main"
+
 [project.entry-points.pytest11]
 pglite_pydb = "pglite_pydb.pytest_plugin"
 
@@ -297,7 +300,8 @@ markers = [
     "fixtures: Fixture pattern tests",
     "isolation: Framework isolation tests",
     "windows_sample_db: marks tests in the Windows sample-database example suite (Windows-only; feature 001-example-db-psycopg3-windows)",
-
+    "windows_only: marks tests that only run on Windows (skipped on other OSes)",
+    "requires_pg_dump: marks tests that require pg_dump on PATH (auto-skipped if absent)",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning",
