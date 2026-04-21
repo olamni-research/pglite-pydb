@@ -73,6 +73,10 @@ extensions = [
     "pgvector>=0.4.1",
     "numpy>=1.0.0"
 ]
+windows-sample-db = [
+    "psycopg[binary]>=3.1",
+    "pywin32>=306; sys_platform == 'win32'",
+]
 examples = [
     "pglite-pydb[fastapi]",
     "python-jose>=3.3.0",
