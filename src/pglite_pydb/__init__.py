@@ -11,6 +11,8 @@ __version__ = importlib.metadata.version(__name__)
 
 # Core exports (always available)
 # Database client exports (choose your preferred client)
+from pglite_pydb.backup import BackupEngine
+from pglite_pydb.backup import SchemaSelection
 from pglite_pydb.clients import AsyncpgClient
 from pglite_pydb.clients import PsycopgClient
 from pglite_pydb.clients import get_client
@@ -37,6 +39,7 @@ from pglite_pydb.manager import PGliteManager
 # Core public API - framework agnostic
 __all__ = [
     "AsyncpgClient",
+    "BackupEngine",
     "BackupLocationNotConfiguredError",
     "BackupLocationUnavailableError",
     "BackupSelectorMissingError",
@@ -54,6 +57,7 @@ __all__ = [
     "PsycopgClient",
     "RestoreConflictError",
     "SchemaNotFoundError",
+    "SchemaSelection",
     "SidecarConfig",
     # Database clients
     "get_client",
