@@ -14,12 +14,17 @@ The connection object is duck-typed (psycopg 3 ``Connection`` is what
 from __future__ import annotations
 
 import hashlib
+
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Protocol
-from typing import Sequence
 
 from examples.windows_sample_db.loader import INSTALL_MARKER
+
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 # 10 procedure signatures, in the order they are declared in

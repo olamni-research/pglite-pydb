@@ -144,6 +144,17 @@ async def test_asyncpg_works(pglite_tcp_manager):
 
 ## **Examples**
 
+### **Windows sample database (psycopg 3, TCP + named pipe)**
+
+A Windows-only, end-to-end example that loads a ~4 MB vendored sample dump into a PGlite-backed database, installs 10 example PL/pgSQL procedures, and invokes each of them over either a TCP loopback or a Windows named pipe:
+
+```powershell
+python -m examples.windows_sample_db.run_example --reset
+python -m examples.windows_sample_db.run_example --transport pipe --unique-pipe --reset
+```
+
+👉 [**See the Windows sample-db example**](examples/windows_sample_db/) for the quickstart, transport contract, and test-matrix walkthrough.
+
 ### **FastAPI + SQLModel**
 
 ```python

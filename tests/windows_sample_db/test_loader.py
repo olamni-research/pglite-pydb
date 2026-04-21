@@ -14,6 +14,7 @@ import os
 import shutil
 import subprocess
 import sys
+
 from pathlib import Path
 
 import pytest
@@ -26,15 +27,13 @@ pytestmark = pytest.mark.skipif(
 
 
 # Lazy imports: keep this module importable on non-Windows for collection.
-from examples.windows_sample_db.loader import (  # noqa: E402
-    DataDirInconsistentError,
-    DumpIntegrityError,
-    PgDataStatus,
-    capture_state,
-    detect_pgdata_status,
-    ensure_loadable,
-    read_expected_checksum,
-)
+from examples.windows_sample_db.loader import DataDirInconsistentError
+from examples.windows_sample_db.loader import DumpIntegrityError
+from examples.windows_sample_db.loader import PgDataStatus
+from examples.windows_sample_db.loader import capture_state
+from examples.windows_sample_db.loader import detect_pgdata_status
+from examples.windows_sample_db.loader import ensure_loadable
+from examples.windows_sample_db.loader import read_expected_checksum
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]

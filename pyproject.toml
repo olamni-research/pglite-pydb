@@ -218,6 +218,14 @@ unfixable = [
 [tool.ruff.lint.per-file-ignores]
 # The cross-platform task runner is a CLI — user-facing print() is the point.
 "tasks.py" = ["T201"]
+# Windows sample-db example: typed-error classes without the `Error`
+# suffix mirror the upstream Windows API names they represent
+# (BridgeStartTimeout, BridgePipeDenied, PipeUnavailable). The vendor
+# script is a CLI — print() is intentional. `_expected as E` is a
+# deliberately short local alias inside the test matrix.
+"examples/windows_sample_db/**.py" = ["N818"]
+"examples/windows_sample_db/data/_vendor_fetch.py" = ["T201"]
+"tests/windows_sample_db/test_procedures_*.py" = ["N812", "RUF002"]
 
 [tool.ruff.lint.isort]
 force-single-line = true
@@ -288,6 +296,7 @@ markers = [
     "core: Core functionality tests",
     "fixtures: Fixture pattern tests",
     "isolation: Framework isolation tests",
+    "windows_sample_db: marks tests in the Windows sample-database example suite (Windows-only; feature 001-example-db-psycopg3-windows)",
 
 ]
 filterwarnings = [

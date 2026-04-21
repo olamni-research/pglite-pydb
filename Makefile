@@ -9,7 +9,7 @@
 PYTHON := uv run python
 TASKS  := $(PYTHON) tasks.py
 
-.PHONY: help dev test examples lint quick install fmt clean status
+.PHONY: help dev test examples lint quick install fmt clean status regen-sample-sha
 
 help:
 	@echo "pglite-pydb — available tasks"
@@ -53,3 +53,14 @@ clean:
 
 status:
 	@$(TASKS) status
+
+# Recompute examples/windows_sample_db/data/sample_db.sql.sha256 from the
+# current sample_db.sql. Only run this when intentionally re-vendoring
+# the upstream dump — during normal development the sidecar must never
+# drift from the dump it describes.
+regen-sample-sha:
+	@$(PYTHON) -c "import hashlib,pathlib; \
+	p=pathlib.Path('examples/windows_sample_db/data/sample_db.sql'); \
+	h=hashlib.sha256(p.read_bytes()).hexdigest(); \
+	pathlib.Path('examples/windows_sample_db/data/sample_db.sql.sha256').write_text(f'{h}  sample_db.sql\n', encoding='ascii', newline='\n'); \
+	print(h)"

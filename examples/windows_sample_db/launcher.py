@@ -26,16 +26,21 @@ import subprocess
 import sys
 import threading
 import time
+
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
-from typing import Callable
-from typing import Iterator
+from typing import TYPE_CHECKING
 from typing import TextIO
 
 from examples.windows_sample_db.transport import PipeRelay
 from examples.windows_sample_db.transport import PipeUnavailable
 from examples.windows_sample_db.transport import TransportConfig
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from collections.abc import Iterator
 
 
 READINESS_TIMEOUT_SECS = 10.0
@@ -165,7 +170,7 @@ def _probe_tcp(host: str, port: int, connect_timeout: float = 0.25) -> str:
             return "ready"
         except ConnectionRefusedError:
             return "refused"
-        except socket.timeout:
+        except TimeoutError:
             return "timeout"
         except OSError as e:
             # WSAETIMEDOUT = 10060, WSAECONNREFUSED = 10061, WSAEADDRNOTAVAIL = 10049
@@ -217,7 +222,7 @@ def _reader_thread(
                 if on_accept is not None:
                     try:
                         on_accept(evt)
-                    except Exception:  # noqa: BLE001
+                    except Exception:
                         pass
         stream.close()
     t = threading.Thread(target=_run, name=f"bridge-reader-{id(stream):x}", daemon=True)
@@ -257,8 +262,8 @@ def _parse_accept_line(line: str) -> AcceptEvent | None:
 
 def _pipe_exists(pipe_path: str) -> bool:
     """Return True if a named-pipe instance is waiting at ``pipe_path``."""
-    import win32pipe
     import pywintypes
+    import win32pipe
     try:
         # 0-ms wait: immediate probe — returns True only if already available.
         return bool(win32pipe.WaitNamedPipe(pipe_path, 0))
@@ -305,14 +310,14 @@ def launch_bridge(
         "--data-dir", str(config.data_dir),
     ]
 
-    popen_kwargs: dict[str, object] = dict(
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        stdin=subprocess.DEVNULL,
-        bufsize=1,
-        text=True,
-        env={**os.environ, **(env or {})},
-    )
+    popen_kwargs: dict[str, object] = {
+        "stdout": subprocess.PIPE,
+        "stderr": subprocess.PIPE,
+        "stdin": subprocess.DEVNULL,
+        "bufsize": 1,
+        "text": True,
+        "env": {**os.environ, **(env or {})},
+    }
     if sys.platform == "win32":
         popen_kwargs["creationflags"] = (
             subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore[attr-defined]
@@ -384,8 +389,8 @@ def _launch_bridge_pipe(
     FR-026 message. Otherwise spawn Node, poll ``WaitNamedPipeW`` for
     readiness, and wire an in-process TCP relay that psycopg can dial.
     """
-    import win32pipe
     import pywintypes
+    import win32pipe
 
     pipe_name = config.resolved_pipe_name
     pipe_path = config.pipe_path
@@ -407,14 +412,14 @@ def _launch_bridge_pipe(
         "--data-dir", str(config.data_dir),
     ]
 
-    popen_kwargs: dict[str, object] = dict(
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        stdin=subprocess.DEVNULL,
-        bufsize=1,
-        text=True,
-        env={**os.environ, **(env or {})},
-    )
+    popen_kwargs: dict[str, object] = {
+        "stdout": subprocess.PIPE,
+        "stderr": subprocess.PIPE,
+        "stdin": subprocess.DEVNULL,
+        "bufsize": 1,
+        "text": True,
+        "env": {**os.environ, **(env or {})},
+    }
     if sys.platform == "win32":
         popen_kwargs["creationflags"] = (
             subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore[attr-defined]
