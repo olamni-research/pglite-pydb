@@ -43,7 +43,8 @@
       "Bash(python -m examples.windows_sample_db.run_example --data-dir /tmp/pgdata_demo --reset)",
       "Bash(python *)",
       "PowerShell(.specify/extensions/git/scripts/powershell/create-new-feature.ps1 -Json -ShortName \"pglite-path-backup-restore\" \"add mandatory path argument to pglite-pydb wrapper passed to pglite wasm process; add backup and restore commands for schemas and databases\")",
-      "Bash(pwsh *)"
+      "Bash(pwsh *)",
+      "PowerShell(.specify/extensions/git/scripts/powershell/auto-commit.ps1 after_plan)"
     ]
   }
 }
