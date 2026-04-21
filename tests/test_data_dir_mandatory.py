@@ -40,37 +40,11 @@ from pglite_pydb.errors import MissingDataDirError
 
 
 # ---------------------------------------------------------------------------
-# Live-PGlite probe fixture (used by T017 / T018)
+# The ``pglite_runtime_available`` fixture used by T017 / T018 now lives in
+# tests/conftest.py (lifted there in Stage 4 so Phase 4 backup tests can
+# reuse it). It remains module-scoped and skips cleanly when PGlite cannot
+# produce a PG_VERSION on this host.
 # ---------------------------------------------------------------------------
-
-
-@pytest.fixture(scope="module")
-def pglite_runtime_available(tmp_path_factory: pytest.TempPathFactory) -> bool:
-    """Probe once per module whether PGlite actually initialises on this host.
-
-    Returns True on success, and calls ``pytest.skip`` on failure so that
-    integration tests depending on a live server skip cleanly. Persistence
-    of ``PG_VERSION`` is the marker — the TCP server can log "started"
-    even when the async data-dir initialisation rejects.
-    """
-    probe = tmp_path_factory.mktemp("pglite_probe") / "instance"
-    cfg = PGliteConfig(data_dir=probe, timeout=30)
-    mgr = PGliteManager(cfg)
-    try:
-        mgr.start()
-    except Exception as exc:  # noqa: BLE001
-        pytest.skip(f"PGlite runtime unavailable on this host: {exc!s}")
-    finally:
-        try:
-            mgr.stop()
-        except Exception:  # noqa: BLE001
-            pass
-    if not (probe / "PG_VERSION").exists():
-        pytest.skip(
-            "PGlite startup reported ready but PG_VERSION was not written "
-            "(likely PGlite/Node compatibility issue on this host)."
-        )
-    return True
 
 
 # ---------------------------------------------------------------------------
