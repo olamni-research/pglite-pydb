@@ -12,8 +12,17 @@ from pglite_pydb.config import PGliteConfig
 from pglite_pydb.manager import PGliteManager
 
 
+def _make_session_data_dir(
+    tmp_path_factory: pytest.TempPathFactory, prefix: str
+) -> Path:
+    """Return a unique tmp_path-based data_dir for a session/module fixture."""
+    return tmp_path_factory.mktemp(f"{prefix}-{uuid.uuid4().hex[:8]}", numbered=False)
+
+
 @pytest.fixture(scope="session")
-def pglite_manager() -> Generator[PGliteManager, None, None]:
+def pglite_manager(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Generator[PGliteManager, None, None]:
     """Pytest fixture providing a PGlite manager for the test session.
 
     This is the core, framework-agnostic fixture. Framework-specific
@@ -22,8 +31,9 @@ def pglite_manager() -> Generator[PGliteManager, None, None]:
     Yields:
         PGliteManager: Active PGlite manager instance
     """
+    data_dir = _make_session_data_dir(tmp_path_factory, "pglite-session-data")
     # Create unique configuration to prevent socket conflicts
-    config = PGliteConfig()
+    config = PGliteConfig(data_dir=data_dir)
 
     # Create a unique socket directory for this test session
     # PGlite expects socket_path to be the full path including .s.PGSQL.5432
@@ -44,7 +54,9 @@ def pglite_manager() -> Generator[PGliteManager, None, None]:
 
 
 @pytest.fixture(scope="module")
-def pglite_manager_isolated() -> Generator[PGliteManager, None, None]:
+def pglite_manager_isolated(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Generator[PGliteManager, None, None]:
     """Pytest fixture providing an isolated PGlite manager per test module.
 
     Use this fixture when you need stronger isolation between test modules
@@ -53,8 +65,9 @@ def pglite_manager_isolated() -> Generator[PGliteManager, None, None]:
     Yields:
         PGliteManager: Active PGlite manager instance
     """
+    data_dir = _make_session_data_dir(tmp_path_factory, "pglite-module-data")
     # Create unique configuration to prevent socket conflicts
-    config = PGliteConfig()
+    config = PGliteConfig(data_dir=data_dir)
 
     # Create a unique socket directory for this test module
     # PGlite expects socket_path to be the full path including .s.PGSQL.5432
@@ -76,7 +89,7 @@ def pglite_manager_isolated() -> Generator[PGliteManager, None, None]:
 
 # Additional configuration fixtures
 @pytest.fixture(scope="session")
-def pglite_config() -> PGliteConfig:
+def pglite_config(tmp_path_factory: pytest.TempPathFactory) -> PGliteConfig:
     """Pytest fixture providing PGlite configuration.
 
     Override this fixture in your conftest.py to customize PGlite settings.
@@ -84,7 +97,8 @@ def pglite_config() -> PGliteConfig:
     Returns:
         PGliteConfig: Configuration for PGlite
     """
-    return PGliteConfig()
+    data_dir = _make_session_data_dir(tmp_path_factory, "pglite-config-data")
+    return PGliteConfig(data_dir=data_dir)
 
 
 @pytest.fixture(scope="session")

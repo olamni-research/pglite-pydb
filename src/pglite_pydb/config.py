@@ -1,5 +1,6 @@
 """Configuration for PGlite testing."""
 
+import json
 import logging
 import os
 import tempfile
@@ -10,11 +11,66 @@ from dataclasses import field
 from pathlib import Path
 from typing import Literal
 
+from pglite_pydb._datadir import SIDECAR_DIRNAME
+from pglite_pydb._datadir import is_rejectable
 from pglite_pydb._platform import IS_WINDOWS
+from pglite_pydb.errors import InvalidDataDirError
+from pglite_pydb.errors import MissingDataDirError
 from pglite_pydb.extensions import SUPPORTED_EXTENSIONS
 
 
 _logger = logging.getLogger(__name__)
+
+_SIDECAR_FILENAME = "config.json"
+_SIDECAR_SCHEMA_VERSION = 1
+
+
+@dataclass
+class SidecarConfig:
+    """Per-instance persisted state under ``<data-dir>/.pglite-pydb/config.json``.
+
+    See ``specs/003-pglite-path-backup-restore/data-model.md`` §3.
+    """
+
+    backup_location: str | None = None
+    schema_version: int = _SIDECAR_SCHEMA_VERSION
+
+    @classmethod
+    def load(cls, data_dir: Path) -> "SidecarConfig":
+        """Load the sidecar for ``data_dir``.
+
+        Missing sidecar → default instance (no file is created).
+        Unknown ``schema_version`` → ValueError with upgrade hint.
+        """
+        path = Path(data_dir) / SIDECAR_DIRNAME / _SIDECAR_FILENAME
+        if not path.exists():
+            return cls()
+        with path.open("r", encoding="utf-8") as f:
+            raw = json.load(f)
+        sv = raw.get("schema_version")
+        if sv != _SIDECAR_SCHEMA_VERSION:
+            raise ValueError(
+                f"Sidecar config at {path!s} has unsupported schema_version={sv!r}. "
+                "Upgrade pglite-pydb."
+            )
+        return cls(
+            backup_location=raw.get("backup_location"),
+            schema_version=sv,
+        )
+
+    def save(self, data_dir: Path) -> Path:
+        """Persist this sidecar under ``data_dir``; returns the written path."""
+        sidecar_dir = Path(data_dir) / SIDECAR_DIRNAME
+        sidecar_dir.mkdir(parents=True, exist_ok=True)
+        path = sidecar_dir / _SIDECAR_FILENAME
+        payload = {
+            "schema_version": self.schema_version,
+            "backup_location": self.backup_location,
+        }
+        with path.open("w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2, sort_keys=True)
+            f.write("\n")
+        return path
 
 
 def _get_secure_socket_path() -> str:
@@ -57,6 +113,10 @@ class PGliteConfig:
               port; see research.md R4). Pass an integer to pin.
     """
 
+    # data_dir becomes mandatory in feature 003 (FR-001). We use a sentinel
+    # default of None so the dataclass can keep its existing
+    # all-defaulted-fields layout; __post_init__ enforces presence.
+    data_dir: Path | None = None
     timeout: int = 30
     cleanup_on_exit: bool = True
     log_level: str = "INFO"
@@ -76,6 +136,22 @@ class PGliteConfig:
 
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""
+        # data_dir: mandatory (FR-001); resolve symlinks (FR-003); reject
+        # paths that already point at non-PGlite content (FR-005).
+        if self.data_dir is None:
+            raise MissingDataDirError()
+        resolved = Path(self.data_dir).resolve(strict=False)
+        if resolved.exists() and not resolved.is_dir():
+            raise InvalidDataDirError(
+                resolved, "path exists but is not a directory"
+            )
+        if is_rejectable(resolved):
+            raise InvalidDataDirError(
+                resolved,
+                "directory is non-empty and does not contain a PGlite data layout",
+            )
+        self.data_dir = resolved
+
         if self.timeout <= 0:
             raise ValueError("timeout must be positive")
 

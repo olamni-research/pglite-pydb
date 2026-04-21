@@ -2,14 +2,57 @@
 
 import logging
 
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 from pglite_pydb.clients import DatabaseClient
 from pglite_pydb.clients import get_default_client
 
 
 logger = logging.getLogger(__name__)
+
+
+def utc_timestamp_filename(now: datetime | None = None) -> str:
+    """Return a UTC ``YYYYMMDD-HHMMSS.fff`` timestamp (research §R3).
+
+    Lexical sort equals chronological sort. Millisecond precision (3-digit
+    fractional seconds) makes collisions vanishingly rare — when they do
+    happen, :func:`disambiguate_filename` appends ``_<n>``.
+    """
+    if now is None:
+        now = datetime.now(timezone.utc)
+    elif now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    else:
+        now = now.astimezone(timezone.utc)
+    millis = now.microsecond // 1000
+    return f"{now.strftime('%Y%m%d-%H%M%S')}.{millis:03d}"
+
+
+def disambiguate_filename(proposed: str, existing: Iterable[str]) -> str:
+    """Return ``proposed`` or ``<stem>_<n><suffix>`` with the smallest free n.
+
+    ``proposed`` is a bare filename (e.g. ``20260421-143002.517.tar.gz`` or
+    ``FULL_SNAPSHOT_20260421-143002.517.tar.gz``). The ``.tar.gz`` suffix
+    is treated as a single unit so the inserted ``_<n>`` lands before it.
+    """
+    existing_set = set(existing)
+    if proposed not in existing_set:
+        return proposed
+    # Split off a compound ``.tar.gz`` suffix so the disambiguator lands
+    # before it; otherwise fall back to a single-extension split.
+    if proposed.endswith(".tar.gz"):
+        stem, suffix = proposed[: -len(".tar.gz")], ".tar.gz"
+    else:
+        p = Path(proposed)
+        stem, suffix = p.stem, p.suffix
+    n = 2
+    while True:
+        candidate = f"{stem}_{n}{suffix}"
+        if candidate not in existing_set:
+            return candidate
+        n += 1
 
 
 def get_connection_from_string(

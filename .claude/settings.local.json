@@ -27,7 +27,24 @@
       "Bash(gh run *)",
       "Bash(gh pr *)",
       "Bash(gh api *)",
-      "Bash(gh repo *)"
+      "Bash(gh repo *)",
+      "Read(//tmp/slice-c-backup/**)",
+      "Bash(set -e)",
+      "Bash(grep -E \"\\\\.d\\\\.ts$|^index\")",
+      "Bash(python -c \"import ast; [ast.parse\\(open\\(f, encoding='utf-8'\\).read\\(\\), f\\) for f in ['examples/windows_sample_db/procedures.py','examples/windows_sample_db/launcher.py','examples/windows_sample_db/run_example.py']]; print\\('py ok'\\)\")",
+      "Bash(node --check examples/windows_sample_db/node/pglite_bridge.js)",
+      "Bash(python -m pytest tests/windows_sample_db -v)",
+      "Bash(python -m pytest tests/windows_sample_db -v -p no:xdist -o addopts=\"\")",
+      "Bash(python -c \"import hashlib,pathlib; p=pathlib.Path\\('examples/windows_sample_db/data/sample_db.sql'\\); h=hashlib.sha256\\(p.read_bytes\\(\\)\\).hexdigest\\(\\); pathlib.Path\\('examples/windows_sample_db/data/sample_db.sql.sha256'\\).write_text\\(f'{h}  sample_db.sql\\\\n', encoding='ascii'\\); print\\(h\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(python -m examples.windows_sample_db.run_example --data-dir /tmp/pgdata_debug --reset)",
+      "Bash(python -m pytest tests/windows_sample_db/test_procedures_happy.py -v -p no:xdist -o addopts=\"\")",
+      "Bash(rm -rf /tmp/pgdata_demo)",
+      "Bash(python -m examples.windows_sample_db.run_example --data-dir /tmp/pgdata_demo --reset)",
+      "Bash(python *)",
+      "PowerShell(.specify/extensions/git/scripts/powershell/create-new-feature.ps1 -Json -ShortName \"pglite-path-backup-restore\" \"add mandatory path argument to pglite-pydb wrapper passed to pglite wasm process; add backup and restore commands for schemas and databases\")",
+      "Bash(pwsh *)",
+      "PowerShell(.specify/extensions/git/scripts/powershell/auto-commit.ps1 after_plan)"
     ]
   }
 }

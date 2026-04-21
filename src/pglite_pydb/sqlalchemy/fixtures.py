@@ -38,9 +38,14 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="session")
-def pglite_config() -> PGliteConfig:
+def pglite_config(tmp_path_factory: pytest.TempPathFactory) -> PGliteConfig:
     """Pytest fixture providing PGlite configuration."""
-    return PGliteConfig()
+    import uuid as _uuid
+
+    data_dir = tmp_path_factory.mktemp(
+        f"pglite-sa-data-{_uuid.uuid4().hex[:8]}", numbered=False
+    )
+    return PGliteConfig(data_dir=data_dir)
 
 
 @pytest.fixture(scope="session")

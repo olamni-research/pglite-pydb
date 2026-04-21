@@ -11,20 +11,54 @@ __version__ = importlib.metadata.version(__name__)
 
 # Core exports (always available)
 # Database client exports (choose your preferred client)
+from pglite_pydb.backup import BackupEngine
+from pglite_pydb.backup import SchemaSelection
 from pglite_pydb.clients import AsyncpgClient
 from pglite_pydb.clients import PsycopgClient
 from pglite_pydb.clients import get_client
 from pglite_pydb.clients import get_default_client
 from pglite_pydb.config import PGliteConfig
+from pglite_pydb.config import SidecarConfig
+from pglite_pydb.errors import BackupLocationNotConfiguredError
+from pglite_pydb.errors import BackupLocationUnavailableError
+from pglite_pydb.errors import BackupSelectorMissingError
+from pglite_pydb.errors import ConfirmationDeclinedError
+from pglite_pydb.errors import ConfirmationRequiredError
+from pglite_pydb.errors import ContainerKindMismatchError
+from pglite_pydb.errors import CorruptContainerError
+from pglite_pydb.errors import InstanceInUseError
+from pglite_pydb.errors import InvalidDataDirError
+from pglite_pydb.errors import MissingDataDirError
+from pglite_pydb.errors import NoBackupsFoundError
+from pglite_pydb.errors import PGlitePydbError
+from pglite_pydb.errors import RestoreConflictError
+from pglite_pydb.errors import SchemaNotFoundError
 from pglite_pydb.manager import PGliteManager
 
 
 # Core public API - framework agnostic
 __all__ = [
     "AsyncpgClient",
+    "BackupEngine",
+    "BackupLocationNotConfiguredError",
+    "BackupLocationUnavailableError",
+    "BackupSelectorMissingError",
+    "ConfirmationDeclinedError",
+    "ConfirmationRequiredError",
+    "ContainerKindMismatchError",
+    "CorruptContainerError",
+    "InstanceInUseError",
+    "InvalidDataDirError",
+    "MissingDataDirError",
+    "NoBackupsFoundError",
     "PGliteConfig",
     "PGliteManager",
+    "PGlitePydbError",
     "PsycopgClient",
+    "RestoreConflictError",
+    "SchemaNotFoundError",
+    "SchemaSelection",
+    "SidecarConfig",
     # Database clients
     "get_client",
     "get_default_client",

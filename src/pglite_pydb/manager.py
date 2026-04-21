@@ -6,7 +6,6 @@ import os
 import shutil
 import subprocess  # nosec B404 - subprocess needed for npm/node process management
 import sys
-import tempfile
 import time
 
 from pathlib import Path
@@ -16,8 +15,11 @@ from typing import Any
 import psutil
 
 from pglite_pydb import __version__
+from pglite_pydb._datadir import SIDECAR_DIRNAME
+from pglite_pydb._lock import InstanceLock
 from pglite_pydb._platform import IS_WINDOWS
 from pglite_pydb.config import PGliteConfig
+from pglite_pydb.config import SidecarConfig
 from pglite_pydb.extensions import SUPPORTED_EXTENSIONS
 from pglite_pydb.utils import find_pglite_modules
 
@@ -57,11 +59,21 @@ class PGliteManager:
         Args:
             config: Configuration for PGlite. If None, uses defaults.
         """
-        self.config = config or PGliteConfig()
+        if config is None:
+            raise TypeError(
+                "PGliteManager requires a PGliteConfig with an explicit data_dir "
+                "(feature 003 made data_dir mandatory — see FR-001)."
+            )
+        self.config = config
         self.process: subprocess.Popen[str] | None = None
+        # work_dir hosts the Node runtime (package.json, pglite_manager.js,
+        # node_modules). It lives under <data-dir>/.pglite-pydb/runtime/ so
+        # the wrapper's infrastructure never collides with PGlite's own
+        # PG_VERSION / base / global / ... data layout at the data-dir root.
         self.work_dir: Path | None = None
         self._original_cwd: str | None = None
         self._shared_engine: Any | None = None
+        self._instance_lock: InstanceLock | None = None
         # Resolved TCP port for this manager instance. Populated in start()
         # when use_tcp is True. When config.tcp_port is 0 (OS-assigned), this
         # is filled in by binding a socket in-process to pick a free port;
@@ -85,13 +97,33 @@ class PGliteManager:
         """Context manager exit."""
         self.stop()
 
-    def _setup_work_dir(self) -> Path:
-        """Setup working directory for PGlite files."""
+    def _prepare_data_dir(self) -> Path:
+        """Prepare data directory + Node-runtime work dir.
+
+        The wrapper's Node runtime (package.json, pglite_manager.js,
+        node_modules) lives under ``<data-dir>/.pglite-pydb/runtime/`` so
+        PGlite's own data layout at ``<data-dir>/`` is never polluted.
+        On first start, the sidecar config is created (empty
+        ``backup_location``) if absent.
+        """
+        assert self.config.data_dir is not None  # enforced in PGliteConfig.__post_init__
+        data_dir = Path(self.config.data_dir)
+        data_dir.mkdir(parents=True, exist_ok=True)
+        sidecar = data_dir / SIDECAR_DIRNAME
+        sidecar.mkdir(parents=True, exist_ok=True)
+        # First-start sidecar config: only write if absent (preserve any
+        # operator-configured backup_location on subsequent starts).
+        cfg_path = sidecar / "config.json"
+        if not cfg_path.exists():
+            SidecarConfig().save(data_dir)
+        # Override of Node runtime location via config.work_dir (rare, but
+        # tests may want to share node_modules across many instances).
         if self.config.work_dir:
             work_dir = self.config.work_dir
             work_dir.mkdir(parents=True, exist_ok=True)
         else:
-            work_dir = Path(tempfile.mkdtemp(prefix="pglite-pydb-"))
+            work_dir = sidecar / "runtime"
+            work_dir.mkdir(parents=True, exist_ok=True)
 
         # Create package.json if it doesn't exist
         package_json = work_dir / "package.json"
@@ -127,14 +159,17 @@ class PGliteManager:
             ext_configs_str = ",\n".join(ext_configs)
             extensions_obj_str = f"{{\n{ext_configs_str}\n}}" if ext_configs else "{}"
 
-            # Generate JavaScript content based on socket mode
+            # Generate JavaScript content based on socket mode. Embed the
+            # resolved data_dir so PGlite persists to it (FR-001..FR-004).
+            # json.dumps gives correct JS string escaping on Windows paths.
+            data_dir_literal = json.dumps(str(self.config.data_dir))
             if self.config.use_tcp:
                 js_content = self._generate_tcp_js_content(
-                    ext_requires_str, extensions_obj_str
+                    ext_requires_str, extensions_obj_str, data_dir_literal
                 )
             else:
                 js_content = self._generate_unix_js_content(
-                    ext_requires_str, extensions_obj_str
+                    ext_requires_str, extensions_obj_str, data_dir_literal
                 )
             with open(manager_js, "w") as f:
                 f.write(js_content)
@@ -142,7 +177,10 @@ class PGliteManager:
         return work_dir
 
     def _generate_unix_js_content(
-        self, ext_requires_str: str, extensions_obj_str: str
+        self,
+        ext_requires_str: str,
+        extensions_obj_str: str,
+        data_dir_literal: str,
     ) -> str:
         """Generate JavaScript content for Unix socket mode (original logic)."""
         return dedent(f"""
@@ -155,6 +193,7 @@ class PGliteManager:
             {ext_requires_str}
 
             const SOCKET_PATH = '{self.config.socket_path}';
+            const DATA_DIR = {data_dir_literal};
 
             async function cleanup() {{
                 if (existsSync(SOCKET_PATH)) {{
@@ -169,8 +208,9 @@ class PGliteManager:
 
             async function startServer() {{
                 try {{
-                    // Create a PGlite instance with extensions
+                    // Create a PGlite instance bound to the mandatory data_dir
                     const db = new PGlite({{
+                        dataDir: DATA_DIR,
                         extensions: {extensions_obj_str}
                     }});
 
@@ -225,7 +265,10 @@ class PGliteManager:
         """).strip()
 
     def _generate_tcp_js_content(
-        self, ext_requires_str: str, extensions_obj_str: str
+        self,
+        ext_requires_str: str,
+        extensions_obj_str: str,
+        data_dir_literal: str,
     ) -> str:
         """Generate JavaScript content for TCP socket mode."""
         # resolved_port is set by start() before this is called; fall back to
@@ -238,10 +281,13 @@ class PGliteManager:
             const path = require('path');
             {ext_requires_str}
 
+            const DATA_DIR = {data_dir_literal};
+
             async function startServer() {{
                 try {{
-                    // Create a PGlite instance with extensions
+                    // Create a PGlite instance bound to the mandatory data_dir
                     const db = new PGlite({{
+                        dataDir: DATA_DIR,
                         extensions: {extensions_obj_str}
                     }});
 
@@ -412,15 +458,39 @@ class PGliteManager:
         if self.config.use_tcp:
             self.resolved_port = self._resolve_tcp_port()
 
-        # Setup work directory first so it's available for cleanup logic
-        self.work_dir = self._setup_work_dir()
+        # Refuse to start on a data-dir flagged by a mid-restore failure
+        # (T062 sentinel written by BackupEngine.restore_full_snapshot).
+        assert self.config.data_dir is not None
+        from pglite_pydb.errors import InvalidDataDirError
 
-        # Setup
-        self._kill_existing_processes()
-        self._cleanup_socket()
+        sentinel = Path(self.config.data_dir) / SIDECAR_DIRNAME / "FAILED_RESTORE"
+        if sentinel.exists():
+            raise InvalidDataDirError(
+                self.config.data_dir,
+                f"FAILED_RESTORE sentinel present at {sentinel}. A previous "
+                "restore did not complete. Inspect the directory, repair or "
+                "re-run restore, then delete the sentinel file to proceed.",
+            )
 
-        self._original_cwd = os.getcwd()
-        os.chdir(self.work_dir)
+        # Acquire the cross-platform advisory instance lock BEFORE any
+        # filesystem mutation under data_dir (FR-006, FR-017, FR-033).
+        self._instance_lock = InstanceLock(self.config.data_dir).acquire()
+
+        try:
+            # Setup work directory first so it's available for cleanup logic
+            self.work_dir = self._prepare_data_dir()
+
+            # Setup
+            self._kill_existing_processes()
+            self._cleanup_socket()
+
+            self._original_cwd = os.getcwd()
+            os.chdir(self.work_dir)
+        except BaseException:
+            if self._instance_lock is not None:
+                self._instance_lock.release()
+                self._instance_lock = None
+            raise
 
         try:
             # Install dependencies
@@ -545,6 +615,13 @@ class PGliteManager:
                     f"PGlite server failed to start within {self.config.timeout} seconds"
                 )
 
+        except BaseException:
+            # If startup failed after lock acquisition, release the lock so
+            # the operator can retry without a stale hold.
+            if self._instance_lock is not None:
+                self._instance_lock.release()
+                self._instance_lock = None
+            raise
         finally:
             # Restore working directory
             if self._original_cwd:
@@ -645,6 +722,11 @@ class PGliteManager:
     def stop(self) -> None:
         """Stop the PGlite server."""
         if self.process is None:
+            # Still release the lock if it happens to be held (e.g. start()
+            # acquired the lock then failed before spawning Node).
+            if self._instance_lock is not None:
+                self._instance_lock.release()
+                self._instance_lock = None
             return
 
         try:
@@ -659,6 +741,12 @@ class PGliteManager:
             # Note: Global cleanup is only used in error conditions, not normal stop
             if self.config.cleanup_on_exit:
                 self._cleanup_socket()
+            # Release the FR-006 instance lock last, after the subprocess
+            # is gone — otherwise a second wrapper could race in while we
+            # are still tearing down.
+            if self._instance_lock is not None:
+                self._instance_lock.release()
+                self._instance_lock = None
 
     def is_running(self) -> bool:
         """Check if PGlite process is running."""

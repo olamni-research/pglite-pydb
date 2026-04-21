@@ -154,11 +154,19 @@ class PGliteDatabaseCreation(DatabaseCreation):  # type: ignore
         """Get or create a PGlite manager for the given database name."""
         with _manager_lock:
             if db_name not in _pglite_managers:
-                # Create unique socket directory for this database
-                config = PGliteConfig()
                 import tempfile
 
                 from pathlib import Path
+
+                # Create a per-db, per-process data directory (FR-001 makes
+                # data_dir mandatory; the Django backend generates its own
+                # tmp-backed path rather than receiving one from a fixture).
+                data_dir = (
+                    Path(tempfile.gettempdir())
+                    / f"pglite-pydb-django-{db_name}-{uuid.uuid4().hex[:8]}"
+                )
+                data_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+                config = PGliteConfig(data_dir=data_dir)
 
                 # Create unique socket directory but use standard socket name
                 socket_dir = (

@@ -35,6 +35,32 @@ jobs:
         run-tests: true
         coverage: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11' }}
 
+    # Feature 003 (T063a): pg_dump / psql are runtime prereqs for
+    # logical backup & restore. Tests marked `requires_pg_dump` skip when
+    # absent, but on CI we want them to actually run so FR-029's
+    # "tests MUST pass on Linux AND Windows" has teeth.
+    - name: Install PostgreSQL client tools (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql-client-16 || sudo apt-get install -y postgresql-client
+        pg_dump --version
+        psql --version
+
+    - name: Add PostgreSQL client tools to PATH (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: pwsh
+      run: |
+        # windows-latest runners preinstall PostgreSQL under C:\Program Files\PostgreSQL\<ver>\bin
+        $pg = Get-ChildItem "C:\Program Files\PostgreSQL" -Directory -ErrorAction SilentlyContinue `
+              | Sort-Object Name -Descending | Select-Object -First 1
+        if (-not $pg) { throw "No PostgreSQL installation found on runner" }
+        $bin = Join-Path $pg.FullName "bin"
+        Add-Content -Path $env:GITHUB_PATH -Value $bin
+        & "$bin\pg_dump.exe" --version
+        & "$bin\psql.exe" --version
+
     - name: Run tests with xdist (-n auto) to catch parallel regressions
       # FR-011a: pytest-xdist is first-class; each worker must acquire a
       # distinct ephemeral TCP port without collisions. Runs after the
