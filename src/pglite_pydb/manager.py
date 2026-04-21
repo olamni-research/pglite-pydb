@@ -458,9 +458,22 @@ class PGliteManager:
         if self.config.use_tcp:
             self.resolved_port = self._resolve_tcp_port()
 
+        # Refuse to start on a data-dir flagged by a mid-restore failure
+        # (T062 sentinel written by BackupEngine.restore_full_snapshot).
+        assert self.config.data_dir is not None
+        from pglite_pydb.errors import InvalidDataDirError
+
+        sentinel = Path(self.config.data_dir) / SIDECAR_DIRNAME / "FAILED_RESTORE"
+        if sentinel.exists():
+            raise InvalidDataDirError(
+                self.config.data_dir,
+                f"FAILED_RESTORE sentinel present at {sentinel}. A previous "
+                "restore did not complete. Inspect the directory, repair or "
+                "re-run restore, then delete the sentinel file to proceed.",
+            )
+
         # Acquire the cross-platform advisory instance lock BEFORE any
         # filesystem mutation under data_dir (FR-006, FR-017, FR-033).
-        assert self.config.data_dir is not None
         self._instance_lock = InstanceLock(self.config.data_dir).acquire()
 
         try:

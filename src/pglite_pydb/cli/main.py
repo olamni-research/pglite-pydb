@@ -82,6 +82,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     _build_config_parser(subparsers)
     _build_backup_parser(subparsers)
+    _build_restore_parser(subparsers)
 
     return parser
 
@@ -143,6 +144,50 @@ def _build_backup_parser(subparsers: argparse._SubParsersAction) -> None:
     )
 
     p.set_defaults(func=_run_backup)
+
+
+def _build_restore_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser(
+        "restore",
+        help="Restore a logical or full-snapshot backup container.",
+    )
+    p.add_argument("--data-dir", required=False, type=Path)
+    p.add_argument(
+        "containers",
+        nargs="*",
+        metavar="CONTAINER",
+        help="One or more logical container paths/filenames. Mutually "
+        "exclusive with --latest.",
+    )
+    p.add_argument(
+        "--latest",
+        action="store_true",
+        help="Pick the most recent container (scoped to the mode: logical or full-snapshot).",
+    )
+    p.add_argument(
+        "--full-snapshot",
+        dest="full_snapshot",
+        action="store_true",
+        help="Switch to full-snapshot mode. Requires one CONTAINER or --latest.",
+    )
+    p.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Logical mode only: permit replacing conflicting existing schemas.",
+    )
+    p.add_argument(
+        "--assume-yes",
+        dest="assume_yes",
+        action="store_true",
+        help="Auto-confirm the primary prompt (required in non-TTY contexts).",
+    )
+    p.add_argument(
+        "--assume-yes-destroy",
+        dest="assume_yes_destroy",
+        action="store_true",
+        help="Second-level confirmation for full-snapshot restore over a non-empty target.",
+    )
+    p.set_defaults(func=_run_restore)
 
 
 # ---------------------------------------------------------------------------
@@ -242,6 +287,83 @@ def _run_backup(args: argparse.Namespace) -> int:
         container = engine.create_logical(selection, force_hot=args.force_hot)
 
     print(str(container))
+    return 0
+
+
+def _run_restore(args: argparse.Namespace) -> int:
+    from pglite_pydb.backup import BackupEngine
+
+    containers: list[str] = list(args.containers or [])
+    has_containers = bool(containers)
+
+    # Mode validation (argparse cannot express these).
+    if has_containers and args.latest:
+        print(
+            "pglite-pydb: error: restore accepts either container names or --latest, not both.",
+            file=sys.stderr,
+        )
+        return 2
+
+    if args.full_snapshot:
+        if args.overwrite:
+            print(
+                "pglite-pydb: error: --overwrite is not compatible with --full-snapshot.",
+                file=sys.stderr,
+            )
+            return 2
+        if not has_containers and not args.latest:
+            print(
+                "pglite-pydb: error: --full-snapshot requires a CONTAINER or --latest.",
+                file=sys.stderr,
+            )
+            return 2
+        if has_containers and len(containers) != 1:
+            print(
+                "pglite-pydb: error: --full-snapshot accepts exactly one CONTAINER.",
+                file=sys.stderr,
+            )
+            return 2
+
+    # Logical mode: must have at least one selector.
+    if not args.full_snapshot and not has_containers and not args.latest:
+        raise BackupSelectorMissingError()
+
+    data_dir = _require_data_dir(args)
+    cfg = PGliteConfig(data_dir=data_dir)
+
+    # Informational banner (stderr, same shape as backup).
+    sidecar = SidecarConfig.load(cfg.data_dir)
+    backup_location_str = sidecar.backup_location or "(not configured)"
+    print(f"pglite-pydb: instance data dir:    {cfg.data_dir}", file=sys.stderr)
+    print(f"pglite-pydb: backup location:      {backup_location_str}", file=sys.stderr)
+
+    engine = BackupEngine(cfg)
+
+    if args.full_snapshot:
+        selector: str | Path = "--latest" if args.latest else containers[0]
+        applied = engine.restore_full_snapshot(
+            selector,
+            assume_yes=args.assume_yes,
+            assume_yes_destroy=args.assume_yes_destroy,
+        )
+        print(str(applied))
+        return 0
+
+    # Logical mode.
+    if args.latest:
+        applied_list = engine.restore_logical(
+            ["--latest"],
+            overwrite=args.overwrite,
+            assume_yes=args.assume_yes,
+        )
+    else:
+        applied_list = engine.restore_logical(
+            containers,
+            overwrite=args.overwrite,
+            assume_yes=args.assume_yes,
+        )
+    for c in applied_list:
+        print(str(c))
     return 0
 
 
