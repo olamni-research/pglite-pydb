@@ -90,9 +90,16 @@ def django_pglite_settings() -> None:
 
 
 @pytest.fixture(scope="module")
-def pglite_django_manager() -> Generator[PGliteManager, None, None]:
+def pglite_django_manager(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Generator[PGliteManager, None, None]:
     """Pytest fixture providing a PGlite manager for Django testing."""
-    config = PGliteConfig()
+    import uuid as _uuid
+
+    data_dir = tmp_path_factory.mktemp(
+        f"pglite-django-data-{_uuid.uuid4().hex[:8]}", numbered=False
+    )
+    config = PGliteConfig(data_dir=data_dir)
     manager = PGliteManager(config)
     manager.start()
     manager.wait_for_ready()
