@@ -253,45 +253,53 @@ async function main() {
     const dataDirAbs = path.resolve(args.dataDir);
     const db = await PGlite.create({ dataDir: dataDirAbs });
 
-    if (args.transport === 'pipe') {
-        // TODO(T027 / Slice US2): implement Windows named-pipe transport.
-        //   - listen path: `\\\\.\\pipe\\${pipeName}` (honor --unique-pipe)
-        //   - server: net.createServer(sock => handleConnection(db, 'pipe', sock))
-        //             .listen(pipePath, ...)
-        //   - ACL: default security descriptor restricted to creator +
-        //          Administrators; no Everyone ACE (contracts/transport.md).
-        //   - collision: on EADDRINUSE emit a [bridge] error naming the pipe
-        //                and exit with code 5 so launcher maps it to FR-026.
-        //   - start log: [bridge] start transport=pipe listen=\\.\pipe\<name>
-        //                       data_dir=<abs>
-        console.error('[bridge] transport=pipe is not implemented in this slice');
-        process.exit(64);
-    }
-
-    if (args.transport !== 'tcp') {
+    if (args.transport !== 'tcp' && args.transport !== 'pipe') {
         console.error(`[bridge] unknown transport: ${args.transport}`);
         process.exit(64);
     }
 
+    const isPipe = args.transport === 'pipe';
+    const pipePath = isPipe ? `\\\\.\\pipe\\${args.pipeName}` : null;
+
+    if (isPipe && !args.pipeName) {
+        console.error('[bridge] --pipe-name is required for --transport pipe');
+        process.exit(64);
+    }
+
     const server = net.createServer((socket) =>
-        handleConnection(db, 'tcp', socket)
+        handleConnection(db, args.transport, socket)
     );
 
     server.on('error', (err) => {
         if (err && err.code === 'EADDRINUSE') {
-            console.error(
-                `[bridge] tcp port ${args.host}:${args.port} already in use`
-            );
+            if (isPipe) {
+                console.error(
+                    `[bridge] named pipe ${pipePath} already in use`
+                );
+            } else {
+                console.error(
+                    `[bridge] tcp port ${args.host}:${args.port} already in use`
+                );
+            }
             process.exit(5);
+        }
+        if (isPipe && err && (err.code === 'EACCES' || err.code === 'EPERM')) {
+            console.error(
+                `[bridge] named pipe ${pipePath} denied: ${err.code}`
+            );
+            process.exit(4);
         }
         console.error(`[bridge] listen error: ${err && err.message}`);
         process.exit(1);
     });
 
-    server.listen(args.port, args.host, () => {
+    const listenArg = isPipe ? pipePath : args.port;
+    const listenArgs = isPipe ? [listenArg] : [listenArg, args.host];
+    server.listen(...listenArgs, () => {
+        const listenStr = isPipe ? pipePath : `${args.host}:${args.port}`;
         console.log(
-            `[bridge] start transport=tcp ` +
-            `listen=${args.host}:${args.port} data_dir=${dataDirAbs}`
+            `[bridge] start transport=${args.transport} ` +
+            `listen=${listenStr} data_dir=${dataDirAbs}`
         );
     });
 

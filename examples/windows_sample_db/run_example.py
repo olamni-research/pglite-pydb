@@ -185,14 +185,6 @@ def run(argv: list[str] | None = None) -> int:
         )
         return 2
 
-    if args.transport != "tcp":
-        sys.stderr.write(
-            f"transport {args.transport!r} unavailable in this slice: "
-            "only --transport tcp is wired up in US1; pipe lands with US2. "
-            "Rerun with --transport tcp.\n"
-        )
-        return 4
-
     data_dir_abs = Path(args.data_dir).resolve()
     if args.reset:
         _reset_data_dir(data_dir_abs)
@@ -219,9 +211,11 @@ def run(argv: list[str] | None = None) -> int:
     import psycopg  # local import — non-Windows platforms never reach here
 
     cfg = _transport.TransportConfig(
-        kind="tcp",
+        kind=args.transport,
         host=args.host,
         port=args.port,
+        pipe_name=args.pipe_name,
+        unique_pipe=args.unique_pipe,
         data_dir=data_dir_abs,
     )
 
@@ -232,8 +226,8 @@ def run(argv: list[str] | None = None) -> int:
         return e.exit_code
 
     try:
-        with bridge_ctx as _handle, contextlib.closing(
-            psycopg.connect(cfg.to_dsn(), connect_timeout=10)
+        with bridge_ctx as handle, contextlib.closing(
+            psycopg.connect(handle.dsn(), connect_timeout=10)
         ) as conn:
             # Fresh load: run the vendored dump inside PGlite before installing
             # the overlay + procedures. Warm runs skip this entirely.

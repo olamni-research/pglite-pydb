@@ -33,6 +33,8 @@ from typing import Callable
 from typing import Iterator
 from typing import TextIO
 
+from examples.windows_sample_db.transport import PipeRelay
+from examples.windows_sample_db.transport import PipeUnavailable
 from examples.windows_sample_db.transport import TransportConfig
 
 
@@ -46,7 +48,7 @@ class LauncherError(RuntimeError):
 
 
 class PortInUseError(LauncherError):
-    """TCP port already bound by another process (maps to exit 5)."""
+    """TCP port or pipe name already bound by another process (maps to exit 5)."""
     exit_code = 5
 
 
@@ -58,6 +60,11 @@ class BridgeStartTimeout(LauncherError):
 class BridgeSpawnError(LauncherError):
     """Node could not be launched (PATH miss, bad JS path, etc.)."""
     exit_code = 1
+
+
+class BridgePipeDenied(LauncherError):
+    """Bridge's CreateNamedPipeW was denied (ACL / AV / legacy OS)."""
+    exit_code = 4
 
 
 @dataclass
@@ -76,12 +83,29 @@ class BridgeHandle:
     _stdout_thread: threading.Thread = field(repr=False)
     _stderr_thread: threading.Thread = field(repr=False)
     _accept_events: list[AcceptEvent] = field(default_factory=list, repr=False)
+    relay: PipeRelay | None = field(default=None, repr=False)
 
     def accept_events(self) -> list[AcceptEvent]:
         return list(self._accept_events)
 
+    def dsn(self, role_override: str | None = None) -> str:
+        """psycopg 3 DSN string for whichever transport this bridge is on."""
+        if self.config.kind == "tcp":
+            return self.config.to_dsn(role_override=role_override)
+        assert self.relay is not None, "pipe bridge handle must own a PipeRelay"
+        return self.config.to_dsn(
+            role_override=role_override,
+            host="127.0.0.1",
+            port=self.relay.port,
+        )
+
     def terminate(self, timeout: float = 3.0) -> int:
         proc = self.process
+        # Tear down the relay first so psycopg sees clean socket closes
+        # rather than ECONNRESET from the pipe going away underneath it.
+        if self.relay is not None:
+            with contextlib.suppress(Exception):
+                self.relay.stop()
         if proc.poll() is not None:
             return proc.returncode
         try:
@@ -176,6 +200,7 @@ def _reader_thread(
     log_file: TextIO | None,
     events: list[AcceptEvent],
     on_accept: Callable[[AcceptEvent], None] | None,
+    started: threading.Event | None = None,
 ) -> threading.Thread:
     def _run() -> None:
         for line in iter(stream.readline, ""):
@@ -184,6 +209,8 @@ def _reader_thread(
             if log_file is not None:
                 log_file.write(line)
                 log_file.flush()
+            if started is not None and line.startswith("[bridge] start "):
+                started.set()
             evt = _parse_accept_line(line)
             if evt is not None:
                 events.append(evt)
@@ -228,6 +255,17 @@ def _parse_accept_line(line: str) -> AcceptEvent | None:
 # ---------------------------------------------------------------------------
 
 
+def _pipe_exists(pipe_path: str) -> bool:
+    """Return True if a named-pipe instance is waiting at ``pipe_path``."""
+    import win32pipe
+    import pywintypes
+    try:
+        # 0-ms wait: immediate probe — returns True only if already available.
+        return bool(win32pipe.WaitNamedPipe(pipe_path, 0))
+    except pywintypes.error:
+        return False
+
+
 def launch_bridge(
     config: TransportConfig,
     *,
@@ -235,18 +273,18 @@ def launch_bridge(
     on_accept: Callable[[AcceptEvent], None] | None = None,
     env: dict[str, str] | None = None,
 ) -> BridgeHandle:
-    """Spawn the Node bridge and block until its TCP listener is ready.
+    """Spawn the Node bridge and block until its listener is ready.
 
     Raises:
-        PortInUseError: the requested TCP port is bound by another process.
-        BridgeStartTimeout: the bridge never accepted a probe connection
-            within :data:`READINESS_TIMEOUT_SECS`.
+        PortInUseError: requested TCP port or pipe name is already bound.
+        BridgeStartTimeout: bridge never became ready within
+            :data:`READINESS_TIMEOUT_SECS`.
         BridgeSpawnError: Node or the bridge script couldn't be launched.
-        NotImplementedError: pipe transport (lands in T031 / US2).
+        BridgePipeDenied: bridge's ``CreateNamedPipeW`` was denied (FR-010).
     """
-    if config.kind != "tcp":
-        raise NotImplementedError(
-            f"launcher only implements tcp transport; got {config.kind!r}"
+    if config.kind == "pipe":
+        return _launch_bridge_pipe(
+            config, log_path=log_path, on_accept=on_accept, env=env,
         )
 
     # Pre-flight: is the port already occupied by a different process?
@@ -331,6 +369,122 @@ def launch_bridge(
                 "check stderr above for the underlying error"
             )
         time.sleep(READINESS_POLL_INTERVAL_SECS)
+
+
+def _launch_bridge_pipe(
+    config: TransportConfig,
+    *,
+    log_path: Path | None,
+    on_accept: Callable[[AcceptEvent], None] | None,
+    env: dict[str, str] | None,
+) -> BridgeHandle:
+    """Pipe-transport branch of :func:`launch_bridge` (T031 / T031b).
+
+    Pre-flight: if the stable pipe already exists we exit 5 with the
+    FR-026 message. Otherwise spawn Node, poll ``WaitNamedPipeW`` for
+    readiness, and wire an in-process TCP relay that psycopg can dial.
+    """
+    import win32pipe
+    import pywintypes
+
+    pipe_name = config.resolved_pipe_name
+    pipe_path = config.pipe_path
+
+    if _pipe_exists(pipe_path):
+        raise PortInUseError(
+            f"named pipe {pipe_path} already in use; "
+            f"rerun with --unique-pipe to pick a per-process name "
+            f"(stem={pipe_name!r})"
+        )
+
+    bridge_js = _resolve_bridge_js()
+    node_bin = _resolve_node_binary()
+
+    cmd = [
+        node_bin, str(bridge_js),
+        "--transport", "pipe",
+        "--pipe-name", pipe_name,
+        "--data-dir", str(config.data_dir),
+    ]
+
+    popen_kwargs: dict[str, object] = dict(
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        stdin=subprocess.DEVNULL,
+        bufsize=1,
+        text=True,
+        env={**os.environ, **(env or {})},
+    )
+    if sys.platform == "win32":
+        popen_kwargs["creationflags"] = (
+            subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore[attr-defined]
+        )
+
+    try:
+        proc = subprocess.Popen(cmd, **popen_kwargs)  # type: ignore[arg-type]
+    except FileNotFoundError as e:
+        raise BridgeSpawnError(f"failed to spawn node: {e}") from e
+
+    log_file: TextIO | None = None
+    if log_path is not None:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        log_file = log_path.open("a", encoding="utf-8")
+
+    events: list[AcceptEvent] = []
+    started = threading.Event()
+    assert proc.stdout is not None and proc.stderr is not None
+    out_t = _reader_thread(
+        proc.stdout, sys.stdout, log_file, events, on_accept, started=started,
+    )
+    err_t = _reader_thread(proc.stderr, sys.stderr, log_file, events, on_accept)
+
+    relay = PipeRelay(pipe_path)
+    handle = BridgeHandle(
+        process=proc,
+        config=config,
+        log_path=log_path,
+        _stdout_thread=out_t,
+        _stderr_thread=err_t,
+        _accept_events=events,
+        relay=relay,
+    )
+    atexit.register(handle.terminate)
+
+    # Readiness: wait for the bridge's `[bridge] start` log line (Node has
+    # bound the listening pipe instance by then). WaitNamedPipe is unsuited
+    # for this because it returns FALSE when the pipe doesn't yet exist —
+    # it only waits on BUSY, not ABSENT.
+    deadline = time.monotonic() + READINESS_TIMEOUT_SECS
+    while True:
+        rc = proc.poll()
+        if rc is not None:
+            if rc == 5:
+                raise PortInUseError(
+                    f"named pipe {pipe_path} already in use "
+                    "(reported by bridge); rerun with --unique-pipe"
+                )
+            if rc == 4:
+                raise BridgePipeDenied(
+                    f"transport 'pipe' unavailable: bridge reported "
+                    f"CreateNamedPipeW denial for {pipe_path}; "
+                    "rerun with --transport tcp to use the TCP listener instead"
+                )
+            raise BridgeSpawnError(
+                f"bridge exited prematurely with code {rc} "
+                "before accepting clients on the pipe"
+            )
+        if started.wait(timeout=READINESS_POLL_INTERVAL_SECS):
+            break
+        if time.monotonic() >= deadline:
+            handle.terminate()
+            raise BridgeStartTimeout(
+                f"bridge did not present {pipe_path} "
+                f"within {READINESS_TIMEOUT_SECS:.0f}s; "
+                "check stderr above for the underlying error"
+            )
+
+    relay.start()
+    return handle
 
 
 @contextlib.contextmanager
